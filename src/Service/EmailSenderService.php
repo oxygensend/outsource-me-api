@@ -2,11 +2,13 @@
 
 namespace App\Service;
 
+use App\Entity\ConfirmationToken;
 use App\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -20,7 +22,8 @@ class EmailSenderService
     public function __construct(private readonly MailerInterface $mailer,
                                 private readonly VerifyEmailHelperInterface $verifyEmailHelper,
                                 private readonly LoggerInterface $logger,
-                                private readonly ParameterBagInterface $parameterBag)
+                                private readonly ParameterBagInterface $parameterBag,
+                                private readonly RequestStack $requestStack)
     {
     }
 
@@ -28,7 +31,7 @@ class EmailSenderService
     /**
      * @throws \Exception
      */
-    public function sendRegistrationConfirmationEmail(User $user): void
+    public function sendRegistrationConfirmationEmail(User $user, ConfirmationToken $token): void
     {
         try {
 
@@ -44,7 +47,11 @@ class EmailSenderService
                 'Outsource me - registration confirmation',
                 'email/registration_confirmation.html.twig',
                 [
-                    'url' => $signatureComponents->getSignedUrl()
+                    'name' => $user->getName(),
+                    'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
+                    'tokenType' => $token->getType(),
+                    'token' => $token->getToken(),
+                    'tokenExpiredDate' => $token->getExpiredAt()
                 ]
             );
 

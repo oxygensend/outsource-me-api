@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\EmailVerificationController;
+use App\Controller\Api\ProcessTokenAction;
 use App\Repository\UserRepository;
 use App\State\RegistrationProcessor;
 use App\State\UserRegistrationProcessor;
@@ -32,7 +33,8 @@ use App\Validator\IsPasswordConfirmed;
             requirements: ['id' => '\d+'],
             controller: EmailVerificationController::class,
             security: "!is_granted('ROLE_USER')"
-        )
+        ),
+
     ],
     normalizationContext: ["groups" => "user:read"],
     denormalizationContext: ["groups" => "user:register"]
