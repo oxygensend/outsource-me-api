@@ -4,7 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-
+        mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
+        mailer_from_name: '%env(MAILER_FROM_NAME)%'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -20,5 +21,8 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\State\UserRegistrationProcessor:
+        bind:
+            $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
     # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+

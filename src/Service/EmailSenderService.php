@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Service;
+
+use App\Entity\User;
+use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+
+class EmailSenderService
+{
+
+    public function __construct(private readonly MailerInterface $mailer,
+                                private readonly VerifyEmailHelperInterface $verifyEmailHelper,
+                                private readonly LoggerInterface $logger,
+                                private readonly ParameterBagInterface $parameterBag)
+    {
+    }
+
+
+    /**
+     * @throws \Exception
+     */
+    public function sendRegistrationConfirmationEmail(User $user): void
+    {
+        try {
+
+            $signatureComponents = $this->verifyEmailHelper->generateSignature(
+                '_api_/verify_email/{id}_get',
+                $user->getId(),
+                $user->getEmail(),
+                ['id' => $user->getId()]
+            );
+
+            $this->sendMail(
+                $user,
+                'Outsource me - registration confirmation',
+                'email/registration_confirmation.html.twig',
+                [
+                    'url' => $signatureComponents->getSignedUrl()
+                ]
+            );
+
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->warning('EmailSenderService::sendRegistrationConfirmationEmail - unable to send', [
+                'user' => $user->getId(), 'message' => $e->getMessage()
+            ]);
+
+            throw new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+        }
+
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    private function sendMail(User $recipient, string $subject, string $htmlTemplate, array $htmlTemplateVariables = []): void
+    {
+
+        $message = (new TemplatedEmail())
+            ->from(new Address(
+                $this->parameterBag->get('mailer_from_address'),
+                $this->parameterBag->get('mailer_from_name')
+            ))
+            ->to($recipient->getEmail())
+            ->subject($subject)
+            ->htmlTemplate($htmlTemplate)
+            ->context($htmlTemplateVariables);
+
+        $this->mailer->send($message);
+    }
+
+}
