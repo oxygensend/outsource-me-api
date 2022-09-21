@@ -53,9 +53,9 @@ class ConfirmationTokenService
             throw new BadRequestHttpException('Incorrect token type.');
         }
 
-//        if($user->getEmailConfirmedAt() !== null){
-//            throw new UnauthorizedHttpException('Unauthorized', 'Your email is confirmed');
-//        }
+        if($user->getEmailConfirmedAt() !== null){
+            throw new UnauthorizedHttpException('Unauthorized', 'Your email is confirmed');
+        }
 
         $executeToken = $this->findOrCreateConfirmationToken($user, $token->getType());
 

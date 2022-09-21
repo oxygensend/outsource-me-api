@@ -34,6 +34,11 @@ use App\Validator\IsPasswordConfirmed;
             controller: EmailVerificationController::class,
             security: "!is_granted('ROLE_USER')"
         ),
+//        new Post(
+//            uriTemplate: "/login_check",
+//            security: "!is_granted('ROLE_USER')"
+//
+//        )
 
     ],
     normalizationContext: ["groups" => "user:read"],
@@ -97,7 +102,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         'Developer',
         'Principle'
     ])]
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
