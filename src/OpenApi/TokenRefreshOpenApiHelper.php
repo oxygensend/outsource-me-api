@@ -19,7 +19,7 @@ final class TokenRefreshOpenApiHelper implements OpenApiFactoryInterface
         $openApi = ($this->decorated)($context);
         $schemas = $openApi->getComponents()->getSchemas();
 
-        $schemas['Token'] = new \ArrayObject([
+        $schemas['RefreshToken.Response'] = new \ArrayObject([
             'type' => 'object',
             'properties' => [
                 'token' => [
@@ -34,13 +34,12 @@ final class TokenRefreshOpenApiHelper implements OpenApiFactoryInterface
                 ]
             ],
         ]);
-        $schemas['Credentials'] = new \ArrayObject([
+        $schemas['RefreshToken.Request'] = new \ArrayObject([
             'type' => 'object',
             'properties' => [
                 'refresh_token' => [
                     'type' => 'string',
                     'example' => 'd776750a1111590634397a4bf2ee562949c9fabd9830b6e967d399a8e9b89f0747992b3d89027269e5e233073561b9782734a66cd65453001c733d1fa8cba6a9',
-                    'readOnly' => true
                 ]
             ],
         ]);
@@ -56,7 +55,7 @@ final class TokenRefreshOpenApiHelper implements OpenApiFactoryInterface
                         'content' => [
                             'application/json' => [
                                 'schema' => [
-                                    '$ref' => '#/components/schemas/Token',
+                                    '$ref' => '#/components/schemas/RefreshToken.Response',
                                 ],
                             ],
                         ],
@@ -70,7 +69,7 @@ final class TokenRefreshOpenApiHelper implements OpenApiFactoryInterface
                     content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/Credentials',
+                                '$ref' => '#/components/schemas/RefreshToken.Request',
                             ],
                         ],
                     ]),

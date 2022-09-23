@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use App\Controller\Api\ProcessTokenAction;
 use App\Repository\ConfirmationTokenRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +12,33 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(
             uriTemplate: "/confirmation_token/{type}/{token}",
-            routeName: 'user_confirmation_token'
+            routeName: 'user_confirmation_token',
+            openapiContext: [
+                'summary' => 'Verifies confirmation token for user.',
+                'description' => 'Verifies confirmation token sent to user by external message. Used for email verification and password reset confirmation',
+                'parameters' => [
+                    [
+                        'name' => 'type',
+                        'in' => 'path',
+                        'description' => 'Type of token',
+                        'required' => true
+                    ],
+                    [
+                        'name' => 'token',
+                        'in' => 'path',
+                        'description' => 'Confirmation token',
+                        'required' => true
+                    ]
+                ],
+                'responses' => [
+                    '302' => [
+                        'description' => 'Token accepted. Redirecting to configured URL.'
+                    ],
+                    '200' => null,
+                    '400' => null,
+                    '422' => null
+                ]
+            ]
         )
     ]
 )]
@@ -22,6 +47,8 @@ class ConfirmationToken extends AbstractEntity
 {
 
     public const REGISTRATION_TYPE = 'registration';
+    public const RESET_PASSWORD_TYPE = 'reset_password';
+    public const RESET_PASSWORD_EXECUTE_TYPE = 'reset_password_execute';
 
 
     #[ORM\Column(length: 30)]

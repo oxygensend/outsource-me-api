@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\ConfirmationToken;
 use App\Entity\User;
+use PHPUnit\Util\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -35,12 +36,6 @@ class EmailSenderService
     {
         try {
 
-            $signatureComponents = $this->verifyEmailHelper->generateSignature(
-                '_api_/verify_email/{id}_get',
-                $user->getId(),
-                $user->getEmail(),
-                ['id' => $user->getId()]
-            );
 
             $this->sendMail(
                 $user,
@@ -61,6 +56,34 @@ class EmailSenderService
             ]);
 
             throw new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+        }
+
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function sendResetPasswordLinkEmail(User $user, ConfirmationToken $token): void
+    {
+        try {
+           $this->sendMail(
+               $user,
+               'Outsource me - reset password',
+               'email/reset_password.html.twig',
+               [
+                   'name' => $user->getName(),
+                   'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
+                   'tokenType' => $token->getType(),
+                   'token' => $token->getToken(),
+                   'tokenExpiredDate' => $token->getExpiredAt()
+               ]
+           );
+        } catch (TransportExceptionInterface $e){
+           $this->logger->warning('EmailSenderService:sendResetPasswordLinkEmail - unable to send', [
+               'user' => $user->getId(), 'message' => $e->getMessage()
+           ]);
+
+           throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
 
     }

@@ -22,4 +22,14 @@ class UserService
 
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function sendPasswordResetMessage(User $user): void
+    {
+       $token = $this->confirmationTokenService->findOrCreateConfirmationToken($user, ConfirmationToken::RESET_PASSWORD_TYPE);
+       $this->emailSender->sendResetPasswordLinkEmail($user, $token);
+
+    }
+
 }

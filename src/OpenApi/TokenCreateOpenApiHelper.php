@@ -17,7 +17,7 @@ final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
         $openApi = ($this->decorated)($context);
         $schemas = $openApi->getComponents()->getSchemas();
 
-        $schemas['Token'] = new \ArrayObject([
+        $schemas['CreateToken.Response'] = new \ArrayObject([
             'type' => 'object',
             'properties' => [
                 'token' => [
@@ -32,7 +32,7 @@ final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
                 ]
             ],
         ]);
-        $schemas['Credentials'] = new \ArrayObject([
+        $schemas['CreateToken.Request'] = new \ArrayObject([
             'type' => 'object',
             'properties' => [
                 'email' => [
@@ -57,7 +57,7 @@ final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
                         'content' => [
                             'application/json' => [
                                 'schema' => [
-                                    '$ref' => '#/components/schemas/Token',
+                                    '$ref' => '#/components/schemas/CreateToken.Response',
                                 ],
                             ],
                         ],
@@ -71,7 +71,7 @@ final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
                     content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
-                                '$ref' => '#/components/schemas/Credentials',
+                                '$ref' => '#/components/schemas/CreateToken.Request',
                             ],
                         ],
                     ]),

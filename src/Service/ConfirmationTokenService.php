@@ -40,6 +40,8 @@ class ConfirmationTokenService
         switch ($type) {
             case ConfirmationToken::REGISTRATION_TYPE:
                 return $this->processRegistration($confirmationToken, $user);
+            case ConfirmationToken::RESET_PASSWORD_TYPE:
+                return $this->processResetPasswordSendLink($confirmationToken, $user);
             default:
                 $this->logger->error('No code path for token type.', ['confirmationTokenId' => $confirmationToken->getId(), 'type' => $type]);
                 throw new UnauthorizedHttpException('Unauthorized.', 'Invalid or expired confirmation token.');
@@ -69,6 +71,26 @@ class ConfirmationTokenService
 
         $this->em->getRepository(ConfirmationToken::class)->removeUserTokensOfType($user, $token->getType());
         $this->em->flush();
+
+        return new RedirectResponse($redirectToUrl);
+    }
+
+    private function processResetPasswordSendLink(ConfirmationToken $token, User $user): RedirectResponse
+    {
+
+        if ($token->getType() !== ConfirmationToken::RESET_PASSWORD_TYPE) {
+            throw new BadRequestHttpException('Incorrect token type.');
+        }
+
+        $newToken = $this->findOrCreateConfirmationToken($user, ConfirmationToken::RESET_PASSWORD_EXECUTE_TYPE);
+        $this->em->getRepository(ConfirmationToken::class)->removeUserTokensOfType($user, ConfirmationToken::RESET_PASSWORD_TYPE);
+
+
+        $redirectToUrl = str_replace(
+            ['{token}', '{type}'],
+            [$newToken->getToken(), $newToken->getType()],
+            $this->parameterBag->get('redirect_after_confirmation')
+        );
 
         return new RedirectResponse($redirectToUrl);
     }

@@ -5,10 +5,10 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Api\EmailVerificationController;
-use App\Controller\Api\ProcessTokenAction;
+use App\Controller\Api\ResetPasswordSendLinkAction;
+use App\DTO\PasswordResetSendLinkDto;
 use App\Repository\UserRepository;
-use App\State\RegistrationProcessor;
+use App\State\ResetPasswordSendLinkProcessor;
 use App\State\UserRegistrationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -28,17 +28,39 @@ use App\Validator\IsPasswordConfirmed;
             security: "!is_granted('ROLE_USER')",
             processor: UserRegistrationProcessor::class
         ),
-        new Get(
-            uriTemplate: "/verify_email/{id}",
-            requirements: ['id' => '\d+'],
-            controller: EmailVerificationController::class,
+        new Post(
+            uriTemplate: '/reset_password_send_link',
+            controller: ResetPasswordSendLinkAction::class,
+            openapiContext: [
+                'summary' => 'Request password reset confirmation token',
+                'description' => 'Request password reset confirmation token',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'email' => [
+                                        'type' => 'string',
+                                        'example' => 'test@example.com'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Email with configured link will be send to given user.'
+                        ],
+                    '201' => null,
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
             security: "!is_granted('ROLE_USER')"
-        ),
-//        new Post(
-//            uriTemplate: "/login_check",
-//            security: "!is_granted('ROLE_USER')"
-//
-//        )
+        )
 
     ],
     normalizationContext: ["groups" => "user:read"],
