@@ -206,7 +206,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]
     private Collection $applications;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $password = null;
 
     #[Assert\Regex(
@@ -225,6 +225,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $emailConfirmedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $googleId = null;
 
 
     public function __construct()
@@ -541,12 +544,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -601,5 +604,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     {
         return "Rejestracja powiodła się! Sprawdź podany adres email.";
     }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): self
+    {
+        $this->googleId = $googleId;
+
+        return $this;
+    }
+
 
 }

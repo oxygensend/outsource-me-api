@@ -2,8 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\Controller\ApiAbstractController;
-use App\DTO\PasswordResetSendLinkDto;
 use App\DTO\PasswordResetSendLinkRequest;
 use App\Repository\UserRepository;
 use App\Service\UserService;

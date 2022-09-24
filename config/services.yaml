@@ -7,6 +7,7 @@ parameters:
         mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
         mailer_from_name: '%env(MAILER_FROM_NAME)%'
         redirect_after_confirmation: '%env(CLIENT_HOST)%'
+        redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
 services:
     # default configuration for services in *this* file
     _defaults:
