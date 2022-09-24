@@ -95,6 +95,7 @@ class ConfirmationTokenService
         return new RedirectResponse($redirectToUrl);
     }
 
+
     public function findOrCreateConfirmationToken(User $user, string $type): ConfirmationToken
     {
         $tokens = $this->em->getRepository(ConfirmationToken::class)->findValidUserConfirmationTokens($user, $type);

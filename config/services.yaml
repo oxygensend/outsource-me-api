@@ -24,8 +24,13 @@ services:
 
     App\State\UserRegistrationProcessor:
         bind:
+
             $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
     # add more service definitions when explicit configuration is needed
+
+    App\ArgumentResolver\RequestDtoValueResolver:
+      tags:
+        - {name: controller.argument_value_resolver, priority: 50}
 
     App\OpenApi\TokenCreateOpenApiHelper:
       decorates: 'api_platform.openapi.factory'

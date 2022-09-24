@@ -3,12 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\ResendEmailVerificationLinkAction;
+use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
-use App\DTO\PasswordResetSendLinkDto;
 use App\Repository\UserRepository;
-use App\State\ResetPasswordSendLinkProcessor;
 use App\State\UserRegistrationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -27,6 +26,38 @@ use App\Validator\IsPasswordConfirmed;
             uriTemplate: "/register",
             security: "!is_granted('ROLE_USER')",
             processor: UserRegistrationProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/resend_email_verification_link',
+            controller: ResendEmailVerificationLinkAction::class,
+            openapiContext: [
+                'summary' => 'Resend email verification token again',
+                'description' => 'Resend email verification token again',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'email' => [
+                                        'type' => 'string',
+                                        'example' => 'test@example.com'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Email with configured link will be send to given user.'
+                    ],
+                    '201' => null,
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
         ),
         new Post(
             uriTemplate: '/reset_password_send_link',
@@ -53,6 +84,39 @@ use App\Validator\IsPasswordConfirmed;
                     '200' => [
                         'description' => 'Email with configured link will be send to given user.'
                         ],
+                    '201' => null,
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
+            security: "!is_granted('ROLE_USER')"
+        ),
+        new Post(
+            uriTemplate: '/reset_password_execute',
+            controller: ResetPasswordExecuteAction::class,
+            openapiContext: [
+                'summary' => 'Set new user password',
+                'description' => 'Set new user password',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'email' => [
+                                        'password' => 'string',
+                                        'confirmation_token' => 'a3f471ed-9809-401d-8a33-4529aa4530c9'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Password reset successfuly'
+                    ],
                     '201' => null,
                     '400' => null,
                     '401' => null,

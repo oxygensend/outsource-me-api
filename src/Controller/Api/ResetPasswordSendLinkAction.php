@@ -20,12 +20,9 @@ class ResetPasswordSendLinkAction extends AbstractController
     {
     }
 
-    /**
-     * @throws \Exception
-     */
     public function __invoke(PasswordResetSendLinkRequest $request): JsonResponse
     {
-        $user = $this->userRepository->findOneBy(['email' => $request->email]);
+        $user = $this->userRepository->findOneBy(['email' => $request->getEmail()]);
 
         if (!$user) {
             throw new UnauthorizedHttpException('Unauthorized.', 'Invalid email address');

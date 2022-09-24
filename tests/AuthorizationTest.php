@@ -7,11 +7,13 @@ use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\ConfirmationToken;
 use App\Entity\User;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthorizationTest extends ApiTestCase
 {
-    use RefreshDatabaseTrait;
+    use ReloadDatabaseTrait;
 
 
     public function testUserRegistration(): void
@@ -126,49 +128,76 @@ class AuthorizationTest extends ApiTestCase
 
     }
 
-
-    public function testApiSuccessfullLogin(): void
+    public function testIfConfirmationEmailWasResend()
     {
+        $client = static::createClient();
+        $user = $this->createUser();
+        $user->setEmailConfirmedAt(null);
 
-        $container = self::getContainer();
-
-        $user = new User();
-        $user->setName('test');
-        $user->setEmail('test@example.com');
-        $user->setPassword(
-            $container->get('security.user_password_hasher')->hashPassword($user, '$3CR3T')
-        );
-
-        $manager = $container->get('doctrine')->getManager();
-        $manager->persist($user);
-        $manager->flush();
-
-        $response = static::createClient()->request('POST', '/api/login', [
+        $response = $client->request('POST', '/api/resend_email_verification_link', [
             'json' => [
-                'email' => "test@example.com",
-                'password' => '$3CR3T'
+                'email' => 'test@test.com'
             ]
         ]);
 
-        $json = $response->toArray();
+        $this->assertJsonContains([
+            'description' => 'Email with configured link will be send to given user.',
+        ]);
+        $this->assertEmailCount(1);
+        $email = $this->getMailerMessage();
+        $this->assertEmailHasHeader($email, 'subject', 'Outsource me - registration confirmation');
+
+    }
+
+    public function testIfConfirmationEmailWasResendWhenUserEmailIsConfirmed()
+    {
+        $client = static::createClient();
+        $user = $this->createUser();
+
+        $response = $client->request('POST', '/api/resend_email_verification_link', [
+            'json' => [
+                'email' => 'test@test.com'
+            ]
+        ]);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'Email for this user is confirmed.',
+        ]);
+        $this->assertEmailCount(0);
+
+    }
+
+    public function testIfConfirmationEmailWasResendWhenInvalidEmailPassed()
+    {
+        $client = static::createClient();
+        $user = $this->createUser();
+
+        $response = $client->request('POST', '/api/resend_email_verification_link', [
+            'json' => [
+                'email' => 'test@t.com'
+            ]
+        ]);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'Invalid email address.',
+        ]);
+        $this->assertEmailCount(0);
+
+    }
+
+
+    public function testApiSuccessfullLogin(): void
+    {
+        $response = $this->loginRequest()->toArray();
 
         $this->assertResponseIsSuccessful();
-        $this->assertArrayHasKey('refresh_token', $json);
-        $this->assertArrayHasKey('token', $json);
+        $this->assertArrayHasKey('refresh_token', $response);
+        $this->assertArrayHasKey('token', $response);
     }
 
     public function testLoginBadCredentialsValidation(): void
     {
-
-        $user = $this->createUser();
-
-        $response = static::createClient()->request('POST', '/api/login', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'email' => 'test',
-                'password' => 'test'
-            ]
-        ]);
+        $response = $this->loginRequest('test123', 'test');
 
         $this->assertJsonContains([
             'code' => 401,
@@ -180,19 +209,12 @@ class AuthorizationTest extends ApiTestCase
 
     public function testUserTokenRefresh(): void
     {
-        $user = $this->createUser();
+        $client = static::createClient();
+        $response = $this->loginRequest()->toArray();
 
-        $response = static::createClient()->request('POST', '/api/login', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'email' => 'test',
-                'password' => 'test'
-            ]
-        ]);
+        $token = $response['refresh_token'];
 
-        $token = $response->toArray()['refresh_token'];
-
-        $response = static::createClient()->request('POST', '/api/refresh_token', [
+        $response = $client->request('POST', '/api/refresh_token', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'refresh_token' => $token
@@ -201,22 +223,23 @@ class AuthorizationTest extends ApiTestCase
 
         $json = $response->toArray();
 
-        $this->assertResponseIsSuccessful(200);
+        $this->assertResponseIsSuccessful();
         $this->assertArrayHasKey('refresh_token', $json);
         $this->assertArrayHasKey('token', $json);
     }
 
     public function testSendUserPasswordReset(): void
     {
+        $client = self::createClient();
         $user = $this->createUser();
 
-        $response = self::createClient()->request('POST', '/api/password_reset_send_link', [
+        $response = $client->request('POST', '/api/reset_password_send_link', [
             'json' => [
                 'email' => 'test@test.com'
             ]
         ]);
 
-        $this->assertResponseIsSuccessful(200);
+        $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             'description' => 'Email with configured link will be send to given user.'
         ]);
@@ -231,71 +254,77 @@ class AuthorizationTest extends ApiTestCase
     public function testSendUserPasswordResetUserNotExists(): void
     {
 
-        $response = self::createClient()->request('POST', '/api/password_reset_send_link', [
+        $client = self::createClient();
+        $response = $client->request('POST', '/api/reset_password_send_link', [
             'json' => [
-                'email' => 'test@test.com'
+                'email' => 'test@est.com'
             ]
         ]);
 
-        $this->assertResponseIsSuccessful(401);
+        $this->assertResponseStatusCodeSame(401);
 
     }
 
     public function testUserPasswordResetExecute(): void
     {
+        $client = self::createClient();
         $user = $this->createUser();
         $token = $this->createToken($user);
 
-        $response = self::createClient()->request('POST', '/api/password_reset_execute', [
+        $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
-                'new_password' => 'TestPassword123',
+                'password' => 'TestPassword123',
                 'confirmation_token' => $token->getToken()
             ]
         ]);
 
-        $this->assertResponseIsSuccessful(200);
-        $this->assertJsonContains([
-            'description' => 'Password updated.'
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['description' => 'Password reset successfully.'
         ]);
+
 
     }
 
     public function testUserPasswordResetExecuteValidPassword()
     {
 
+        $client = self::createClient();
         $user = $this->createUser();
         $token = $this->createToken($user);
 
-        $response = self::createClient()->request('POST', '/api/password_reset_execute', [
+        $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
-                'new_password' => 'test123',
+                'password' => 'test123',
                 'confirmation_token' => $token->getToken()
             ]
         ]);
 
-        $this->assertResponseIsSuccessful(400);
         $this->assertJsonContains([
-            'description' => 'password: Password have to be minimum 8 characters and contains at least one letter and number.'
+            'hydra:description' => 'Password have to be minimum 8 characters and contains at least one letter and number.'
         ]);
+        $this->assertResponseStatusCodeSame(400);
 
     }
 
     public function testUserPasswordResetExecuteValidToken()
     {
 
+        $client = self::createClient();
         $user = $this->createUser();
 
-        $response = self::createClient()->request('POST', '/api/password_reset_execute', [
+        $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
-                'new_password' => 'PasswordTest123',
+                'password' => 'PasswordTest123',
                 'confirmation_token' => '123'
             ]
         ]);
 
-        $this->assertResponseIsSuccessful(401);
+
         $this->assertJsonContains([
-            'description' => 'Invalid or expired confirmation token.'
+            'hydra:description' => 'Invalid or expired confirmation token.'
         ]);
+        $this->assertResponseStatusCodeSame(401);
 
     }
 
@@ -325,7 +354,7 @@ class AuthorizationTest extends ApiTestCase
         $token = new ConfirmationToken();
         $token->setToken(Uuid::uuid4());
         $token->setExpiredAt(new \DateTime('+ 7 days'));
-        $token->setType('password_reset');
+        $token->setType(ConfirmationToken::RESET_PASSWORD_EXECUTE_TYPE);
         $token->setUser($user);
 
         $em = static::getContainer()->get('doctrine')->getManager();
@@ -333,6 +362,21 @@ class AuthorizationTest extends ApiTestCase
         $em->flush();
 
         return $token;
+    }
+
+    private function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
+    {
+        $client = static::createClient();
+        $user = $this->createUser();
+
+        return $client->request('POST', '/api/login', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'email' => $email,
+                'password' => $password
+            ]
+        ]);
+
     }
 
     private function createUser($email = 'test@test.com',
