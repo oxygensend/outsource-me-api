@@ -76,7 +76,7 @@ final class TokenRefreshOpenApiHelper implements OpenApiFactoryInterface
                 ),
             ),
         );
-        $openApi->getPaths()->addPath('/refresh_token', $pathItem);
+        $openApi->getPaths()->addPath('/api/refresh_token', $pathItem);
 
         return $openApi;
     }

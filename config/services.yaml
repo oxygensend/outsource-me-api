@@ -40,3 +40,7 @@ services:
     App\OpenApi\TokenRefreshOpenApiHelper:
       decorates: 'api_platform.openapi.factory'
       arguments: [ '@.inner' ]
+
+    App\OpenApi\OAuth2GoogleConnectionOpenApiHelper:
+      decorates: 'api_platform.openapi.factory'
+      arguments: [ '@.inner' ]

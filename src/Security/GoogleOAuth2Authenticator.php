@@ -55,6 +55,7 @@ class GoogleOAuth2Authenticator extends OAuth2Authenticator implements Authentic
                     $existingUser->setGoogleId($googleUser->getId());
                 }
 
+                // Create new one user
                 $newUser = new User();
                 $newUser->setName($googleUser->getFirstName());
                 $newUser->setSurname($googleUser->getLastName());

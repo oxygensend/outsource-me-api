@@ -6,10 +6,9 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\ConfirmationToken;
 use App\Entity\User;
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthorizationTest extends ApiTestCase
 {
@@ -195,6 +194,25 @@ class AuthorizationTest extends ApiTestCase
         $this->assertArrayHasKey('token', $response);
     }
 
+    public function testTokenPayloadAttributesAfterLogin(): void
+    {
+        $client = static::createClient();
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
+        $token = $this->loginRequest()->toArray()['token'];
+
+        $payload =  $encoder->decode($token);
+
+        $this->assertArrayHasKey('name', $payload);
+        $this->assertArrayHasKey('surname', $payload);
+        $this->assertArrayHasKey('fullname', $payload);
+        $this->assertArrayHasKey('username', $payload);
+        $this->assertArrayHasKey('accountType', $payload);
+        $this->assertArrayHasKey('iat', $payload);
+        $this->assertArrayHasKey('exp', $payload);
+        $this->assertArrayHasKey('roles', $payload);
+
+    }
+
     public function testLoginBadCredentialsValidation(): void
     {
         $response = $this->loginRequest('test123', 'test');
@@ -210,6 +228,7 @@ class AuthorizationTest extends ApiTestCase
     public function testUserTokenRefresh(): void
     {
         $client = static::createClient();
+        $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
         $response = $this->loginRequest()->toArray();
 
         $token = $response['refresh_token'];
@@ -223,10 +242,22 @@ class AuthorizationTest extends ApiTestCase
 
         $json = $response->toArray();
 
+        $payload = $encoder->decode($json['token']);
+
         $this->assertResponseIsSuccessful();
         $this->assertArrayHasKey('refresh_token', $json);
         $this->assertArrayHasKey('token', $json);
+        $this->assertArrayHasKey('name', $payload);
+        $this->assertArrayHasKey('surname', $payload);
+        $this->assertArrayHasKey('fullname', $payload);
+        $this->assertArrayHasKey('username', $payload);
+        $this->assertArrayHasKey('accountType', $payload);
+        $this->assertArrayHasKey('iat', $payload);
+        $this->assertArrayHasKey('exp', $payload);
+        $this->assertArrayHasKey('roles', $payload);
+
     }
+
 
     public function testSendUserPasswordReset(): void
     {

@@ -9,7 +9,7 @@ use ApiPlatform\OpenApi\Model as Model;
 final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
 {
     public function __construct(
-        private OpenApiFactoryInterface $decorated
+        private readonly OpenApiFactoryInterface $decorated
     ) {}
 
     public function __invoke(array $context = []): OpenApi
@@ -78,7 +78,7 @@ final class TokenCreateOpenApiHelper implements OpenApiFactoryInterface
                 ),
             ),
         );
-        $openApi->getPaths()->addPath('/login', $pathItem);
+        $openApi->getPaths()->addPath('/api/login', $pathItem);
 
         return $openApi;
     }
