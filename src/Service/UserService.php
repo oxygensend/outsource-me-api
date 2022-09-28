@@ -66,4 +66,21 @@ class UserService
 
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function changePassword(User $user, string $oldPassword, string $newPassword): void
+    {
+        if(!$this->passwordHasher->isPasswordValid($user, $oldPassword)){
+            $this->logger->warning('UserService::changePassword - Invalid old password.', ['user' => $user]);
+            throw new UnauthorizedHttpException("Unauthorized","Invalid old password." );
+        }
+
+        $user->setPassword(
+            $this->passwordHasher->hashPassword($user, $newPassword)
+        );
+        $this->em->flush();
+
+    }
+
 }

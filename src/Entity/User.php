@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
@@ -83,7 +84,7 @@ use App\Validator\IsPasswordConfirmed;
                 'responses' => [
                     '200' => [
                         'description' => 'Email with configured link will be send to given user.'
-                        ],
+                    ],
                     '201' => null,
                     '400' => null,
                     '401' => null,
@@ -104,9 +105,13 @@ use App\Validator\IsPasswordConfirmed;
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'email' => [
-                                        'password' => 'string',
-                                        'confirmation_token' => 'a3f471ed-9809-401d-8a33-4529aa4530c9'
+                                    'password' => [
+                                        'type' => 'string',
+                                        'example' => 'passwordTest123'
+                                    ],
+                                    'confirmation_token' => [
+                                        'type' => 'string',
+                                        'example' => 'a3f471ed-9809-401d-8a33-4529aa4530c9'
                                     ]
                                 ]
                             ]
@@ -124,6 +129,47 @@ use App\Validator\IsPasswordConfirmed;
                 ]
             ],
             security: "!is_granted('ROLE_USER')"
+        ),
+        new Post(
+            uriTemplate: '/change_password',
+            controller: ChangePasswordAction::class,
+            openapiContext: [
+                'summary' => 'Password change request',
+                'description' => 'Change user password to the new provided one',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'oldPassword' => [
+                                        'type' => 'string',
+                                        'example' => 'passwordTest123'
+                                    ],
+                                    'newPassword' => [
+                                        'type' => 'string',
+                                        'example' => 'passwordTest123'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Password changed successfully.'
+                    ],
+                    '201' => null,
+                    '400' => [
+                        'description' => 'Bad request'
+                    ],
+                    '401' => [
+                        'description' => 'Invalid old password.'
+                    ],
+                    '422' => null
+                ]
+            ],
+            security: "is_granted('ROLE_USER')"
         )
 
     ],
@@ -619,7 +665,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     public function getFullName(): string
     {
-       return $this->name . ' ' . $this->surname;
+        return $this->name . ' ' . $this->surname;
     }
 
 }

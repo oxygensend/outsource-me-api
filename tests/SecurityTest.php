@@ -6,11 +6,13 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\ConfirmationToken;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AuthorizationTest extends ApiTestCase
+class SecurityTest extends ApiTestCase
 {
     use ReloadDatabaseTrait;
 
@@ -24,7 +26,7 @@ class AuthorizationTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertJsonContains([
             '@type' => 'User',
-            'email' => 'test@test.com',
+            'email' => 'test_2@test.com',
             'message' => 'Rejestracja powiodła się! Sprawdź podany adres email.',
 
         ]);
@@ -130,12 +132,10 @@ class AuthorizationTest extends ApiTestCase
     public function testIfConfirmationEmailWasResend()
     {
         $client = static::createClient();
-        $user = $this->createUser();
-        $user->setEmailConfirmedAt(null);
 
         $response = $client->request('POST', '/api/resend_email_verification_link', [
             'json' => [
-                'email' => 'test@test.com'
+                'email' => 'test_not_confirmed@test.com'
             ]
         ]);
 
@@ -151,7 +151,6 @@ class AuthorizationTest extends ApiTestCase
     public function testIfConfirmationEmailWasResendWhenUserEmailIsConfirmed()
     {
         $client = static::createClient();
-        $user = $this->createUser();
 
         $response = $client->request('POST', '/api/resend_email_verification_link', [
             'json' => [
@@ -169,7 +168,6 @@ class AuthorizationTest extends ApiTestCase
     public function testIfConfirmationEmailWasResendWhenInvalidEmailPassed()
     {
         $client = static::createClient();
-        $user = $this->createUser();
 
         $response = $client->request('POST', '/api/resend_email_verification_link', [
             'json' => [
@@ -200,7 +198,7 @@ class AuthorizationTest extends ApiTestCase
         $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
         $token = $this->loginRequest()->toArray()['token'];
 
-        $payload =  $encoder->decode($token);
+        $payload = $encoder->decode($token);
 
         $this->assertArrayHasKey('name', $payload);
         $this->assertArrayHasKey('surname', $payload);
@@ -262,7 +260,6 @@ class AuthorizationTest extends ApiTestCase
     public function testSendUserPasswordReset(): void
     {
         $client = self::createClient();
-        $user = $this->createUser();
 
         $response = $client->request('POST', '/api/reset_password_send_link', [
             'json' => [
@@ -299,8 +296,7 @@ class AuthorizationTest extends ApiTestCase
     public function testUserPasswordResetExecute(): void
     {
         $client = self::createClient();
-        $user = $this->createUser();
-        $token = $this->createToken($user);
+        $token = $this->createToken();
 
         $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
@@ -321,8 +317,7 @@ class AuthorizationTest extends ApiTestCase
     {
 
         $client = self::createClient();
-        $user = $this->createUser();
-        $token = $this->createToken($user);
+        $token = $this->createToken();
 
         $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
@@ -342,7 +337,6 @@ class AuthorizationTest extends ApiTestCase
     {
 
         $client = self::createClient();
-        $user = $this->createUser();
 
         $response = $client->request('POST', '/api/reset_password_execute', [
             'json' => [
@@ -359,7 +353,7 @@ class AuthorizationTest extends ApiTestCase
 
     }
 
-    private function createRegistrationRequest($email = 'test@test.com',
+    private function createRegistrationRequest($email = 'test_2@test.com',
                                                $name = 'Test',
                                                $surname = 'Test',
                                                $password = 'PasswordTest123',
@@ -380,25 +374,93 @@ class AuthorizationTest extends ApiTestCase
 
     }
 
-    private function createToken(User $user): ConfirmationToken
+    public function testChangePasswordValidResponse(): void
     {
+        $token = $this->loginRequest()->toArray()['token'];
+        $client = static::createClient();
+        $em = $client->getContainer()->get(EntityManagerInterface::class);
+        $passwordHasher = $client->getContainer()->get(UserPasswordHasherInterface::class);
+
+        $response = $client->request('POST', '/api/change_password', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ],
+            'json' => [
+                'oldPassword' => 'test123',
+                'newPassword' => 'testPassword123'
+            ]
+        ])->toArray();
+
+
+        $user = $em->getRepository(User::class)->findOneBy(['email' => 'test@test.com']);
+
+
+        $this->assertTrue($passwordHasher->isPasswordValid($user, 'testPassword123'));
+        $this->assertResponseIsSuccessful();
+        $this->assertArraySubset(['description' => 'Password changed successfully.'], $response);
+
+    }
+
+    public function testChangePasswordInValidOldPassword(): void
+    {
+        $token = $this->loginRequest()->toArray()['token'];
+
+        $response = static::createClient()->request('POST', '/api/change_password', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ],
+            'json' => [
+                'oldPassword' => 'test',
+                'newPassword' => 'testPassword123'
+            ]
+        ]);
+
+        $this->assertResponseStatusCodeSame(401);
+        $this->assertJsonContains(['hydra:description' => 'Invalid old password.']);
+
+    }
+
+    public function testChangePasswordInValidNewPassword(): void
+    {
+        $token = $this->loginRequest()->toArray()['token'];
+
+        $response = static::createClient()->request('POST', '/api/change_password', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ],
+            'json' => [
+                'oldPassword' => 'test123',
+                'newPassword' => 'test'
+            ]
+        ]);
+
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertJsonContains(['hydra:description' => 'Password have to be minimum 8 characters and contains at least one letter and number.']);
+
+    }
+
+    private function createToken(): ConfirmationToken
+    {
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $user = $em->getRepository(User::class)->find(1);
+
         $token = new ConfirmationToken();
         $token->setToken(Uuid::uuid4());
         $token->setExpiredAt(new \DateTime('+ 7 days'));
         $token->setType(ConfirmationToken::RESET_PASSWORD_EXECUTE_TYPE);
         $token->setUser($user);
 
-        $em = static::getContainer()->get('doctrine')->getManager();
         $em->persist($token);
         $em->flush();
 
         return $token;
     }
 
+
     private function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
     {
         $client = static::createClient();
-        $user = $this->createUser();
 
         return $client->request('POST', '/api/login', [
             'headers' => ['Content-Type' => 'application/json'],
@@ -410,27 +472,5 @@ class AuthorizationTest extends ApiTestCase
 
     }
 
-    private function createUser($email = 'test@test.com',
-                                $name = 'Test',
-                                $surname = 'Test',
-                                $password = 'test123',
-                                $accountType = 'Developer'): User
-    {
-        $user = new User();
-        $user->setEmail($email);
-        $user->setName($name);
-        $user->setSurname($surname);
-        $user->setEmailConfirmedAt(new \DateTime());
-
-        $encoded = static::getContainer()->get('security.user_password_hasher')
-            ->hashPassword($user, $password);
-        $user->setPassword($encoded);
-
-        $em = static::getContainer()->get('doctrine')->getManager();
-        $em->persist($user);
-        $em->flush();
-
-        return $user;
-    }
 
 }
