@@ -1,0 +1,19 @@
+parameters:
+  hash: $2y$13$488cd1s3t9VwD6lZD67xSuUkG6YihlkqOnHphLZ0oxMNxlVAmT5LK
+
+
+App\Entity\User:
+  user_test:
+    name: <name()>
+    surname: <name()>
+    email: test@test.com
+    password: <{hash}>
+    emailConfirmedAt: <dateTime()>
+    accountType: Developer
+
+  user_test_not_confirmed:
+    name: <name()>
+    surname: <name()>
+    email: test_not_confirmed@test.com
+    password: <{hash}>
+    accountType: Developer
