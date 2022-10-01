@@ -43,6 +43,9 @@ services:
     volumes:
       - ./:/var/www/html
       - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - mysql_test
     networks:
       - outsource_me
 
