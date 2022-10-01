@@ -8,6 +8,9 @@ services:
       MYSQL_ROOT_PASSWORD: '12345'
       MYSQL_DATABASE: 'outsource_me'
       MYSQL_PASSWORD: '12345'
+      MYSQL_USER: 'test'
+    networks:
+      - outsource_me
 
   mysql_test:
     image: 'mysql:8.0'
@@ -17,6 +20,9 @@ services:
       MYSQL_ROOT_PASSWORD: '12345'
       MYSQL_DATABASE: 'outsource_me_test'
       MYSQL_PASSWORD: '12345'
+      MYSQL_USER: 'test'
+    networks:
+      - outsource_me
 
 
   mailhog:
@@ -27,3 +33,37 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+    networks:
+      - outsource_me
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: build/php/Dockerfile-php
+    volumes:
+      - ./:/var/www/html
+      - /var/www/html/vendor
+    networks:
+      - outsource_me
+
+  nginx:
+    build:
+      context: .
+      dockerfile: build/nginx/Dockerfile-nginx
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - php-fpm
+    networks:
+      - outsource_me
+
+
+networks:
+  outsource_me:
+
+
+
+
