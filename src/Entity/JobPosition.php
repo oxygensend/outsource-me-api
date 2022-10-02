@@ -5,20 +5,25 @@ namespace App\Entity;
 use App\Repository\JobPositionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: JobPositionRepository::class)]
 class JobPosition extends AbstractEntity
 {
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?FormOfEmployment $formOfEmployment = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 255)]
     private ?string $companyName = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 

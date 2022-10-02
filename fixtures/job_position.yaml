@@ -1,0 +1,6 @@
+App\Entity\JobPosition:
+  job_position_test:
+    name: Programista
+    companyName: testCompany
+    description: <sentence(100)>
+    formOfEmployment: '@form_of_employment_full_time'

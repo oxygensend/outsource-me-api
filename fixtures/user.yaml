@@ -10,6 +10,31 @@ App\Entity\User:
     password: <{hash}>
     emailConfirmedAt: <dateTime()>
     accountType: Developer
+    phoneNumber: 123123123
+    dateOfBirth: <dateTime()>
+    githubUrl: testurl.com
+    linkedinUrl: testurl.com
+    description: <sentence(100)>
+    jobPositions: ['@job_position_test']
+    educations: ['@test_education']
+    languages: ['@language_test']
+
+  user_test2:
+    name: <name()>
+    surname: <name()>
+    email: principle@test.com
+    password: <{hash}>
+    emailConfirmedAt: <dateTime()>
+    accountType: Principle
+    phoneNumber: 123123123
+    dateOfBirth: <dateTime()>
+    githubUrl: testurl.com
+    linkedinUrl: testurl.com
+    description: <sentence(100)>
+    jobPositions: ['@job_position_test']
+    educations: ['@test_education']
+    languages: ['@language_test']
+
 
   user_test_not_confirmed:
     name: <name()>

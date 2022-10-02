@@ -1,0 +1,10 @@
+App\Entity\Education:
+  test_education:
+    startDate: <datetime()>
+    endDate: <datetime()>
+    fieldOfStudy: Testowy kierunke
+    title: <title()>
+    grade: <numberBetween(2,5)>
+    university: '@test_university'
+    description: <sentence(100)>
+

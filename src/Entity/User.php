@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
@@ -172,6 +173,10 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
                 ]
             ],
             security: "is_granted('ROLE_USER')"
+        ),
+        new Get(
+            normalizationContext: ["groups" => ["user:profile"]],
+            security: "is_granted('ROLE_USER')",
         )
 
     ],
@@ -189,7 +194,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
-    #[Serializer\Groups(['user:register', 'user:read'])]
+    #[Serializer\Groups(['user:register', 'user:read', 'user:profile'])]
     #[Assert\Email]
     #[Assert\NotBlank]
     #[Assert\Unique]
@@ -199,7 +204,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private array $roles = [];
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Name have to be at least 2 characters",
         maxMessage: "Name have to be no longer than 50 characters")]
@@ -207,7 +212,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Surname have to be at least 2 characters",
         maxMessage: "Surname have to be no longer than 50 characters")]
@@ -215,25 +220,30 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $surname = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $githubUrl = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $linkedinUrl = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column]
     private int $redirectCount = 0;
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile'])]
     #[Assert\Choice([
         'Developer',
         'Principle'
@@ -241,12 +251,15 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
@@ -679,18 +692,21 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+
+    #[Serializer\Groups(['user:profile'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
+    #[Serializer\Groups(['user:profile'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {
         if ($this->imageName) {
             return self::IMG_DIR . $this->imageName;
         }
-        return '';
+        return 'images/user_avatar_big.jpg';
     }
 
     public function getImageName(): ?string

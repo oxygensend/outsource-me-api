@@ -4,6 +4,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AbstractApiTestCase extends ApiTestCase
 {
@@ -18,7 +19,7 @@ class AbstractApiTestCase extends ApiTestCase
         parent::__construct($name, $data, $dataName);
     }
 
-    private function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
+    protected function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
     {
         $client = static::createClient();
 
@@ -30,5 +31,15 @@ class AbstractApiTestCase extends ApiTestCase
             ]
         ]);
 
+    }
+
+    protected function createAuthorizedRequest(string $method,string $uri, array $json = [], string $token = ''): ResponseInterface
+    {
+       return static::createClient()->request($method, $uri, [
+           'json' => $json,
+           'headers' => [
+               'Authorization' => 'Bearer ' . $token
+           ]
+       ] );
     }
 }

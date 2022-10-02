@@ -1,0 +1,4 @@
+App\Entity\University:
+  test_university:
+    country: Polska
+    name: AGH
