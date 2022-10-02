@@ -2,6 +2,8 @@ echo >&3 "$0: Deploy"
 
 cd /var/www/html
 
+composer install --no-interaction  && composer clear-cache
+
 bin/console doctrine:database:create --if-not-exists --no-interaction
 bin/console doctrine:migrations:migrate --no-interaction
 bin/console cache:clear

@@ -15,11 +15,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\IsPasswordConfirmed;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[ApiResource(
     operations: [
@@ -183,12 +185,14 @@ use App\Validator\IsPasswordConfirmed;
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
+    private const IMG_DIR = '/storage/users';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
     #[Serializer\Groups(['user:register', 'user:read'])]
     #[Assert\Email]
     #[Assert\NotBlank]
+    #[Assert\Unique]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -274,6 +278,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     #[ORM\Column(nullable: true)]
     private ?string $googleId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[UploadableField(mapping: "image_user", fileNameProperty: "imageName")]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageNameSmall = null;
+
+    #[UploadableField(mapping: "image_user_small", fileNameProperty: "imageNameSmall")]
+    private ?File $imageFileSmall = null;
 
 
     public function __construct()
@@ -668,4 +684,47 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this->name . ' ' . $this->surname;
     }
 
+    #[Serializer\SerializedName('imagePath')]
+    public function getImagePath(): ?string
+    {
+        if ($this->imageName) {
+            return self::IMG_DIR . $this->imageName;
+        }
+        return '';
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageName(?string $imageName): self
+    {
+        $this->imageName = $imageName;
+
+        return $this;
+    }
+
+    #[Serializer\SerializedName('thumbnailPath')]
+    public function getImagePathSmall(): ?string
+    {
+        if ($this->imageNameSmall) {
+            return self::IMG_DIR . $this->imageNameSmall;
+        }
+        return '/images/user_placeholder.jpg';
+    }
+
+
+    public function getImageNameSmall(): ?string
+    {
+        return $this->imageNameSmall;
+    }
+
+
+    public function setImageNameSmall(?string $imageName): self
+    {
+        $this->imageNameSmall = $imageName;
+
+        return $this;
+    }
 }

@@ -42,10 +42,14 @@ services:
       dockerfile: build/php/Dockerfile-php
     volumes:
       - ./:/var/www/html
-      - /var/www/html/vendor
     depends_on:
       - mysql
       - mysql_test
+#    healthcheck:
+#      test: [ "CMD", "service", "-f", "http://localhost:9000" ]
+#      interval: 1m30s
+#      timeout: 10s
+#      retries: 3
     networks:
       - outsource_me
 
@@ -58,6 +62,10 @@ services:
       - "8080:80"
     volumes:
       - ./:/var/www/html
+#    depends_on:
+#      php-fpm:
+#        condition: service_healthy
+
     depends_on:
       - php-fpm
     networks:

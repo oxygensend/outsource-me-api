@@ -36,17 +36,13 @@ COPY ./build/php/php.ini /usr/local/etc/php/php.ini
 COPY ./build/php/php-fpm.conf /usr/local/etc/php/php-fpm.conf
 COPY ./build/php/php-fpm.d/* /usr/local/etc/php/php-fpm.d/
 
-COPY . /var/www/html
-WORKDIR /var/www/html
-
-
+COPY . /var/ww
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN composer --version
-RUN composer install --no-interaction
-RUN composer clearcache --no-interaction
 
 RUN chown -R www-data:www-data /var/www/html
 
-RUN ./build/entrypoint.sh
+
+CMD "./build/entrypoint.sh" && docker-php-entrypoint php-fpm

@@ -28,6 +28,7 @@ class JWTSubscriber implements EventSubscriberInterface
         $payload['surname'] = $user->getSurname();
         $payload['fullname'] = $user->getFullName();
         $payload['accountType'] = $user->getAccountType();
+        $payload['thumbnail'] = $user->getImagePathSmall();
 
 
         $event->setData($payload);
