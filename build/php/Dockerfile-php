@@ -23,7 +23,7 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Enable sodium for lexik bundle
 RUN docker-php-ext-enable sodium
 
-RUN pecl install xdebug && pecl clear-cache
+# RUN pecl install xdebug && pecl clear-cache
 
 
 

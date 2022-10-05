@@ -1,0 +1,11 @@
+version: "2"
+syncs:
+  symfony-php-files:
+    notify_terminal: true
+    src: './'
+    sync_excludes: ['.git', '.idea', 'node_modules', 'vendor']
+
+  symfony-nginx-files:
+    notify_terminal: true
+    src: './'
+    sync_excludes: ['.git', '.idea', 'node_modules']
