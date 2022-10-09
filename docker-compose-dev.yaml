@@ -41,7 +41,8 @@ services:
       context: .
       dockerfile: build/php/Dockerfile-php
     volumes:
-      - symfony-php-files:/var/www/html
+      - symfony-php-files:/var/www/html:cashed
+      - ./logs/symfony:/var/www/html/var/log:cached
     depends_on:
       - mysql
       - mysql_test
@@ -61,7 +62,9 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - symfony-nginx-files:/var/www/html
+      - symfony-php-files:/var/www/html:cashed
+      - ./logs/nginx/:/var/log/nginx:cached
+
     #    depends_on:
     #      php-fpm:
     #        condition: service_healthy
@@ -78,8 +81,6 @@ networks:
 
 
 volumes:
-  symfony-nginx-files:
-    external: true
   symfony-php-files:
     external: true
 

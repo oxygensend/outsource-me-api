@@ -25,7 +25,7 @@ class UserProfileNormalizer implements NormalizerInterface, NormalizerAwareInter
      */
     public function normalize(mixed $object, string $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
-        switch($object->getAccountType()){
+        switch($object->getAccountType() && $object->getEmailConfirmedAt()){
 
             case 'Developer':
                 $context['groups'][] = 'user:profile-developer';

@@ -197,7 +197,6 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[Serializer\Groups(['user:register', 'user:read', 'user:profile'])]
     #[Assert\Email]
     #[Assert\NotBlank]
-    #[Assert\Unique]
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
@@ -284,7 +283,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     #[Assert\NotBlank]
     #[Serializer\Groups(['user:register'])]
-    private string $passwordConfirmation;
+    private ?string $passwordConfirmation = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $emailConfirmedAt = null;
@@ -651,12 +650,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
-    public function getPasswordConfirmation(): string
+    public function getPasswordConfirmation(): ?string
     {
         return $this->passwordConfirmation;
     }
 
-    public function setPasswordConfirmation(string $passwordConfirmation): self
+    public function setPasswordConfirmation(?string $passwordConfirmation): self
     {
         $this->passwordConfirmation = $passwordConfirmation;
         return $this;
@@ -742,5 +741,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->imageNameSmall = $imageName;
 
         return $this;
+    }
+
+    #[Serializer\Groups(['user:read'])]
+    #[Serializer\SerializedName('resendEmailVerificationLink')]
+    public function getResendEmailVerificationLink(): string
+    {
+
+        return getenv('SERVER_HOSTNAME') . '/resend_email_verification_link';
     }
 }
