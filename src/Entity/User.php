@@ -4,12 +4,15 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
+use App\State\EditUserProvider;
 use App\State\UserRegistrationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -177,6 +180,11 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
         new Get(
             normalizationContext: ["groups" => ["user:profile"]],
             security: "is_granted('ROLE_USER')",
+        ),
+        new Patch(
+            normalizationContext: ["groups" => ["user:profile"]],
+            denormalizationContext: ["groups" => ["user:edit"]],
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         )
 
     ],
@@ -194,7 +202,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
-    #[Serializer\Groups(['user:register', 'user:read', 'user:profile'])]
+    #[Serializer\Groups(['user:register', 'user:read', 'user:profile', 'user:edit'])]
     #[Assert\Email]
     #[Assert\NotBlank]
     #[ORM\Column(length: 180, unique: true)]
@@ -203,7 +211,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private array $roles = [];
 
-    #[Serializer\Groups(['user:register', 'user:profile'])]
+    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Name have to be at least 2 characters",
         maxMessage: "Name have to be no longer than 50 characters")]
@@ -211,7 +219,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[Serializer\Groups(['user:register', 'user:profile'])]
+    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Surname have to be at least 2 characters",
         maxMessage: "Surname have to be no longer than 50 characters")]
@@ -219,23 +227,23 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $surname = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[Serializer\Groups(['user:profile-developer'])]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $githubUrl = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $linkedinUrl = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateOfBirth = null;
 
@@ -250,19 +258,20 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
-    #[Serializer\Groups(['user:profile-developer'])]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
-    #[Serializer\Groups(['user:profile-developer'])]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
     #[ORM\OneToMany(mappedBy: 'toWho', targetEntity: Opinion::class, orphanRemoval: true)]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     private Collection $opinions;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]
@@ -276,12 +285,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         message: 'Password have to be minimum 8 characters and contains at least one letter and number.'
 
     )]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(groups: ['user:register'])]
     #[Serializer\Groups(['user:register'])]
     #[Serializer\SerializedName("password")]
     private ?string $plainPassword = null;
 
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(groups: ['user:register'])]
     #[Serializer\Groups(['user:register'])]
     private ?string $passwordConfirmation = null;
 
@@ -303,6 +312,10 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[UploadableField(mapping: "image_user_small", fileNameProperty: "imageNameSmall")]
     private ?File $imageFileSmall = null;
 
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[ORM\ManyToMany(targetEntity: Technology::class)]
+    private Collection $technologies;
+
 
     public function __construct()
     {
@@ -312,6 +325,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->languages = new ArrayCollection();
         $this->opinions = new ArrayCollection();
         $this->applications = new ArrayCollection();
+        $this->technologies = new ArrayCollection();
     }
 
 
@@ -705,7 +719,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         if ($this->imageName) {
             return self::IMG_DIR . $this->imageName;
         }
-        return 'images/user_avatar_big.jpg';
+        return 'images/user_placeholder.png';
     }
 
     public function getImageName(): ?string
@@ -726,7 +740,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         if ($this->imageNameSmall) {
             return self::IMG_DIR . $this->imageNameSmall;
         }
-        return '/images/user_placeholder.jpg';
+        return self::IMG_DIR . '/images/user_placeholder.png';
     }
 
 
@@ -750,4 +764,30 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
         return getenv('SERVER_HOSTNAME') . '/resend_email_verification_link';
     }
+
+    /**
+     * @return Collection<int, Technology>
+     */
+    public function getTechnologies(): Collection
+    {
+        return $this->technologies;
+    }
+
+    public function addTechnology(Technology $technology): self
+    {
+        if (!$this->technologies->contains($technology)) {
+            $this->technologies->add($technology);
+        }
+
+        return $this;
+    }
+
+    public function removeTechnology(Technology $technology): self
+    {
+        $this->technologies->removeElement($technology);
+
+        return $this;
+    }
+
+
 }
