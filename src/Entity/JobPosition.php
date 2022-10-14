@@ -30,6 +30,14 @@ class JobPosition extends AbstractEntity
     #[ORM\ManyToOne(inversedBy: 'jobPositions')]
     private ?User $individual = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Groups(['user:profile'])]
+    private ?\DateTimeInterface $validFrom = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Groups(['user:profile'])]
+    private ?\DateTimeInterface $validTo = null;
+
 
     public function getName(): ?string
     {
@@ -88,6 +96,30 @@ class JobPosition extends AbstractEntity
     public function setIndividual(?User $individual): self
     {
         $this->individual = $individual;
+
+        return $this;
+    }
+
+    public function getValidFrom(): ?\DateTimeInterface
+    {
+        return $this->validFrom;
+    }
+
+    public function setValidFrom(\DateTimeInterface $validFrom): self
+    {
+        $this->validFrom = $validFrom;
+
+        return $this;
+    }
+
+    public function getValidTo(): ?\DateTimeInterface
+    {
+        return $this->validTo;
+    }
+
+    public function setValidTo(\DateTimeInterface $validTo): self
+    {
+        $this->validTo = $validTo;
 
         return $this;
     }

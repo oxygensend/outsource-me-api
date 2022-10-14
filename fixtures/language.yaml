@@ -2,3 +2,14 @@ App\Entity\Language:
   language_test:
     name: PL
     description: <sentence(100)>
+
+
+  language_1:
+    name: PL
+    description: <sentence(100)>
+  language_2:
+    name: EN
+    description: <sentence(100)>
+  language_3:
+    name: ES
+    description: <sentence(100)>

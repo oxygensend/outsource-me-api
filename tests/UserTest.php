@@ -49,6 +49,48 @@ class UserTest extends AbstractApiTestCase
 
     }
 
+    public function testUpdateUserDataNotAuthenticated(): void
+    {
+
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/me');
+
+        $this->assertResponseStatusCodeSame(401);
+    }
+
+
+    public function testUpdateUserDataNotOwner(): void
+    {
+
+        $token = $this->loginRequest()->toArray()['token'];
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/3', token: $token, headers: [
+            'Content-Type' => 'application/merge-patch+json'
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testUpdateUserData(): void
+    {
+
+        $token = $this->loginRequest()->toArray()['token'];
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/me', json: [
+            'email' => 'test@new.com',
+            'phoneNumber' => '123321123',
+            'name' => 'Anmkkl'
+        ], token: $token, headers: [
+            'Content-Type' => 'application/merge-patch+json'
+        ])->getContent();
+
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            'email' => 'test@new.com',
+            'phoneNumber' => '123321123',
+            'name' => 'Anmkkl'
+        ]);
+
+    }
+
+
     private function developerAssertions(array $response): void
     {
         $this->assertResponseIsSuccessful();
@@ -90,4 +132,6 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
     }
+
+
 }

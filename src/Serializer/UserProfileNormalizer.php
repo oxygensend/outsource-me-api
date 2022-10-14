@@ -25,17 +25,19 @@ class UserProfileNormalizer implements NormalizerInterface, NormalizerAwareInter
      */
     public function normalize(mixed $object, string $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
-        switch($object->getAccountType() && $object->getEmailConfirmedAt()){
+        if ($context['operation_name'] === '_api_/users/{id}.{_format}_get') {
 
-            case 'Developer':
-                $context['groups'][] = 'user:profile-developer';
-                break;
+            switch ($object->getAccountType()) {
 
-            case 'Principle':
-                $context['groups'][] = 'user:profile-principle';
-                break;
+                case 'Developer':
+                    $context['groups'][] = 'user:profile-developer';
+                    break;
+
+                case 'Principle':
+                    $context['groups'][] = 'user:profile-principle';
+                    break;
+            }
         }
-
         $context[self::ALREADY_CALLED] = true;
 
         return $this->normalizer->normalize($object, $format, $context);
@@ -43,7 +45,7 @@ class UserProfileNormalizer implements NormalizerInterface, NormalizerAwareInter
 
     public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
     {
-        if(isset($context[self::ALREADY_CALLED])){
+        if (isset($context[self::ALREADY_CALLED])) {
             return false;
         }
         return $data instanceof User;

@@ -4,10 +4,12 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AbstractApiTestCase extends ApiTestCase
 {
+    use ReloadDatabaseTrait;
 
     protected EntityManagerInterface $em;
 
@@ -33,13 +35,13 @@ class AbstractApiTestCase extends ApiTestCase
 
     }
 
-    protected function createAuthorizedRequest(string $method,string $uri, array $json = [], string $token = ''): ResponseInterface
+    protected function createAuthorizedRequest(string $method,string $uri, array $json = [], string $token = '', array $headers = []): ResponseInterface
     {
        return static::createClient()->request($method, $uri, [
            'json' => $json,
-           'headers' => [
+           'headers' => array_merge($headers,[
                'Authorization' => 'Bearer ' . $token
-           ]
+           ])
        ] );
     }
 }

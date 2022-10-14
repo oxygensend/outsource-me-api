@@ -25,4 +25,5 @@
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
-./.docker-sync/*
+/.docker-sync/*
+logs/*

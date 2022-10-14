@@ -8,3 +8,13 @@ App\Entity\Education:
     university: '@test_university'
     description: <sentence(100)>
 
+
+  education{1..10}:
+    startDate: <datetime()>
+    endDate: <datetime()>
+    fieldOfStudy: <sentence(10)>
+    title: <title()>
+    grade: <numberBetween(2,5)>
+    university: '@university*'
+    description: <sentence(100)>
+
