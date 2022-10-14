@@ -1,0 +1,7 @@
+App\Entity\FormOfEmployment:
+  form_of_employment_full_time:
+    name: Pełny etat
+  form_of_employment_half_time:
+    name: Niepełny etat
+  form_of_employment_freelance:
+    name: Freelance

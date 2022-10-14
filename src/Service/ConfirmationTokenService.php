@@ -89,7 +89,7 @@ class ConfirmationTokenService
         $redirectToUrl = str_replace(
             ['{token}', '{type}'],
             [$newToken->getToken(), $newToken->getType()],
-            $this->parameterBag->get('redirect_after_confirmation')
+            $this->parameterBag->get('redirect_password_reset')
         );
 
         return new RedirectResponse($redirectToUrl);

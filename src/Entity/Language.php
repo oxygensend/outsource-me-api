@@ -5,13 +5,16 @@ namespace App\Entity;
 use App\Repository\LanguageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
 class Language extends AbstractEntity
 {
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 3)]
     private ?string $name = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 

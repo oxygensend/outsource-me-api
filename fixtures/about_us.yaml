@@ -1,0 +1,11 @@
+App\Entity\AboutUs:
+  about_us:
+    title: <title()>
+    description: <text()>
+    imageName: test_image.jpg
+
+  about_us_enabled:
+    title: <title()>
+    description: <text()>
+    imageName: test_image.jpg
+    enabled: true

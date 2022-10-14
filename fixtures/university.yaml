@@ -1,0 +1,8 @@
+App\Entity\University:
+  test_university:
+    country: Polska
+    name: AGH
+
+  university_{1..300}:
+    country: Polska
+    name: <name()>

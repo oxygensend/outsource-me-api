@@ -5,28 +5,37 @@ namespace App\Entity;
 use App\Repository\EducationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
+
 
 #[ORM\Entity(repositoryClass: EducationRepository::class)]
 class Education extends AbstractEntity
 {
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\ManyToOne]
     private ?University $university = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $startDate = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $fieldOfStudy = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(nullable: true)]
     private ?float $grade = null;
 
+    #[Serializer\Groups(["user:profile"])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 

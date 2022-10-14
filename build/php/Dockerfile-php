@@ -1,0 +1,48 @@
+FROM php:8.1.8-fpm
+
+RUN apt-get update && apt-get -y dist-upgrade;
+RUN apt-get update && apt-get install -y
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        zlib1g-dev \
+        libxml2-dev \
+        libzip-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+    && docker-php-ext-install \
+        zip \
+        intl
+
+
+RUN echo 'alias sf="php bin/console"' >> ~/.bashrc
+
+RUN docker-php-ext-configure gd --with-jpeg --with-freetype
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# Enable sodium for lexik bundle
+RUN docker-php-ext-enable sodium
+
+# RUN pecl install xdebug && pecl clear-cache
+
+
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Change php settings
+RUN rm -rf /usr/local/etc/php/php-fpm.d/*
+COPY ./build/php/php.ini /usr/local/etc/php/php.ini
+COPY ./build/php/php-fpm.conf /usr/local/etc/php/php-fpm.conf
+COPY ./build/php/php-fpm.d/* /usr/local/etc/php/php-fpm.d/
+
+COPY . /var/ww
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN composer --version
+
+RUN chown -R www-data:www-data /var/www/html
+
+
+CMD "./build/entrypoint.sh" && docker-php-entrypoint php-fpm

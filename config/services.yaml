@@ -6,8 +6,13 @@
 parameters:
         mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
         mailer_from_name: '%env(MAILER_FROM_NAME)%'
-        redirect_after_confirmation: '%env(CLIENT_HOST)%'
+        redirect_after_confirmation: '%env(REDIRECT_AFTER_CONFIRMATION)%'
+        redirect_password_reset: '%env(REDIRECT_PASSWORD_RESET)%'
         redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
+        host: '%env(SERVER_HOSTNAME)%'
+        app.path.image_about_us: '/uploads/about_us'
+        app.path.image_users: '/uploads/users'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -32,6 +37,9 @@ services:
     App\ArgumentResolver\RequestDtoValueResolver:
       tags:
         - {name: controller.argument_value_resolver, priority: 50}
+
+    App\Extensions\Doctrine\EnabledExtension:
+      tags: [api_platform.doctrine.orm.query_extension.collection]
 
     App\OpenApi\TokenCreateOpenApiHelper:
       decorates: 'api_platform.openapi.factory'

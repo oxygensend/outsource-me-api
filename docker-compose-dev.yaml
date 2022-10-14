@@ -1,0 +1,86 @@
+version: '3.7'
+services:
+  mysql:
+    image: 'mysql:8.0'
+    ports:
+      - '3308:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '12345'
+      MYSQL_DATABASE: 'outsource_me'
+      MYSQL_PASSWORD: '12345'
+      MYSQL_USER: 'test'
+    networks:
+      - outsource_me
+
+  mysql_test:
+    image: 'mysql:8.0'
+    ports:
+      - '3309:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '12345'
+      MYSQL_DATABASE: 'outsource_me_test'
+      MYSQL_PASSWORD: '12345'
+      MYSQL_USER: 'test'
+    networks:
+      - outsource_me
+
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - outsource_me
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: build/php/Dockerfile-php
+    volumes:
+      - symfony-php-files:/var/www/html:cashed
+      - ./logs/symfony:/var/www/html/var/log:cached
+    depends_on:
+      - mysql
+      - mysql_test
+    #    healthcheck:
+    #      test: [ "CMD", "service", "-f", "http://localhost:9000" ]
+    #      interval: 1m30s
+    #      timeout: 10s
+    #      retries: 3
+    networks:
+      - outsource_me
+
+  nginx:
+    build:
+      context: .
+      dockerfile: build/nginx/Dockerfile-nginx
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - symfony-php-files:/var/www/html:cashed
+      - ./logs/nginx/:/var/log/nginx:cached
+
+    #    depends_on:
+    #      php-fpm:
+    #        condition: service_healthy
+
+    depends_on:
+      - php-fpm
+    networks:
+      - outsource_me
+
+
+networks:
+  outsource_me:
+
+
+
+volumes:
+  symfony-php-files:
+    external: true
+

@@ -1,5 +1,5 @@
 {{ name }}
-{{ schemeAndHttpHost }}
+{{ schemeAndHttpHost ~ '/api/confirmation_token/' ~  tokenType ~ '/' ~ token }}
 {{ tokenType }}
 {{ token }}
 {{ tokenExpiredDate | date }}

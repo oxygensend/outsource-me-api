@@ -3,23 +3,29 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
+use App\State\EditUserProvider;
 use App\State\UserRegistrationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\IsPasswordConfirmed;
+use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[ApiResource(
     operations: [
@@ -170,6 +176,15 @@ use App\Validator\IsPasswordConfirmed;
                 ]
             ],
             security: "is_granted('ROLE_USER')"
+        ),
+        new Get(
+            normalizationContext: ["groups" => ["user:profile"]],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Patch(
+            normalizationContext: ["groups" => ["user:profile"]],
+            denormalizationContext: ["groups" => ["user:edit"]],
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         )
 
     ],
@@ -183,10 +198,11 @@ use App\Validator\IsPasswordConfirmed;
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
+    private const IMG_DIR = '/storage/users';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
-    #[Serializer\Groups(['user:register', 'user:read'])]
+    #[Serializer\Groups(['user:register', 'user:read', 'user:profile', 'user:edit'])]
     #[Assert\Email]
     #[Assert\NotBlank]
     #[ORM\Column(length: 180, unique: true)]
@@ -195,7 +211,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private array $roles = [];
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Name have to be at least 2 characters",
         maxMessage: "Name have to be no longer than 50 characters")]
@@ -203,7 +219,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Surname have to be at least 2 characters",
         maxMessage: "Surname have to be no longer than 50 characters")]
@@ -211,25 +227,30 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $surname = null;
 
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
 
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $githubUrl = null;
 
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $linkedinUrl = null;
 
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column]
     private int $redirectCount = 0;
 
-    #[Serializer\Groups(['user:register'])]
+    #[Serializer\Groups(['user:register', 'user:profile'])]
     #[Assert\Choice([
         'Developer',
         'Principle'
@@ -237,16 +258,20 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
     #[ORM\OneToMany(mappedBy: 'toWho', targetEntity: Opinion::class, orphanRemoval: true)]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     private Collection $opinions;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]
@@ -260,20 +285,36 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         message: 'Password have to be minimum 8 characters and contains at least one letter and number.'
 
     )]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(groups: ['user:register'])]
     #[Serializer\Groups(['user:register'])]
     #[Serializer\SerializedName("password")]
     private ?string $plainPassword = null;
 
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(groups: ['user:register'])]
     #[Serializer\Groups(['user:register'])]
-    private string $passwordConfirmation;
+    private ?string $passwordConfirmation = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $emailConfirmedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?string $googleId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[UploadableField(mapping: "image_user", fileNameProperty: "imageName")]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageNameSmall = null;
+
+    #[UploadableField(mapping: "image_user_small", fileNameProperty: "imageNameSmall")]
+    private ?File $imageFileSmall = null;
+
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[ORM\ManyToMany(targetEntity: Technology::class)]
+    private Collection $technologies;
 
 
     public function __construct()
@@ -284,6 +325,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->languages = new ArrayCollection();
         $this->opinions = new ArrayCollection();
         $this->applications = new ArrayCollection();
+        $this->technologies = new ArrayCollection();
     }
 
 
@@ -622,12 +664,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
-    public function getPasswordConfirmation(): string
+    public function getPasswordConfirmation(): ?string
     {
         return $this->passwordConfirmation;
     }
 
-    public function setPasswordConfirmation(string $passwordConfirmation): self
+    public function setPasswordConfirmation(?string $passwordConfirmation): self
     {
         $this->passwordConfirmation = $passwordConfirmation;
         return $this;
@@ -663,9 +705,89 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+
+    #[Serializer\Groups(['user:profile'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
+
+    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\SerializedName('imagePath')]
+    public function getImagePath(): ?string
+    {
+        if ($this->imageName) {
+            return self::IMG_DIR . $this->imageName;
+        }
+        return 'images/user_placeholder.png';
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageName(?string $imageName): self
+    {
+        $this->imageName = $imageName;
+
+        return $this;
+    }
+
+    #[Serializer\SerializedName('thumbnailPath')]
+    public function getImagePathSmall(): ?string
+    {
+        if ($this->imageNameSmall) {
+            return self::IMG_DIR . $this->imageNameSmall;
+        }
+        return self::IMG_DIR . '/images/user_placeholder.png';
+    }
+
+
+    public function getImageNameSmall(): ?string
+    {
+        return $this->imageNameSmall;
+    }
+
+
+    public function setImageNameSmall(?string $imageName): self
+    {
+        $this->imageNameSmall = $imageName;
+
+        return $this;
+    }
+
+    #[Serializer\Groups(['user:read'])]
+    #[Serializer\SerializedName('resendEmailVerificationLink')]
+    public function getResendEmailVerificationLink(): string
+    {
+
+        return getenv('SERVER_HOSTNAME') . '/resend_email_verification_link';
+    }
+
+    /**
+     * @return Collection<int, Technology>
+     */
+    public function getTechnologies(): Collection
+    {
+        return $this->technologies;
+    }
+
+    public function addTechnology(Technology $technology): self
+    {
+        if (!$this->technologies->contains($technology)) {
+            $this->technologies->add($technology);
+        }
+
+        return $this;
+    }
+
+    public function removeTechnology(Technology $technology): self
+    {
+        $this->technologies->removeElement($technology);
+
+        return $this;
+    }
+
 
 }

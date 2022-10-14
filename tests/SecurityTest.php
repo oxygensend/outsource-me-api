@@ -207,6 +207,7 @@ class SecurityTest extends ApiTestCase
         $this->assertArrayHasKey('accountType', $payload);
         $this->assertArrayHasKey('iat', $payload);
         $this->assertArrayHasKey('exp', $payload);
+        $this->assertArrayHasKey('thumbnail', $payload);
         $this->assertArrayHasKey('roles', $payload);
 
     }

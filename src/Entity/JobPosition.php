@@ -5,25 +5,38 @@ namespace App\Entity;
 use App\Repository\JobPositionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: JobPositionRepository::class)]
 class JobPosition extends AbstractEntity
 {
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?FormOfEmployment $formOfEmployment = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(length: 255)]
     private ?string $companyName = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'jobPositions')]
     private ?User $individual = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Groups(['user:profile'])]
+    private ?\DateTimeInterface $validFrom = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Groups(['user:profile'])]
+    private ?\DateTimeInterface $validTo = null;
 
 
     public function getName(): ?string
@@ -83,6 +96,30 @@ class JobPosition extends AbstractEntity
     public function setIndividual(?User $individual): self
     {
         $this->individual = $individual;
+
+        return $this;
+    }
+
+    public function getValidFrom(): ?\DateTimeInterface
+    {
+        return $this->validFrom;
+    }
+
+    public function setValidFrom(\DateTimeInterface $validFrom): self
+    {
+        $this->validFrom = $validFrom;
+
+        return $this;
+    }
+
+    public function getValidTo(): ?\DateTimeInterface
+    {
+        return $this->validTo;
+    }
+
+    public function setValidTo(\DateTimeInterface $validTo): self
+    {
+        $this->validTo = $validTo;
 
         return $this;
     }
