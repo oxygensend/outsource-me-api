@@ -6,7 +6,8 @@
 parameters:
         mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
         mailer_from_name: '%env(MAILER_FROM_NAME)%'
-        redirect_after_confirmation: '%env(CLIENT_HOST)%'
+        redirect_after_confirmation: '%env(REDIRECT_AFTER_CONFIRMATION)%'
+        redirect_password_reset: '%env(REDIRECT_PASSWORD_RESET)%'
         redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
         host: '%env(SERVER_HOSTNAME)%'
         app.path.image_about_us: '/uploads/about_us'
