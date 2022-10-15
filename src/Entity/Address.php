@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AddressRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
+#[ApiResource]
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address
 {
@@ -16,8 +18,7 @@ class Address
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Serializer\Groups(['user:profile'])]
-    #[ORM\Column(length: 4096)]
+    #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 
     #[Serializer\Groups(['user:profile'])]

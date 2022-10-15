@@ -12,6 +12,7 @@ parameters:
         host: '%env(SERVER_HOSTNAME)%'
         app.path.image_about_us: '/uploads/about_us'
         app.path.image_users: '/uploads/users'
+        postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
 
 services:
     # default configuration for services in *this* file

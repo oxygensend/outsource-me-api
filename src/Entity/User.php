@@ -327,7 +327,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToMany(targetEntity: Technology::class)]
     private Collection $technologies;
 
-    #[Serializer\Groups(['user:profile','user:edit'])]
+    #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
