@@ -2,43 +2,85 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\EducationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
-
+#[ApiResource(
+    operations: [
+        new Post(
+            denormalizationContext: ['groups' => 'education:write'],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+        ),
+        new Patch(
+            denormalizationContext: ['groups' => 'education:edit'],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+        ),
+        new GetCollection(
+            uriTemplate: '/users/{userId}/educations',
+            uriVariables: [
+                'userId' => new Link(toProperty: 'individual', fromClass: User::class)
+            ]
+        ),
+        new Delete(
+            uriTemplate: '/users/{userId}/educations/{id}',
+            uriVariables: [
+                'userId' => new Link(toProperty: 'individual', fromClass: User::class),
+                'id' => new Link(fromClass: Education::class),
+            ],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+        )
+    ],
+    normalizationContext: ['groups' => 'education:read'],
+)]
 #[ORM\Entity(repositoryClass: EducationRepository::class)]
 class Education extends AbstractEntity
 {
-    #[Serializer\Groups(["user:profile"])]
+    #[Assert\NotBlank]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
     #[ORM\ManyToOne]
     private ?University $university = null;
 
-    #[Serializer\Groups(["user:profile"])]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\Type("\DateTimeInterface")]
+    #[Assert\NotBlank]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $startDate = null;
 
-    #[Serializer\Groups(["user:profile"])]
+
+    #[Assert\Type("\DateTimeInterface")]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
-    #[Serializer\Groups(["user:profile"])]
-    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
+    #[ORM\Column(length: 255)]
     private ?string $fieldOfStudy = null;
 
-    #[Serializer\Groups(["user:profile"])]
-    #[ORM\Column(length: 255)]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[Serializer\Groups(["user:profile"])]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
     #[ORM\Column(nullable: true)]
     private ?float $grade = null;
 
-    #[Serializer\Groups(["user:profile"])]
+    #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Assert\NotBlank]
+    #[Serializer\Groups(["education:write"])]
+    #[Serializer\SerializedName("user")]
     #[ORM\ManyToOne(inversedBy: 'educations')]
     private ?User $individual = null;
 

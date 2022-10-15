@@ -3,10 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\Api\AddTechnologyAction;
 use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
@@ -185,11 +188,19 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             normalizationContext: ["groups" => ["user:profile"]],
             denormalizationContext: ["groups" => ["user:edit"]],
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/technologies',
+            controller: AddTechnologyAction::class,
+            shortName: "Technology",
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         )
+
 
     ],
     normalizationContext: ["groups" => "user:read"],
-    denormalizationContext: ["groups" => "user:register"]
+    denormalizationContext: ["groups" => "user:register"],
+
 )]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
@@ -258,20 +269,20 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
-    #[Serializer\Groups(['user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
-    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
-    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
     #[ORM\OneToMany(mappedBy: 'toWho', targetEntity: Opinion::class, orphanRemoval: true)]
-    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[Serializer\Groups(['user:profile'])]
     private Collection $opinions;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]
@@ -312,9 +323,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[UploadableField(mapping: "image_user_small", fileNameProperty: "imageNameSmall")]
     private ?File $imageFileSmall = null;
 
-    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\ManyToMany(targetEntity: Technology::class)]
     private Collection $technologies;
+
+    #[Serializer\Groups(['user:profile','user:edit'])]
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    private ?Address $address = null;
 
 
     public function __construct()
@@ -785,6 +800,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function removeTechnology(Technology $technology): self
     {
         $this->technologies->removeElement($technology);
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
 
         return $this;
     }

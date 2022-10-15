@@ -1,20 +1,20 @@
 App\Entity\JobPosition:
   job_position_test:
     name: Programista
-    companyName: testCompany
+    company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
 
   job_position_test2:
     name: Zawodowiec
-    companyName: testCompany
+    company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
 
 
   job_position_{1..10}:
     name: <name()>
-    companyName: <sentence(8)>
+    company: '@company*'
     description: <sentence(100)>
     validFrom: <datetime()>
     validTo: <datetime()>

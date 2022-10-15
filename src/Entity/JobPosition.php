@@ -2,40 +2,85 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\JobPositionRepository;
+use App\State\JobPositionProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    operations: [
+        new Post(
+            denormalizationContext: ['groups' => 'job_position:write'],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            processor: JobPositionProcessor::class
+        ),
+        new Patch(
+            denormalizationContext: ['groups' => 'job_position:edit'],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            processor: JobPositionProcessor::class
+        ),
+        new GetCollection(
+            uriTemplate: '/users/{userId}/job_positions',
+            uriVariables: [
+                'userId' => new Link(toProperty: 'individual', fromClass: User::class)
+            ]
+        ),
+        new Delete(
+            uriTemplate: '/users/{userId}/job_positions/{id}',
+            uriVariables: [
+                'userId' => new Link(toProperty: 'individual', fromClass: User::class),
+                'id' => new Link(fromClass: JobPosition::class),
+            ],
+            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+        )
+    ],
+    normalizationContext: ['groups' => 'job_position:read'],
+)]
 #[ORM\Entity(repositoryClass: JobPositionRepository::class)]
 class JobPosition extends AbstractEntity
 {
-    #[Serializer\Groups(['user:profile'])]
+    #[Assert\NotBlank]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Assert\NotBlank]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?FormOfEmployment $formOfEmployment = null;
 
-    #[Serializer\Groups(['user:profile'])]
-    #[ORM\Column(length: 255)]
-    private ?string $companyName = null;
+    #[Assert\NotBlank]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
+    #[ORM\ManyToOne()]
+    private ?Company $company = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Assert\NotBlank]
+    #[Serializer\Groups(['job_position:write'])]
+    #[Serializer\SerializedName('user')]
     #[ORM\ManyToOne(inversedBy: 'jobPositions')]
     private ?User $individual = null;
 
+    #[Assert\Type("\DateTimeInterface")]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Serializer\Groups(['user:profile'])]
     private ?\DateTimeInterface $validFrom = null;
 
+    #[Assert\Type("\DateTimeInterface")]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     private ?\DateTimeInterface $validTo = null;
 
 
@@ -64,14 +109,14 @@ class JobPosition extends AbstractEntity
     }
 
 
-    public function getCompanyName(): ?string
+    public function getCompany(): ?Company
     {
-        return $this->companyName;
+        return $this->company;
     }
 
-    public function setCompanyName(string $companyName): self
+    public function setCompany(?Company $company): self
     {
-        $this->companyName = $companyName;
+        $this->company = $company;
 
         return $this;
     }

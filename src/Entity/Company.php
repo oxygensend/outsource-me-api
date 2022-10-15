@@ -2,30 +2,20 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
-use App\Repository\WorkTypeRepository;
+use App\Repository\CompanyRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
-#[ApiResource(
-    operations: [
-        new GetCollection(
-            paginationEnabled: false,
-            normalizationContext: ["groups" => "work_type:get"],
-        )
-    ]
-)]
-#[ORM\Entity(repositoryClass: WorkTypeRepository::class)]
-class WorkType
+#[ORM\Entity(repositoryClass: CompanyRepository::class)]
+class Company
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\Column(length: 255)]
-    #[Groups(['work_type:get'])]
     private ?string $name = null;
 
     public function getId(): ?int

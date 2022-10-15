@@ -25,7 +25,8 @@ class UserProfileNormalizer implements NormalizerInterface, NormalizerAwareInter
      */
     public function normalize(mixed $object, string $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
-        if ($context['operation_name'] === '_api_/users/{id}.{_format}_get') {
+        if ($context['operation_name'] === '_api_/users/{id}.{_format}_get'
+            || $context['operation_name'] === '_api_/users/{id}.{_format}_patch') {
 
             switch ($object->getAccountType()) {
 

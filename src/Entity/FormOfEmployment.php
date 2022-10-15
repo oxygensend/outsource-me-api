@@ -2,15 +2,25 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\FormOfEmploymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
-
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/form_of_employments',
+            paginationEnabled: false,
+            normalizationContext: ["groups" => "foe:get"],
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: FormOfEmploymentRepository::class)]
 class FormOfEmployment extends AbstractEntity
 {
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'job_position:write', 'job_position:edit', 'job_position:read', 'foe:get'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

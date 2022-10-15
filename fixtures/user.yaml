@@ -18,6 +18,7 @@ App\Entity\User:
     jobPositions: ['@job_position_test']
     educations: ['@test_education']
     languages: ['@language_test']
+    technologies: ['@test_technology']
 
   user_test2:
     name: <name()>
@@ -31,9 +32,8 @@ App\Entity\User:
     githubUrl: testurl.com
     linkedinUrl: testurl.com
     description: <sentence(100)>
-    jobPositions: ['@job_position_test']
-    educations: ['@test_education']
-    languages: ['@language_test']
+    languages: ['@language_1']
+    jobPositions: ['@job_position_test2']
 
 
   user_test_not_confirmed:

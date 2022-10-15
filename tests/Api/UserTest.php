@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Api;
 
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
@@ -107,7 +107,8 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('jobPositions', $response);
         $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
         $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('companyName', $response['jobPositions'][0]);
+        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
+        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
         $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
@@ -127,7 +128,8 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('jobPositions', $response);
         $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
         $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('companyName', $response['jobPositions'][0]);
+        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
+        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
         $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);

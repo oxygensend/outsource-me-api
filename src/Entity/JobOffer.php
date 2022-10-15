@@ -33,6 +33,9 @@ class JobOffer extends AbstractEntity
     #[ORM\JoinColumn(nullable: false)]
     private ?FormOfEmployment $formOfEmployment = null;
 
+    #[ORM\ManyToOne(inversedBy: 'jobOffers')]
+    private ?Address $address = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -151,6 +154,18 @@ class JobOffer extends AbstractEntity
     public function setFormOfEmployment(?FormOfEmployment $formOfEmployment): self
     {
         $this->formOfEmployment = $formOfEmployment;
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
 
         return $this;
     }
