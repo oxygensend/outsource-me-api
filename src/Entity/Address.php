@@ -2,14 +2,25 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\Filter\AddressSearchFilter;
 use App\Repository\AddressRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            paginationEnabled: false,
+            normalizationContext: ['groups' => 'address:list']
+        ),
+    ],
+)]
+#[ApiFilter(AddressSearchFilter::class)]
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address
 {
@@ -21,7 +32,7 @@ class Address
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'address:list'])]
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 
@@ -48,7 +59,7 @@ class Address
         return $this->postCodes;
     }
 
-    public function setPostCode(string $postCodes): self
+    public function setPostCodes(string $postCodes): self
     {
         $this->postCodes = $postCodes;
 

@@ -19,6 +19,7 @@ App\Entity\User:
     educations: ['@test_education']
     languages: ['@language_test']
     technologies: ['@test_technology']
+    address: '@address_test'
 
   user_test2:
     name: <name()>
@@ -34,6 +35,7 @@ App\Entity\User:
     description: <sentence(100)>
     languages: ['@language_1']
     jobPositions: ['@job_position_test2']
+    address: '@address_2'
 
 
   user_test_not_confirmed:

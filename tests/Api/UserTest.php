@@ -112,6 +112,8 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
+        $this->assertArrayHasKey('address', $response);
+        $this->assertArrayHasKey('city', $response['address']);
     }
 
     private function principleAssertions(array $response): void
@@ -133,6 +135,8 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
+        $this->assertArrayHasKey('address', $response);
+        $this->assertArrayHasKey('city', $response['address']);
     }
 
 

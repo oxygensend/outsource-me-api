@@ -23,8 +23,6 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             uriTemplate: '/technologies',
             paginationEnabled: false,
             normalizationContext: ["groups" => "technologies:get"],
-            security: "is_granted('ROLE_USER')",
-
         ),
         new Delete(
             uriTemplate: '/users/{userId}/technologies/{id}',

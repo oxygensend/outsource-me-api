@@ -41,7 +41,7 @@ class PostalCodesParser implements ParserInterface
                 $address = new Address();
             }
             $address->setCity($city);
-            $address->setPostCode(implode(',', $postCode));
+            $address->setPostCodes(implode(',', $postCode));
             $this->em->persist($address);
 
             if (!$iter % 200) {
