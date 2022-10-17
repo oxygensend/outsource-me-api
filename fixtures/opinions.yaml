@@ -1,0 +1,16 @@
+App\Entity\Opinion:
+  opinion_test2:
+    scale: <numberBetween(0,5)>
+    description: <sentence(5)>
+    fromWho: '@user_test2'
+    toWho: '@user_test'
+  opinion_test3:
+    scale: <numberBetween(0,5)>
+    description: <sentence(5)>
+    fromWho: '@user_test_true'
+    toWho: '@user_test'
+  opinion_test:
+    scale: <numberBetween(0,5)>
+    description: <sentence(5)>
+    fromWho: '@user_test'
+    toWho: '@user_test_true'

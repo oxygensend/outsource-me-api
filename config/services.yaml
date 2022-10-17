@@ -36,6 +36,10 @@ services:
     App\State\JobPositionProcessor:
       bind:
         $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\OpinionProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
     # add more service definitions when explicit configuration is needed
 
     App\ArgumentResolver\RequestDtoValueResolver:

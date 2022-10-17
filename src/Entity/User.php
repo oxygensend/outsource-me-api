@@ -721,13 +721,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile','opinions:get'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {
