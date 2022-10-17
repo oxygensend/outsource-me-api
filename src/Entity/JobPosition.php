@@ -19,12 +19,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Post(
             denormalizationContext: ['groups' => 'job_position:write'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            security: "is_granted('ROLE_USER')",
             processor: JobPositionProcessor::class
         ),
         new Patch(
             denormalizationContext: ['groups' => 'job_position:edit'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
             processor: JobPositionProcessor::class
         ),
         new GetCollection(
@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'userId' => new Link(toProperty: 'individual', fromClass: User::class),
                 'id' => new Link(fromClass: JobPosition::class),
             ],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
         )
     ],
     normalizationContext: ['groups' => 'job_position:read'],
@@ -67,9 +67,6 @@ class JobPosition extends AbstractEntity
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[Assert\NotBlank]
-    #[Serializer\Groups(['job_position:write'])]
-    #[Serializer\SerializedName('user')]
     #[ORM\ManyToOne(inversedBy: 'jobPositions')]
     private ?User $individual = null;
 

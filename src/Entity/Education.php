@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\EducationRepository;
+use App\State\EducationProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
@@ -18,11 +19,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Post(
             denormalizationContext: ['groups' => 'education:write'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+            security: "is_granted('ROLE_USER')",
+            processor: EducationProcessor::class
         ),
         new Patch(
             denormalizationContext: ['groups' => 'education:edit'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
         ),
         new GetCollection(
             uriTemplate: '/users/{userId}/educations',
@@ -36,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'userId' => new Link(toProperty: 'individual', fromClass: User::class),
                 'id' => new Link(fromClass: Education::class),
             ],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
         )
     ],
     normalizationContext: ['groups' => 'education:read'],
@@ -78,9 +80,6 @@ class Education extends AbstractEntity
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[Assert\NotBlank]
-    #[Serializer\Groups(["education:write"])]
-    #[Serializer\SerializedName("user")]
     #[ORM\ManyToOne(inversedBy: 'educations')]
     private ?User $individual = null;
 

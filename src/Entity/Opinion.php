@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Range;
     operations: [
         new Post(
             denormalizationContext: ['groups' => 'opinions:write'],
-            securityPostDenormalize: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER')",
             processor: OpinionProcessor::class
         ),
         new GetCollection(

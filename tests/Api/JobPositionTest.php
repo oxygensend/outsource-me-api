@@ -20,7 +20,6 @@ class JobPositionTest extends AbstractApiTestCase
                 'company' => [
                     'name' => 'AGH'
                 ],
-                'user' => '/api/users/1'
             ],
             token: $token
         )->toArray();
@@ -39,33 +38,7 @@ class JobPositionTest extends AbstractApiTestCase
     }
 
 
-    public function testAddNewTechnologyNotOwnerAccess()
-    {
-        $token = $this->loginRequest()->toArray()['token'];
-
-
-        $response = $this->createAuthorizedRequest(
-            method: 'POST',
-            uri: '/api/job_positions',
-            json: [
-                'name' => 'test',
-                'validFrom' => '2020-10-01',
-                'validTo' => '2023-10-02',
-                'formOfEmployment' => '/api/form_of_employments/1',
-                'description' => "TEST tes testset",
-                'company' => [
-                    'name' => 'AGH'
-                ],
-                'user' => '/api/users/2'
-            ],
-            token: $token
-        );
-
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testAddNewEducationNotAuthenticated()
+    public function testAddNewJobNotAuthenticated()
     {
 
         $response = $this->createAuthorizedRequest(
@@ -80,14 +53,13 @@ class JobPositionTest extends AbstractApiTestCase
                 'company' => [
                     'name' => 'AGH'
                 ],
-                'user' => '/api/users/1'
             ]
         );
 
         $this->assertResponseStatusCodeSame(401);
     }
 
-    public function testAddNewEducationValidFormOfEmplymentIri()
+    public function testAddNewJobPositionValidFormOfEmplymentIri()
     {
         $token = $this->loginRequest()->toArray()['token'];
 
@@ -103,7 +75,6 @@ class JobPositionTest extends AbstractApiTestCase
                 'company' => [
                     'name' => 'AGH'
                 ],
-                'user' => '/api/users/1'
             ],
             token: $token
         );
@@ -112,7 +83,7 @@ class JobPositionTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
-    public function testAddNewEducationValidDates()
+    public function testAddNewJobPositionValidDates()
     {
         $token = $this->loginRequest()->toArray()['token'];
 
@@ -128,7 +99,6 @@ class JobPositionTest extends AbstractApiTestCase
                 'company' => [
                     'name' => 'AGH'
                 ],
-                'user' => '/api/users/1'
             ],
             token: $token
         );

@@ -18,7 +18,6 @@ class EducationTest extends AbstractApiTestCase
                 'fieldOfStudy' => 'Math',
                 'grade' => 5,
                 'description' => "TEST tes testset",
-                'user' => '/api/users/1'
             ],
             token: $token
         )->toArray();
@@ -36,30 +35,6 @@ class EducationTest extends AbstractApiTestCase
     }
 
 
-    public function testAddNewTechnologyNotOwnerAccess()
-    {
-        $token = $this->loginRequest()->toArray()['token'];
-
-
-        $response = $this->createAuthorizedRequest(
-            method: 'POST',
-            uri: '/api/education',
-            json: [
-                'university' => '/api/universities/1',
-                'startDate' => '2020-10-01',
-                'endDate' => '2023-10-02',
-                'fieldOfStudy' => 'Math',
-                'grade' => 5,
-                'description' => "TEST tes testset",
-                'user' => '/api/users/2'
-            ],
-            token: $token
-        );
-
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
     public function testAddNewEducationNotAuthenticated()
     {
 
@@ -73,7 +48,6 @@ class EducationTest extends AbstractApiTestCase
                 'fieldOfStudy' => 'Math',
                 'grade' => 5,
                 'description' => "TEST tes testset",
-                'user' => '/api/users/1'
             ]
         );
 
@@ -94,7 +68,6 @@ class EducationTest extends AbstractApiTestCase
                 'fieldOfStudy' => 'Math',
                 'grade' => 5,
                 'description' => "TEST tes testset",
-                'user' => '/api/users/1'
             ],
             token: $token
         );
@@ -116,7 +89,6 @@ class EducationTest extends AbstractApiTestCase
                 'endDate' => 'test',
                 'fieldOfStudy' => 'Math',
                 'description' => "TEST tes testset",
-                'user' => '/api/users/1'
             ],
             token: $token
         );
@@ -136,7 +108,6 @@ class EducationTest extends AbstractApiTestCase
                 'endDate' => '2015-12-12',
                 'fieldOfStudy' => 'Math',
                 'description' => "TEST tes testset",
-                'user' => '/api/users/1'
             ],
             token: $token
         );
@@ -144,29 +115,6 @@ class EducationTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertJsonContains(["hydra:description" => "startDate: This value should not be blank."]);
     }
-
-
-
-    public function testAddNewEducationUserIni()
-    {
-        $token = $this->loginRequest()->toArray()['token'];
-
-        $response = $this->createAuthorizedRequest(
-            method: 'POST',
-            uri: '/api/education',
-            json: [
-                'university' => '/api/universities/1',
-                'endDate' => '2015-12-12',
-                'fieldOfStudy' => 'Math',
-                'description' => "TEST tes testset",
-                'user' => '/api/users'
-            ],
-            token: $token
-        );
-
-        $this->assertResponseStatusCodeSame(400);
-    }
-
 
     public function testDeleteUserEducation(): void
     {

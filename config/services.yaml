@@ -37,6 +37,10 @@ services:
       bind:
         $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
+    App\State\EducationProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
     App\State\OpinionProcessor:
       bind:
         $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'

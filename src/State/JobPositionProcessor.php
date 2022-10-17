@@ -6,14 +6,14 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Company;
 use App\Entity\JobPosition;
-use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Security;
 
 class JobPositionProcessor implements ProcessorInterface
 {
     public function __construct(private readonly ProcessorInterface     $decoratedProcessor,
-                                private readonly EntityManagerInterface $em)
+                                private readonly EntityManagerInterface $em,
+                                private readonly Security $security)
     {
     }
 
@@ -34,6 +34,8 @@ class JobPositionProcessor implements ProcessorInterface
                 $this->em->persist($company);
             }
         }
+
+        $data->setIndividual($this->security->getUser());
 
         $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
     }
