@@ -12,6 +12,7 @@ class UserVoter extends Voter
 {
     public const USER_EDIT = 'USER_EDIT';
     public const DELETE_TECHNOLOGY = 'DELETE_TECHNOLOGY';
+    public const EDIT_OPINION = 'EDIT_OPINION';
 
     public function __construct(readonly private UserRepository $userRepository)
     {
@@ -19,7 +20,8 @@ class UserVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return ($attribute == self::USER_EDIT && $subject instanceof User)
+        return (($attribute == self::USER_EDIT || $attribute == self::EDIT_OPINION)
+                && $subject instanceof User)
             || ($attribute === self::DELETE_TECHNOLOGY && is_array($subject));
 
     }
@@ -34,6 +36,7 @@ class UserVoter extends Voter
 
         switch ($attribute) {
             case self::USER_EDIT:
+            case self::EDIT_OPINION:
                 if ($user === $subject) return true;
                 break;
             case self::DELETE_TECHNOLOGY:

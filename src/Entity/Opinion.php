@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints\Range;
         new Delete(
             uriTemplate: '/users/{userId}/opinions/{id}',
             uriVariables: [
-                'userId' => new Link(toProperty: 'toWho', fromClass: User::class),
+                'userId' => new Link(toProperty: 'fromWho', fromClass: User::class),
                 'id' => new Link(fromClass: Opinion::class),
             ],
             security: "is_granted('ROLE_USER') and is_granted('EDIT_OPINION', object.getFromWho())"

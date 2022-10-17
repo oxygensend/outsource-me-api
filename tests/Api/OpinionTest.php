@@ -145,7 +145,7 @@ class OpinionTest extends AbstractApiTestCase
         $token = $this->loginRequest()->toArray()['token'];
         $this->createAuthorizedRequest(
             method: 'DELETE',
-            uri: '/api/users/3/opinions/3',
+            uri: '/api/users/1/opinions/3',
             token: $token
         );
 
