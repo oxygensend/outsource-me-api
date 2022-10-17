@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\LanguageRepository;
 use App\State\JobPositionProcessor;
+use App\State\LanguageProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
@@ -19,11 +20,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
     operations: [
         new Post(
             denormalizationContext: ['groups' => 'language:write'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            security: "is_granted('ROLE_USER')",
+            processor: LanguageProcessor::class
         ),
         new Patch(
             denormalizationContext: ['groups' => 'language:edit'],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())",
         ),
         new GetCollection(
             uriTemplate: '/users/{userId}/languages',
@@ -37,7 +39,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
                 'userId' => new Link(toProperty: 'individual', fromClass: User::class),
                 'id' => new Link(fromClass: Language::class),
             ],
-            securityPostDenormalize: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
+            security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object.getIndividual())"
         )
     ],
     normalizationContext: ['groups' => 'language:read'],
@@ -54,9 +56,6 @@ class Language extends AbstractEntity
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[NotBlank]
-    #[Serializer\Groups(['language:write'])]
-    #[Serializer\SerializedName('user')]
     #[ORM\ManyToOne(inversedBy: 'languages')]
     private ?User $individual = null;
 

@@ -34,7 +34,6 @@ class LanguageTest extends AbstractApiTestCase
             json: [
                 'name' => 'test_language',
                 'description' => 'test',
-                'user' => '/api/users/1'
             ],
             token: $token
         );
@@ -47,26 +46,6 @@ class LanguageTest extends AbstractApiTestCase
         ]);
     }
 
-    public function testAddNewLanguageToNotLoggedUser(): void
-    {
-
-        $token = $this->loginRequest()->toArray()['token'];
-
-        $response = $this->createAuthorizedRequest(
-            method: 'POST',
-            uri: '/api/languages',
-            json: [
-                'name' => 'test_language',
-                'description' => 'test',
-                'user' => '/api/users/2'
-            ],
-            token: $token
-        );
-
-        $this->assertResponseStatusCodeSame(403);
-
-    }
-
 
     public function testAddNewLanguageNotAuthenticatedUser(): void
     {
@@ -76,8 +55,7 @@ class LanguageTest extends AbstractApiTestCase
             uri: '/api/languages',
             json: [
                 'name' => 'test_language',
-                'description' => 'test',
-                'user' => '/api/users/1'
+                'description' => 'test'
             ],
         );
 
@@ -94,7 +72,6 @@ class LanguageTest extends AbstractApiTestCase
             uri: '/api/languages',
             json: [
                 'description' => 'test',
-                'user' => '/api/users/1'
             ],
             token: $token
         );

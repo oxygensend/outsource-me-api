@@ -41,6 +41,10 @@ services:
       bind:
         $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
+    App\State\LanguageProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
     App\State\OpinionProcessor:
       bind:
         $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
