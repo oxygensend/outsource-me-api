@@ -2,20 +2,25 @@
 
 namespace App\Service;
 
+use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\ConfirmationToken;
+use App\Entity\Technology;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 class UserService
 {
-    public function __construct(private readonly ConfirmationTokenService $confirmationTokenService,
-                                private readonly EmailSenderService $emailSender,
-                                private readonly EntityManagerInterface $em,
-                                private readonly LoggerInterface $logger,
-                                private readonly UserPasswordHasherInterface $passwordHasher)
+    public function __construct(private readonly ConfirmationTokenService    $confirmationTokenService,
+                                private readonly EmailSenderService          $emailSender,
+                                private readonly EntityManagerInterface      $em,
+                                private readonly LoggerInterface             $logger,
+                                private readonly UserPasswordHasherInterface $passwordHasher,
+                                private readonly IriConverterInterface       $iriConverter)
     {
     }
 
@@ -71,15 +76,32 @@ class UserService
      */
     public function changePassword(User $user, string $oldPassword, string $newPassword): void
     {
-        if(!$this->passwordHasher->isPasswordValid($user, $oldPassword)){
+        if (!$this->passwordHasher->isPasswordValid($user, $oldPassword)) {
             $this->logger->warning('UserService::changePassword - Invalid old password.', ['user' => $user]);
-            throw new UnauthorizedHttpException("Unauthorized","Invalid old password." );
+            throw new UnauthorizedHttpException("Unauthorized", "Invalid old password.");
         }
 
         $user->setPassword(
             $this->passwordHasher->hashPassword($user, $newPassword)
         );
         $this->em->flush();
+
+    }
+
+
+    public function addTechnology(User $user, string $technologyIri): Technology
+    {
+        /** @var Technology $technology */
+        $technology = $this->iriConverter->getResourceFromIri($technologyIri);
+
+        if ($user->getTechnologies()->contains($technology)) {
+            throw new BadRequestHttpException("User has already contain this technology");
+        }
+
+        $user->addTechnology($technology);
+        $this->em->flush();
+
+        return $technology;
 
     }
 

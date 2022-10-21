@@ -1,0 +1,22 @@
+App\Entity\JobOffer:
+  job_offertest:
+    name: <name()>
+    description: <generateRandomLengthDescription()>
+    salaryRange: <generateSalaryRange()>
+    redirectCount: <numberBetween(0, 100)>
+    address: '@address_*'
+    formOfEmployment: '@form_of_employment_*'
+    workType: [ '@worktypes_*' ]
+    archived: false
+    technologies: [ '@test_technology' ]
+  job_offer_{1..100}:
+    name: <name()>
+    description: <generateRandomLengthDescription()>
+    salaryRange: <generateSalaryRange()>
+    redirectCount: <numberBetween(0, 100)>
+    address: '@address_*'
+    formOfEmployment: '@form_of_employment_*'
+    workType: ['@worktypes_*']
+    archived: false
+
+

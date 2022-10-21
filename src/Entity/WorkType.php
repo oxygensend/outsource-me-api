@@ -2,9 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\WorkTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            paginationEnabled: false,
+            normalizationContext: ["groups" => "work_type:get"],
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: WorkTypeRepository::class)]
 class WorkType
 {
@@ -14,6 +25,7 @@ class WorkType
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['work_type:get', 'jobOffer:one'])]
     private ?string $name = null;
 
     public function getId(): ?int

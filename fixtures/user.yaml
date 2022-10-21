@@ -15,9 +15,14 @@ App\Entity\User:
     githubUrl: testurl.com
     linkedinUrl: testurl.com
     description: <sentence(100)>
+    roles: ['ROLE_DEVELOPER']
     jobPositions: ['@job_position_test']
     educations: ['@test_education']
-    languages: ['@language_test']
+    languages: ['@languagetest']
+    technologies: ['@test_technology']
+    address: '@address_test'
+    opinions: [ '@opinion_test2' ,'@opinion_test3']
+
 
   user_test2:
     name: <name()>
@@ -31,18 +36,11 @@ App\Entity\User:
     githubUrl: testurl.com
     linkedinUrl: testurl.com
     description: <sentence(100)>
-    jobPositions: ['@job_position_test']
-    educations: ['@test_education']
-    languages: ['@language_test']
-
-
-  user_test_not_confirmed:
-    name: <name()>
-    surname: <name()>
-    email: test_not_confirmed@test.com
-    password: <{hash}>
-    accountType: Developer
-
+    roles: ['ROLE_PRINCIPLE']
+    languages: ['@language_1']
+    jobPositions: ['@job_position_test2']
+    jobOffers: ['@job_offertest']
+    address: '@address_2'
 
   user_test_true:
     name: <name()>
@@ -60,3 +58,30 @@ App\Entity\User:
     educations:  '<numberBetween(1,2)>x @education*'
     languages: '@language_{1..3}'
     technologies: '<numberBetween(5,20)>x @technology*'
+    opinions: ['@opinion_test']
+
+  user_test_not_confirmed:
+    name: <name()>
+    surname: <name()>
+    email: test_not_confirmed@test.com
+    password: <{hash}>
+    accountType: Developer
+
+
+
+  user_{1..100}:
+    name: <name()>
+    surname: <name()>
+    email: <email()>
+    password: <{hash}>
+    emailConfirmedAt: <dateTime()>
+    accountType: Principle
+    phoneNumber: 123123123
+    dateOfBirth: <dateTime()>
+    linkedinUrl: <url()>
+    description: <sentence(100)>
+    roles: ['ROLE_PRINCIPLE']
+    languages: '<numberBetween(1,3)>x @language_*'
+    jobPositions: '<numberBetween(0,4)>x @job_position_*'
+    address: '@address_*'
+    jobOffers: '<numberBetween(0,10)>x @job_offer_*'

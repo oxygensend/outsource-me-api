@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Api;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,6 +13,9 @@ class AbstractApiTestCase extends ApiTestCase
 
     protected EntityManagerInterface $em;
 
+    public const PRINCIPLE_CREDENTIALS = ['email' => 'principle@test.com', 'password' => 'test123'];
+    public const DEVELOPER_CREDENTIALS = ['email' => 'test@test.com', 'password' => 'test123'];
+
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
 
@@ -21,16 +24,13 @@ class AbstractApiTestCase extends ApiTestCase
         parent::__construct($name, $data, $dataName);
     }
 
-    protected function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
+    protected function loginRequest(array $credentials = []): \Symfony\Contracts\HttpClient\ResponseInterface
     {
         $client = static::createClient();
 
         return $client->request('POST', '/api/login', [
             'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'email' => $email,
-                'password' => $password
-            ]
+            'json' => $credentials
         ]);
 
     }

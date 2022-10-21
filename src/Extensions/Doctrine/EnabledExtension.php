@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\AboutUs;
 use App\Entity\Book;
 use App\Entity\Category;
+use App\Entity\JobOffer;
 use Doctrine\ORM\QueryBuilder;
 
 class EnabledExtension implements QueryCollectionExtensionInterface
@@ -19,13 +20,15 @@ class EnabledExtension implements QueryCollectionExtensionInterface
 
     private function andWhere(QueryBuilder $queryBuilder, string $resourceClass)
     {
-        if( AboutUs::class !== $resourceClass)
-            return;
+        if (AboutUs::class === $resourceClass) {
 
+            $rootAlias = $queryBuilder->getRootAliases()[0];
+            $queryBuilder->andWhere(sprintf('%s.enabled=true', $rootAlias));
+        } else if (JobOffer::class === $resourceClass) {
 
-        $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere(sprintf('%s.enabled=true', $rootAlias));
-
+            $rootAlias = $queryBuilder->getRootAliases()[0];
+            $queryBuilder->andWhere(sprintf('%s.archived=false', $rootAlias));
+        }
 
     }
 

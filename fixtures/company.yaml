@@ -1,0 +1,6 @@
+App\Entity\Company:
+  test_company:
+    name: AGH
+
+  company_{1..500}:
+    name: <name()>

@@ -3,23 +3,28 @@
 namespace App\Security\Voter;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Twig\Sandbox\SecurityPolicyInterface;
 
 class UserVoter extends Voter
 {
-    public const EDIT = 'USER_EDIT';
+    public const USER_EDIT = 'USER_EDIT';
+    public const DELETE_TECHNOLOGY = 'DELETE_TECHNOLOGY';
+    public const EDIT_OPINION = 'EDIT_OPINION';
 
-    public function __construct(readonly private Security $security)
+
+    public function __construct(readonly private UserRepository $userRepository)
     {
     }
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $attribute == self::EDIT && $subject instanceof User;
+        return (($attribute == self::USER_EDIT || $attribute == self::EDIT_OPINION)
+                && $subject instanceof User)
+            || ($attribute === self::DELETE_TECHNOLOGY && is_array($subject));
+
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -31,8 +36,13 @@ class UserVoter extends Voter
         }
 
         switch ($attribute) {
-            case self::EDIT:
-                if($user === $subject) return true;
+            case self::USER_EDIT:
+            case self::EDIT_OPINION:
+                if ($user === $subject) return true;
+                break;
+            case self::DELETE_TECHNOLOGY:
+                $resource = $this->userRepository->find($subject['userId']);
+                if ($resource === $user) return true;
                 break;
             default:
                 break;

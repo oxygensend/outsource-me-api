@@ -12,6 +12,7 @@ parameters:
         host: '%env(SERVER_HOSTNAME)%'
         app.path.image_about_us: '/uploads/about_us'
         app.path.image_users: '/uploads/users'
+        postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
 
 services:
     # default configuration for services in *this* file
@@ -30,9 +31,33 @@ services:
 
     App\State\UserRegistrationProcessor:
         bind:
-
             $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
-    # add more service definitions when explicit configuration is needed
+
+    App\State\JobPositionProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\EducationProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\LanguageProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\OpinionProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\JobOfferProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+    App\State\DeleteJobOfferProcessor:
+      bind:
+        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  # add more service definitions when explicit configuration is needed
+  # add more service definitions when explicit configuration is needed
 
     App\ArgumentResolver\RequestDtoValueResolver:
       tags:

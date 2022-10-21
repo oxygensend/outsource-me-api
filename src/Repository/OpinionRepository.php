@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Opinion;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Opinion>
@@ -37,6 +39,19 @@ class OpinionRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findOpinionsRelatedToUsers(User|UserInterface $fromWho, User $toWho): array
+    {
+       return $this->createQueryBuilder('o')
+           ->andWhere('o.fromWho = :fromWho')
+           ->andWhere('o.toWho = :toWho')
+           ->setParameters([
+               'toWho' => $toWho,
+               'fromWho' => $fromWho
+           ])
+           ->getQuery()
+           ->getResult();
     }
 
 //    /**
