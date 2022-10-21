@@ -32,7 +32,7 @@ class Address
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 
-    #[Serializer\Groups(['user:profile', 'address:list'])]
+    #[Serializer\Groups(['user:profile', 'address:list', 'jobOffer:get', 'jobOffer:one'])]
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 

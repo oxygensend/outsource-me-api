@@ -20,7 +20,7 @@ class UserTest extends AbstractApiTestCase
     public function testGetUserProfileDeveloperValidResponse(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/1', token: $token)->toArray();
 
         $this->developerAssertions($response);
@@ -31,7 +31,7 @@ class UserTest extends AbstractApiTestCase
     public function testGetUserProfilePrincipleValid(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/2', token: $token)->toArray();
 
         $this->principleAssertions($response);
@@ -41,7 +41,7 @@ class UserTest extends AbstractApiTestCase
     public function testGetLoggedUserData(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/me', token: $token)->toArray();
 
 
@@ -61,7 +61,7 @@ class UserTest extends AbstractApiTestCase
     public function testUpdateUserDataNotOwner(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/3', token: $token, headers: [
             'Content-Type' => 'application/merge-patch+json'
         ]);
@@ -72,7 +72,7 @@ class UserTest extends AbstractApiTestCase
     public function testUpdateUserData(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/me', json: [
             'email' => 'test@new.com',
             'phoneNumber' => '123321123',

@@ -14,6 +14,7 @@ class UserVoter extends Voter
     public const DELETE_TECHNOLOGY = 'DELETE_TECHNOLOGY';
     public const EDIT_OPINION = 'EDIT_OPINION';
 
+
     public function __construct(readonly private UserRepository $userRepository)
     {
     }

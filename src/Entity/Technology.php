@@ -43,10 +43,9 @@ class Technology
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Serializer\Groups(['technologies:get', 'user:profile-developer'])]
+    #[Serializer\Groups(['technologies:get', 'user:profile-developer', 'jobOffer:one'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
-
 
     public function getId(): ?int
     {

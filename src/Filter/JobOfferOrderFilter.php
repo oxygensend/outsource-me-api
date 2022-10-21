@@ -6,43 +6,47 @@ use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AddressSearchFilter extends AbstractFilter
+class JobOfferOrderFilter extends AbstractFilter
 {
-    public const PROPERTY = 'search';
-
+    public const PROPERTY = 'order';
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
-        if ($property !== self::PROPERTY)
+        if(self::PROPERTY !== $property)
             return;
 
-        if (!preg_match("/^\d{2}-\d{3}$/", $value)) {
-            throw new BadRequestHttpException('Invalid "search" format');
-        }
-
         $alias = $queryBuilder->getRootAliases()[0];
-        // a param name that is guaranteed unique in this query
-        $valueParameter = $queryNameGenerator->generateParameterName('search');
-        $queryBuilder
-            ->andWhere(sprintf('%s.postCodes LIKE :%s', $alias, $valueParameter))
-            ->setParameter($valueParameter, '%' . $value . '%');
-    }
 
+        switch ($value) {
+
+            case "popular":
+                $queryBuilder->orderBy(sprintf('%s.popularityOrder',$alias ), 'DESC');
+                break;
+            case "newest":
+                $queryBuilder->orderBy(sprintf('%s.createdAt', $alias), 'DESC');
+                break;
+            case "normal":
+                $queryBuilder->orderBy(sprintf('%s.displayOrder',$alias ), 'DESC');
+                break;
+
+
+        }
+    }
 
     public function getDescription(string $resourceClass): array
     {
-
         return [
             self::PROPERTY => [
                 'property' => null,
                 'type' => 'string',
                 'required' => false,
                 'openapi' => [
-                    'description' => 'Find address accorded to  postal code',
+                    'description' => 'Change order of displayed job offers',
+                    'name' => 'sort|string',
+                    'type' => 'popular|newest|normal'
                 ]
             ]
-        ];
-    }
+        ];    }
+
 
 }

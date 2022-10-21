@@ -17,7 +17,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testAddNewOpinion()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -38,7 +38,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testAddOpinionNegativeScale(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -59,7 +59,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testAddOpinionUpperRange()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -80,7 +80,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testAddOpinionToYourself()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -102,7 +102,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testAddOpinionTwiceToTheSameUser()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -142,7 +142,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testDeleteOpinion(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $this->createAuthorizedRequest(
             method: 'DELETE',
             uri: '/api/users/1/opinions/3',
@@ -154,7 +154,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testUpdateOpinion(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(
             method: 'PATCH',
             uri: '/api/opinions/3',
@@ -174,7 +174,7 @@ class OpinionTest extends AbstractApiTestCase
 
     public function testUpdateOpinionNotYours(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $response = $this->createAuthorizedRequest(
             method: 'PATCH',
             uri: '/api/opinions/1',

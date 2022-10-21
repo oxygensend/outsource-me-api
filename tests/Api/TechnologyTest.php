@@ -7,7 +7,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testGetTechnologiesList(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/technologies', token: $token)->toArray()['hydra:member'][0];
 
@@ -19,7 +19,7 @@ class TechnologyTest extends AbstractApiTestCase
     public function testSearchTechnology(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/technologies?name=Java', token: $token)->toArray()['hydra:member'][0];
 
@@ -30,7 +30,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testAddNewTechnologyToUser()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -46,7 +46,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testSameTechnologyTwiceToUser()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -65,7 +65,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testAddNewTechnologyNotOwnerAccess()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -93,7 +93,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testAddNewTechnologyNotExistingOne()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -108,7 +108,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testAddNewTechnologyValidatio()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -123,7 +123,7 @@ class TechnologyTest extends AbstractApiTestCase
 
     public function testDeleteUserTechnology(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $this->createAuthorizedRequest(
             method: 'DELETE',
             uri: '/api/users/1/technologies/1',

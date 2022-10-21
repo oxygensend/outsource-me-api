@@ -12,7 +12,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class SecurityTest extends ApiTestCase
+class SecurityTest extends AbstractApiTestCase
 {
     use ReloadDatabaseTrait;
 
@@ -185,7 +185,7 @@ class SecurityTest extends ApiTestCase
 
     public function testApiSuccessfullLogin(): void
     {
-        $response = $this->loginRequest()->toArray();
+        $response = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray();
 
         $this->assertResponseIsSuccessful();
         $this->assertArrayHasKey('refresh_token', $response);
@@ -196,7 +196,7 @@ class SecurityTest extends ApiTestCase
     {
         $client = static::createClient();
         $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $payload = $encoder->decode($token);
 
@@ -214,7 +214,7 @@ class SecurityTest extends ApiTestCase
 
     public function testLoginBadCredentialsValidation(): void
     {
-        $response = $this->loginRequest('test123', 'test');
+        $response = $this->loginRequest(['email'=> 'test123', 'password' =>'test']);
 
         $this->assertJsonContains([
             'code' => 401,
@@ -228,7 +228,7 @@ class SecurityTest extends ApiTestCase
     {
         $client = static::createClient();
         $encoder = $client->getContainer()->get(JWTEncoderInterface::class);
-        $response = $this->loginRequest()->toArray();
+        $response = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray();
 
         $token = $response['refresh_token'];
 
@@ -377,7 +377,7 @@ class SecurityTest extends ApiTestCase
 
     public function testChangePasswordValidResponse(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $client = static::createClient();
         $em = $client->getContainer()->get(EntityManagerInterface::class);
         $passwordHasher = $client->getContainer()->get(UserPasswordHasherInterface::class);
@@ -404,7 +404,7 @@ class SecurityTest extends ApiTestCase
 
     public function testChangePasswordInValidOldPassword(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = static::createClient()->request('POST', '/api/change_password', [
             'headers' => [
@@ -423,7 +423,7 @@ class SecurityTest extends ApiTestCase
 
     public function testChangePasswordInValidNewPassword(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = static::createClient()->request('POST', '/api/change_password', [
             'headers' => [
@@ -459,19 +459,6 @@ class SecurityTest extends ApiTestCase
     }
 
 
-    private function loginRequest(string $password = 'test123', string $email = 'test@test.com'): \Symfony\Contracts\HttpClient\ResponseInterface
-    {
-        $client = static::createClient();
-
-        return $client->request('POST', '/api/login', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'email' => $email,
-                'password' => $password
-            ]
-        ]);
-
-    }
 
 
 }

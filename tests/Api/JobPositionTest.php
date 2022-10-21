@@ -6,7 +6,7 @@ class JobPositionTest extends AbstractApiTestCase
 {
     public function testAddNewJobPositionToUser()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -61,7 +61,7 @@ class JobPositionTest extends AbstractApiTestCase
 
     public function testAddNewJobPositionValidFormOfEmplymentIri()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -85,7 +85,7 @@ class JobPositionTest extends AbstractApiTestCase
 
     public function testAddNewJobPositionValidDates()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -109,7 +109,7 @@ class JobPositionTest extends AbstractApiTestCase
 
     public function testDeleteUserJobPosition(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $this->createAuthorizedRequest(
             method: 'DELETE',
             uri: '/api/users/1/job_positions/1',
@@ -121,7 +121,7 @@ class JobPositionTest extends AbstractApiTestCase
 
     public function testUpdateUserJobPosition(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $data = [
             'name' => 'test2',

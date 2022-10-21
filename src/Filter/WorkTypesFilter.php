@@ -5,44 +5,51 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AddressSearchFilter extends AbstractFilter
+class WorkTypesFilter extends AbstractFilter
 {
-    public const PROPERTY = 'search';
+    public const PROPERTY = 'workTypes';
 
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
-        if ($property !== self::PROPERTY)
+        if($property !== self::PROPERTY)
             return;
 
-        if (!preg_match("/^\d{2}-\d{3}$/", $value)) {
-            throw new BadRequestHttpException('Invalid "search" format');
+        $alias = $queryBuilder->getRootAliases()[0];
+
+        $valueArray = explode(',', $value);
+
+        $queryBuilder
+            ->leftJoin(sprintf('%s.workType', $alias), 'w');
+
+        $orx = new Orx();
+
+        foreach ($valueArray as $parameter) {
+            $valueParameter = $queryNameGenerator->generateParameterName(self::PROPERTY);
+            $orx->add(sprintf('w.id = :%s', $valueParameter));
+            $queryBuilder->setParameter($valueParameter, $parameter);
         }
 
-        $alias = $queryBuilder->getRootAliases()[0];
-        // a param name that is guaranteed unique in this query
-        $valueParameter = $queryNameGenerator->generateParameterName('search');
-        $queryBuilder
-            ->andWhere(sprintf('%s.postCodes LIKE :%s', $alias, $valueParameter))
-            ->setParameter($valueParameter, '%' . $value . '%');
+        $queryBuilder->andWhere($orx);
     }
-
 
     public function getDescription(string $resourceClass): array
     {
-
         return [
             self::PROPERTY => [
                 'property' => null,
                 'type' => 'string',
                 'required' => false,
                 'openapi' => [
-                    'description' => 'Find address accorded to  postal code',
+                    'description' => 'Find job offers with provided workTypes',
+                    'name' => 'workTypes|array',
+                    'type' => 'string[]|array'
                 ]
             ]
         ];
     }
+
 
 }

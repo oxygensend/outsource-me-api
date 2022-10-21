@@ -3,19 +3,15 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Controller\Api\AddTechnologyAction;
 use App\Controller\Api\ChangePasswordAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
-use App\State\EditUserProvider;
 use App\State\UserRegistrationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -331,6 +327,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
+    private Collection $JobOffers;
+
 
     public function __construct()
     {
@@ -341,6 +340,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->opinions = new ArrayCollection();
         $this->applications = new ArrayCollection();
         $this->technologies = new ArrayCollection();
+        $this->JobOffers = new ArrayCollection();
     }
 
 
@@ -721,7 +721,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-    #[Serializer\Groups(['user:profile','opinions:get'])]
+    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
@@ -812,6 +812,36 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setAddress(?Address $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JobOffer>
+     */
+    public function getJobOffers(): Collection
+    {
+        return $this->JobOffers;
+    }
+
+    public function addJobOffer(JobOffer $jobOffer): self
+    {
+        if (!$this->JobOffers->contains($jobOffer)) {
+            $this->JobOffers->add($jobOffer);
+            $jobOffer->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobOffer(JobOffer $jobOffer): self
+    {
+        if ($this->JobOffers->removeElement($jobOffer)) {
+            // set the owning side to null (unless already changed)
+            if ($jobOffer->getUser() === $this) {
+                $jobOffer->setUser(null);
+            }
+        }
 
         return $this;
     }

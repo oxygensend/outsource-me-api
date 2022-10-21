@@ -12,7 +12,7 @@ App\Entity\JobPosition:
     formOfEmployment: '@form_of_employment_full_time'
 
 
-  job_position_{1..10}:
+  job_position_{1..1000}:
     name: <name()>
     company: '@company*'
     description: <sentence(100)>

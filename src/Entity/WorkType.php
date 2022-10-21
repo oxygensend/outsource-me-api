@@ -25,7 +25,7 @@ class WorkType
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['work_type:get'])]
+    #[Groups(['work_type:get', 'jobOffer:one'])]
     private ?string $name = null;
 
     public function getId(): ?int

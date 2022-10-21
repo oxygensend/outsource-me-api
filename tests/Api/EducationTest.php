@@ -6,7 +6,7 @@ class EducationTest extends AbstractApiTestCase
 {
     public function testAddNewEducationToUser()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -56,7 +56,7 @@ class EducationTest extends AbstractApiTestCase
 
     public function testAddNewEducationValidUniIri()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -78,7 +78,7 @@ class EducationTest extends AbstractApiTestCase
 
     public function testAddNewEducationValidDates()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -98,7 +98,7 @@ class EducationTest extends AbstractApiTestCase
 
     public function testAddNewEducationNoStartDate()
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -118,7 +118,7 @@ class EducationTest extends AbstractApiTestCase
 
     public function testDeleteUserEducation(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
         $this->createAuthorizedRequest(
             method: 'DELETE',
             uri: '/api/users/1/educations/1',
@@ -130,7 +130,7 @@ class EducationTest extends AbstractApiTestCase
 
     public function testUpdateUserEducation(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $data = [
             'university' => '/api/universities/1',

@@ -9,7 +9,7 @@ class LanguageTest extends AbstractApiTestCase
 
     public function testGetUsersLanguages(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'GET',
@@ -26,7 +26,7 @@ class LanguageTest extends AbstractApiTestCase
     public function testAddNewLanguage(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -65,7 +65,7 @@ class LanguageTest extends AbstractApiTestCase
     public function testAddNewLanguageValidName(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'POST',
@@ -82,7 +82,7 @@ class LanguageTest extends AbstractApiTestCase
 
     public function testUpdateUserLanguage(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'PATCH',
@@ -107,7 +107,7 @@ class LanguageTest extends AbstractApiTestCase
 
     public function testUpdateNotLoggedUserLanguage(): void
     {
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'PATCH',
@@ -130,7 +130,7 @@ class LanguageTest extends AbstractApiTestCase
     public function testDeleteLanguageFromUser(): void
     {
 
-        $token = $this->loginRequest()->toArray()['token'];
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'DELETE',

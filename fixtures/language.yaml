@@ -1,5 +1,5 @@
 App\Entity\Language:
-  language_test:
+  languagetest:
     name: PL
     description: <sentence(100)>
 
