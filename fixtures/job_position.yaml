@@ -4,13 +4,16 @@ App\Entity\JobPosition:
     company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
+    validFrom: <datetime()>
+    validTo: <datetime()>
 
   job_position_test2:
     name: Zawodowiec
     company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
-
+    validFrom: <datetime()>
+    validTo: <datetime()>
 
   job_position_{1..1000}:
     name: <name()>

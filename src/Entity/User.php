@@ -265,20 +265,16 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
-    #[Serializer\Groups(['user:profile'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
-    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
-    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
     #[ORM\OneToMany(mappedBy: 'toWho', targetEntity: Opinion::class, orphanRemoval: true)]
-    #[Serializer\Groups(['user:profile'])]
     private Collection $opinions;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]

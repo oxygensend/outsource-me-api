@@ -104,12 +104,6 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('linkedinUrl', $response);
         $this->assertArrayHasKey('dateOfBirth', $response);
         $this->assertArrayHasKey('accountType', $response);
-        $this->assertArrayHasKey('jobPositions', $response);
-        $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
-        $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
@@ -127,12 +121,6 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('linkedinUrl', $response);
         $this->assertArrayHasKey('dateOfBirth', $response);
         $this->assertArrayHasKey('accountType', $response);
-        $this->assertArrayHasKey('jobPositions', $response);
-        $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
-        $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
