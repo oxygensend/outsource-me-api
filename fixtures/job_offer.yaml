@@ -18,5 +18,6 @@ App\Entity\JobOffer:
     formOfEmployment: '@form_of_employment_*'
     workType: ['@worktypes_*']
     archived: false
+    user: '@user_principle_*'
 
 

@@ -40,6 +40,7 @@ class Technology
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    #[Serializer\Groups(['technologies:get'])]
     #[ORM\Column]
     private ?int $id = null;
 

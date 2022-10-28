@@ -2,6 +2,8 @@
 
 namespace App\Tests\Api;
 
+use App\Entity\User;
+
 class JobPositionTest extends AbstractApiTestCase
 {
     public function testAddNewJobPositionToUser()
@@ -37,6 +39,42 @@ class JobPositionTest extends AbstractApiTestCase
 
     }
 
+    public function testAddNewJobPositionAsActive()
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_positions',
+            json: [
+                'name' => 'test',
+                'validFrom' => '2020-10-01',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'description' => "TEST tes testset",
+                'company' => [
+                    'name' => 'AGH'
+                ],
+            ],
+            token: $token
+        )->toArray();
+
+
+        $em = static::getContainer()->get('doctrine')->getManager();
+
+        /** @var User|null $user */
+        $user = $em->getRepository(User::class)->findOneBy(['email' => self::DEVELOPER_CREDENTIALS['email']]);
+
+        $this->assertResponseIsSuccessful();
+
+        $this->assertEquals($user->getActiveJobPosition(), 'test');
+        $this->assertArrayHasKey('@id', $response);
+        $this->assertArrayHasKey('company', $response);
+        $this->assertArrayHasKey('validFrom', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('formOfEmployment', $response);
+
+    }
 
     public function testAddNewJobNotAuthenticated()
     {

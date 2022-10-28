@@ -90,6 +90,20 @@ class UserTest extends AbstractApiTestCase
 
     }
 
+    public function testGetDevelopers(): void
+    {
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users')->toArray()['hydra:member'][0];
+
+
+        $this->assertResponseIsSuccessful();
+
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('imagePath', $response);
+        $this->assertArrayHasKey('fullName', $response);
+        $this->assertArrayHasKey('address', $response);
+        $this->assertArrayHasKey('city', $response['address']);
+    }
+
 
     private function developerAssertions(array $response): void
     {

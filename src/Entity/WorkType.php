@@ -22,6 +22,7 @@ class WorkType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['work_type:get'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]

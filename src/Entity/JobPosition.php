@@ -48,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class JobPosition extends AbstractEntity
 {
     #[Assert\NotBlank]
-    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit', 'user:get', 'jobOffer:get'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -79,6 +79,9 @@ class JobPosition extends AbstractEntity
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     private ?\DateTimeInterface $validTo = null;
+
+    #[ORM\Column]
+    private ?bool $active = false;
 
 
     public function getName(): ?string
@@ -162,6 +165,18 @@ class JobPosition extends AbstractEntity
     public function setValidTo(\DateTimeInterface $validTo): self
     {
         $this->validTo = $validTo;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }

@@ -438,9 +438,11 @@ class JobOfferTest extends AbstractApiTestCase
         $this->assertArrayHasKey('@id', $response);
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('shortDescription', $response);
         $this->assertArrayHasKey('salaryRange', $response);
         $this->assertArrayHasKey('user', $response);
         $this->assertArrayHasKey('fullName', $response['user']);
+        $this->assertArrayHasKey('imagePath', $response['user']);
         $this->assertArrayHasKey('city', $response['address']);
         $this->assertArrayHasKey('numberOfApplications', $response);
     }

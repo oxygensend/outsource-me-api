@@ -22,6 +22,7 @@ class JobOfferProcessor implements ProcessorInterface
 
         $data->setUser($this->security->getUser());
 
+
         $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

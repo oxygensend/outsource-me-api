@@ -26,13 +26,14 @@ class Address
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    #[Serializer\Groups(['address:list'])]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 
-    #[Serializer\Groups(['user:profile', 'address:list', 'jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['user:profile', 'address:list', 'jobOffer:get', 'jobOffer:one', 'user:get'])]
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 

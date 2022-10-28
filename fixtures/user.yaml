@@ -69,7 +69,7 @@ App\Entity\User:
 
 
 
-  user_{1..100}:
+  user_principle_{1..100}:
     name: <name()>
     surname: <name()>
     email: <email()>
@@ -84,4 +84,3 @@ App\Entity\User:
     languages: '<numberBetween(1,3)>x @language_*'
     jobPositions: '<numberBetween(0,4)>x @job_position_*'
     address: '@address_*'
-    jobOffers: '<numberBetween(0,10)>x @job_offer_*'

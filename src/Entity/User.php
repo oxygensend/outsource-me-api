@@ -2,8 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\AddTechnologyAction;
@@ -190,6 +194,9 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             controller: AddTechnologyAction::class,
             shortName: "Technology",
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
+        ),
+        new GetCollection(
+            normalizationContext: ['groups' => ['user:get']]
         )
 
 
@@ -198,6 +205,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
     denormalizationContext: ["groups" => "user:register"],
 
 )]
+#[ApiFilter(SearchFilter::class,properties:['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -238,7 +246,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
 
-    #[Serializer\Groups(['user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:profile', 'user:edit', 'user:get'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -319,12 +327,16 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToMany(targetEntity: Technology::class)]
     private Collection $technologies;
 
-    #[Serializer\Groups(['user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:profile', 'user:edit', 'user:get'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
     private Collection $JobOffers;
+
+    #[Serializer\Groups(['user:profile', 'user:get', 'jobOffer:get'])]
+    #[ORM\Column(nullable: true)]
+    private ?string $activeJobPosition = null;
 
 
     public function __construct()
@@ -388,6 +400,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[Serializer\SerializedName("shortDescription")]
+    #[Serializer\Groups(['user:get'])]
+    public function getShortDescription(): string
+    {
+        return substr($this->description,0,100);
+    }
 
     public function getDescription(): ?string
     {
@@ -717,13 +735,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
-    #[Serializer\Groups(['user:profile', 'opinions:get'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'user:get'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {
@@ -838,6 +856,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
                 $jobOffer->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getActiveJobPosition(): ?string
+    {
+        return $this->activeJobPosition;
+    }
+
+    public function setActiveJobPosition(?string $activeJobPosition): self
+    {
+        $this->activeJobPosition = $activeJobPosition;
 
         return $this;
     }

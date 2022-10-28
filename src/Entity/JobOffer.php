@@ -138,6 +138,13 @@ class JobOffer extends AbstractEntity
         return $this;
     }
 
+    #[Serializer\SerializedName("shortDescription")]
+    #[Serializer\Groups(['jobOffer:get'])]
+    public function getShortDescription(): string
+    {
+        return substr($this->description, 0, 100);
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -307,7 +314,7 @@ class JobOffer extends AbstractEntity
 
     public function removeTechnology(Technology $technology): self
     {
-       $this->technologies->removeElement($technology);
+        $this->technologies->removeElement($technology);
 
         return $this;
     }

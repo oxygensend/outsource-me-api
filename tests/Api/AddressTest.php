@@ -11,6 +11,7 @@ class AddressTest extends AbstractApiTestCase
         $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/addresses', token: $token)->toArray()['hydra:member'][0];
 
         $this->assertResponseIsSuccessful();
+        $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('city', $response);
     }
 
