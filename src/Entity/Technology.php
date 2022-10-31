@@ -40,7 +40,7 @@ class Technology
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[Serializer\Groups(['technologies:get'])]
+    #[Serializer\Groups(['technologies:get', 'user:profile-developer'])]
     #[ORM\Column]
     private ?int $id = null;
 

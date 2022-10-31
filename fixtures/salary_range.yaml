@@ -1,0 +1,11 @@
+App\Entity\SalaryRange:
+  salary_{1..100}:
+    currency: <chooseCurrency()>
+    upRange: <numberBetween(1000,30000)>
+    downRange: <numberBetween(1000,30000)>
+    type: <chooseType()>
+  salary_test:
+    currency: <chooseCurrency()>
+    upRange: <numberBetween(1000,30000)>
+    downRange: <numberBetween(1000,30000)>
+    type: <chooseType()>

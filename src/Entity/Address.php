@@ -30,6 +30,7 @@ class Address
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 

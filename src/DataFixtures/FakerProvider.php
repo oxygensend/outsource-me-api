@@ -2,6 +2,8 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\JobOffer;
+use App\Entity\SalaryRange;
 use Faker\Provider\Base;
 
 class FakerProvider extends Base
@@ -20,12 +22,26 @@ class FakerProvider extends Base
 
     public function generateUrl(): string
     {
-       return $this->generator->url();
+        return $this->generator->url();
     }
 
     public function generateRandomLengthDescription(): string
     {
-        return $this->generator->text(random_int(5,200));
+        return $this->generator->text(random_int(5, 200));
     }
 
+    public function chooseExperience(): string
+    {
+        return array_rand(JobOffer::EXPERIENCE_CHOICES);
+    }
+
+    public function chooseType(): string
+    {
+        return array_rand(SalaryRange::TYPE_CHOICES);
+    }
+
+    public function chooseCurrency(): string
+    {
+        return array_rand(SalaryRange::CURRENCIES_CHOICES);
+    }
 }

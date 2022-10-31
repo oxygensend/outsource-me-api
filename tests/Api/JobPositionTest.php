@@ -15,8 +15,8 @@ class JobPositionTest extends AbstractApiTestCase
             uri: '/api/job_positions',
             json: [
                 'name' => 'test',
-                'validFrom' => '2020-10-01',
-                'validTo' => '2023-10-02',
+                'startDate' => '2020-10-01',
+                'endDate' => '2023-10-02',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'description' => "TEST tes testset",
                 'company' => [
@@ -31,8 +31,8 @@ class JobPositionTest extends AbstractApiTestCase
 
         $this->assertArrayHasKey('@id', $response);
         $this->assertArrayHasKey('company', $response);
-        $this->assertArrayHasKey('validTo', $response);
-        $this->assertArrayHasKey('validFrom', $response);
+        $this->assertArrayHasKey('endDate', $response);
+        $this->assertArrayHasKey('startDate', $response);
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('description', $response);
         $this->assertArrayHasKey('formOfEmployment', $response);
@@ -48,7 +48,7 @@ class JobPositionTest extends AbstractApiTestCase
             uri: '/api/job_positions',
             json: [
                 'name' => 'test',
-                'validFrom' => '2020-10-01',
+                'startDate' => '2020-10-01',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'description' => "TEST tes testset",
                 'company' => [
@@ -69,7 +69,7 @@ class JobPositionTest extends AbstractApiTestCase
         $this->assertEquals($user->getActiveJobPosition(), 'test');
         $this->assertArrayHasKey('@id', $response);
         $this->assertArrayHasKey('company', $response);
-        $this->assertArrayHasKey('validFrom', $response);
+        $this->assertArrayHasKey('startDate', $response);
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('description', $response);
         $this->assertArrayHasKey('formOfEmployment', $response);
@@ -84,8 +84,8 @@ class JobPositionTest extends AbstractApiTestCase
             uri: '/api/job_positions',
             json: [
                 'name' => 'test',
-                'validFrom' => '2020-10-01',
-                'validTo' => '2023-10-02',
+                'startDate' => '2020-10-01',
+                'endDate' => '2023-10-02',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'description' => "TEST tes testset",
                 'company' => [
@@ -106,8 +106,8 @@ class JobPositionTest extends AbstractApiTestCase
             uri: '/api/job_positions',
             json: [
                 'name' => 'test',
-                'validFrom' => '2020-10-01',
-                'validTo' => '2023-10-02',
+                'startDate' => '2020-10-01',
+                'endDate' => '2023-10-02',
                 'formOfEmployment' => '/api/form_of_employments',
                 'description' => "TEST tes testset",
                 'company' => [
@@ -130,8 +130,8 @@ class JobPositionTest extends AbstractApiTestCase
             uri: '/api/job_positions',
             json: [
                 'name' => 'test',
-                'validFrom' => 'test',
-                'validTo' => 'test',
+                'startDate' => 'test',
+                'endDate' => 'test',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'description' => "TEST tes testset",
                 'company' => [
@@ -142,6 +142,30 @@ class JobPositionTest extends AbstractApiTestCase
         );
 
         $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testAddNewJobPositionValidDateTimeRange()
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_positions',
+            json: [
+                'name' => 'test',
+                'startDate' => '2015-12-12',
+                'endDate' => '2013-12-12',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'description' => "TEST tes testset",
+                'company' => [
+                    'name' => 'AGH'
+                ],
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(["hydra:description" => "The value of endDate cannot be bigger than startDate"]);
     }
 
 

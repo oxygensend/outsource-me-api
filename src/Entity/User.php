@@ -17,10 +17,13 @@ use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
 use App\State\UserRegistrationProcessor;
+use App\Validator\PhoneNumber;
+use App\Validator\Url;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -196,7 +199,9 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         ),
         new GetCollection(
+            paginationItemsPerPage: 10,
             normalizationContext: ['groups' => ['user:get']]
+
         )
 
 
@@ -242,6 +247,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $surname = null;
 
+    #[PhoneNumber]
     #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
@@ -250,10 +256,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Url]
     #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $githubUrl = null;
 
+    #[Url]
     #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $linkedinUrl = null;
@@ -331,12 +339,17 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
+    #[Serializer\Groups(['user:profile-principle'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
-    private Collection $JobOffers;
+    private Collection $jobOffers;
 
     #[Serializer\Groups(['user:profile', 'user:get', 'jobOffer:get'])]
     #[ORM\Column(nullable: true)]
     private ?string $activeJobPosition = null;
+
+    #[Slug(fields: ['name'])]
+    #[ORM\Column(length: 255, unique: true, nullable: false)]
+    private ?string $slug;
 
 
     public function __construct()
@@ -348,7 +361,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->opinions = new ArrayCollection();
         $this->applications = new ArrayCollection();
         $this->technologies = new ArrayCollection();
-        $this->JobOffers = new ArrayCollection();
+        $this->jobOffers = new ArrayCollection();
     }
 
 
@@ -741,7 +754,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this->name . ' ' . $this->surname;
     }
 
-    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'user:get'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {
@@ -835,13 +848,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
      */
     public function getJobOffers(): Collection
     {
-        return $this->JobOffers;
+        return $this->jobOffers;
     }
 
     public function addJobOffer(JobOffer $jobOffer): self
     {
-        if (!$this->JobOffers->contains($jobOffer)) {
-            $this->JobOffers->add($jobOffer);
+        if (!$this->jobOffers->contains($jobOffer)) {
+            $this->jobOffers->add($jobOffer);
             $jobOffer->setUser($this);
         }
 
@@ -850,7 +863,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     public function removeJobOffer(JobOffer $jobOffer): self
     {
-        if ($this->JobOffers->removeElement($jobOffer)) {
+        if ($this->jobOffers->removeElement($jobOffer)) {
             // set the owning side to null (unless already changed)
             if ($jobOffer->getUser() === $this) {
                 $jobOffer->setUser(null);
@@ -868,6 +881,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setActiveJobPosition(?string $activeJobPosition): self
     {
         $this->activeJobPosition = $activeJobPosition;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }

@@ -4,6 +4,7 @@ namespace App\Tests\Api;
 
 
 use App\Entity\JobOffer;
+use App\Entity\SalaryRange;
 use Symfony\Component\HttpFoundation\Response;
 
 class JobOfferTest extends AbstractApiTestCase
@@ -38,7 +39,7 @@ class JobOfferTest extends AbstractApiTestCase
     {
         $response = $this->createAuthorizedRequest(
             method: 'GET',
-            uri: '/api/job_offers/1'
+            uri: '/api/job_offers/job-offer-test'
         )->toArray();
 
         $this->assertResponseIsSuccessful();
@@ -67,7 +68,13 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/technologies/2',
                     '/api/technologies/3',
                 ],
-                'salaryRange' => '2000-3000zl',
+                'salaryRange' => [
+                    'upRange' => 2000,
+                    'downRange' => 1000,
+                    'type' => SalaryRange::TYPE_CHOICES[0],
+                    'currency' => SalaryRange::CURRENCIES_CHOICES[0],
+                ],
+                'experience' => JobOffer::EXPERIENCE_CHOICES[0],
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -92,7 +99,12 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
+                'salaryRange' => [
+                    'upRange' => 2000,
+                    'downRange' => 1000,
+                    'type' => SalaryRange::TYPE_CHOICES[0],
+                    'currency' => SalaryRange::CURRENCIES_CHOICES[0],
+                ],
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -120,7 +132,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -131,6 +142,139 @@ class JobOfferTest extends AbstractApiTestCase
 
         $this->assertJsonContains([
             'hydra:description' => 'description: This value should not be blank.'
+        ]);
+    }
+
+
+    public function testAddJobOfferValidExperience()
+    {
+
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_offers',
+            json: [
+                'name' => 'test',
+                'workType' => [
+                    '/api/work_types/1',
+                    '/api/work_types/2'
+                ],
+                'salaryRange' => [
+                    'upRange' => 2000,
+                    'downRange' => 1000,
+                    'type' => SalaryRange::TYPE_CHOICES[0],
+                    'currency' => SalaryRange::CURRENCIES_CHOICES[0],
+                ],
+                'description' => 'test',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'address' => '/api/addresses/1',
+                'experience' => 'Test'
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'experience: The "Test" is not a valid choice.Valid choices: "Senior", "Junior", "Mid", "Expert", "Stażysta"'
+        ]);
+    }
+    public function testAddJobOfferValidSalaryRange()
+    {
+
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_offers',
+            json: [
+                'name' => 'test',
+                'workType' => [
+                    '/api/work_types/1',
+                    '/api/work_types/2'
+                ],
+                'salaryRange' => [
+                    'upRange' => 1000,
+                    'downRange' => 2000,
+                    'type' => SalaryRange::TYPE_CHOICES[0],
+                    'currency' => SalaryRange::CURRENCIES_CHOICES[0],
+                ],
+                'description' => 'test',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'address' => '/api/addresses/1',
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'salaryRange: The value of upRange must by greater than downRange'
+        ]);
+    }
+
+    public function testAddJobOfferValidSalaryRangeType()
+    {
+
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_offers',
+            json: [
+                'name' => 'test',
+                'workType' => [
+                    '/api/work_types/1',
+                    '/api/work_types/2'
+                ],
+                'salaryRange' => [
+                    'upRange' => 3000,
+                    'downRange' => 2000,
+                    'type' =>  'test',
+                    'currency' => SalaryRange::CURRENCIES_CHOICES[0],
+                ],
+                'description' => 'test',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'address' => '/api/addresses/1',
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'salaryRange.type: The "test" is not a valid choice.Valid choices: "brutto", "netto"'
+        ]);
+    }
+
+    public function testAddJobOfferValidSalaryRangeCurrency()
+    {
+
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/job_offers',
+            json: [
+                'name' => 'test',
+                'workType' => [
+                    '/api/work_types/1',
+                    '/api/work_types/2'
+                ],
+                'salaryRange' => [
+                    'upRange' => 3000,
+                    'downRange' => 2000,
+                    'type' => SalaryRange::TYPE_CHOICES[0],
+                    'currency' => 'test'
+                ],
+                'description' => 'test',
+                'formOfEmployment' => '/api/form_of_employments/1',
+                'address' => '/api/addresses/1',
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $this->assertJsonContains([
+            'hydra:description' => 'salaryRange.currency: The "test" is not a valid choice.Valid choices: "PL", "EUR", "USD"'
         ]);
     }
 
@@ -149,7 +293,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
                 'address' => '/api/addresses/1',
             ],
             token: $token
@@ -203,7 +346,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -237,7 +379,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -269,7 +410,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/1',
                     '/api/work_types/2'
                 ],
-                'salaryRange' => '2000-3000zl',
                 'formOfEmployment' => '/api/form_of_employments/1',
                 'address' => '/api/addresses/1',
             ],
@@ -302,7 +442,6 @@ class JobOfferTest extends AbstractApiTestCase
                     '/api/work_types/2'
                 ],
                 'formOfEmployment' => '',
-                'salaryRange' => '2000-3000zl',
                 'address' => '/api/addresses/1',
             ],
             token: $token,
@@ -439,11 +578,9 @@ class JobOfferTest extends AbstractApiTestCase
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('description', $response);
         $this->assertArrayHasKey('shortDescription', $response);
-        $this->assertArrayHasKey('salaryRange', $response);
         $this->assertArrayHasKey('user', $response);
         $this->assertArrayHasKey('fullName', $response['user']);
         $this->assertArrayHasKey('imagePath', $response['user']);
-        $this->assertArrayHasKey('city', $response['address']);
         $this->assertArrayHasKey('numberOfApplications', $response);
     }
 

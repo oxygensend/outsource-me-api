@@ -1,24 +1,24 @@
 App\Entity\JobPosition:
-  job_position_test:
+  job_positiontest:
     name: Programista
     company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
-    validFrom: <datetime()>
-    validTo: <datetime()>
+    startDate: <datetime()>
+    endDate: <datetime()>
 
-  job_position_test2:
+  job_positiontest2:
     name: Zawodowiec
     company: '@test_company'
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
-    validFrom: <datetime()>
-    validTo: <datetime()>
+    startDate: <datetime()>
+    endDate: <datetime()>
 
   job_position_{1..1000}:
     name: <name()>
     company: '@company*'
     description: <sentence(100)>
-    validFrom: <datetime()>
-    validTo: <datetime()>
+    startDate: <datetime()>
+    endDate: <datetime()>
     formOfEmployment: '@form_of_employment*'

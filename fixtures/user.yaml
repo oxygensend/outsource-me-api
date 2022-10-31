@@ -4,29 +4,30 @@ parameters:
 
 App\Entity\User:
   user_test:
-    name: <name()>
-    surname: <name()>
+    name: <name(1)>
+    surname: <name(1)>
     email: test@test.com
     password: <{hash}>
     emailConfirmedAt: <dateTime()>
     accountType: Developer
     phoneNumber: 123123123
     dateOfBirth: <dateTime()>
-    githubUrl: testurl.com
-    linkedinUrl: testurl.com
+    githubUrl:  <url()>
+    linkedinUrl: <url()>
     description: <sentence(100)>
     roles: ['ROLE_DEVELOPER']
-    jobPositions: ['@job_position_test']
+    jobPositions: ['@job_positiontest']
     educations: ['@test_education']
     languages: ['@languagetest']
     technologies: ['@test_technology']
     address: '@address_test'
     opinions: [ '@opinion_test2' ,'@opinion_test3']
-
+    slug: <slug()>
+    activeJobPosition: "Google"
 
   user_test2:
-    name: <name()>
-    surname: <name()>
+    name: <name(1)>
+    surname: <name(1)>
     email: principle@test.com
     password: <{hash}>
     emailConfirmedAt: <dateTime()>
@@ -38,9 +39,11 @@ App\Entity\User:
     description: <sentence(100)>
     roles: ['ROLE_PRINCIPLE']
     languages: ['@language_1']
-    jobPositions: ['@job_position_test2']
+    jobPositions: ['@job_positiontest2']
     jobOffers: ['@job_offertest']
     address: '@address_2'
+    slug: <slug()>
+    activeJobPosition: "Google"
 
   user_test_true:
     name: <name()>
@@ -59,6 +62,8 @@ App\Entity\User:
     languages: '@language_{1..3}'
     technologies: '<numberBetween(5,20)>x @technology*'
     opinions: ['@opinion_test']
+    slug: <slug()>
+    activeJobPosition: "Google"
 
   user_test_not_confirmed:
     name: <name()>
@@ -66,12 +71,13 @@ App\Entity\User:
     email: test_not_confirmed@test.com
     password: <{hash}>
     accountType: Developer
+    slug: <slug()>
 
 
 
   user_principle_{1..100}:
-    name: <name()>
-    surname: <name()>
+    name: <name(1)>
+    surname: <name(1)>
     email: <email()>
     password: <{hash}>
     emailConfirmedAt: <dateTime()>
@@ -84,3 +90,5 @@ App\Entity\User:
     languages: '<numberBetween(1,3)>x @language_*'
     jobPositions: '<numberBetween(0,4)>x @job_position_*'
     address: '@address_*'
+    slug: <slug()>
+    activeJobPosition: <sentence(1)>

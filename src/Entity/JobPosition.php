@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\JobPositionRepository;
 use App\State\JobPositionProcessor;
+use App\Validator\DateTimeRange;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
@@ -44,6 +45,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => 'job_position:read'],
 )]
+#[DateTimeRange]
 #[ORM\Entity(repositoryClass: JobPositionRepository::class)]
 class JobPosition extends AbstractEntity
 {
@@ -73,12 +75,12 @@ class JobPosition extends AbstractEntity
     #[Assert\Type("\DateTimeInterface")]
     #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $validFrom = null;
+    private ?\DateTimeInterface $startDate = null;
 
     #[Assert\Type("\DateTimeInterface")]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit'])]
-    private ?\DateTimeInterface $validTo = null;
+    private ?\DateTimeInterface $endDate = null;
 
     #[ORM\Column]
     private ?bool $active = false;
@@ -145,26 +147,26 @@ class JobPosition extends AbstractEntity
         return $this;
     }
 
-    public function getValidFrom(): ?\DateTimeInterface
+    public function getStartDate(): ?\DateTimeInterface
     {
-        return $this->validFrom;
+        return $this->startDate;
     }
 
-    public function setValidFrom(\DateTimeInterface $validFrom): self
+    public function setStartDate(\DateTimeInterface $startDate): self
     {
-        $this->validFrom = $validFrom;
+        $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getValidTo(): ?\DateTimeInterface
+    public function getEndDate(): ?\DateTimeInterface
     {
-        return $this->validTo;
+        return $this->endDate;
     }
 
-    public function setValidTo(\DateTimeInterface $validTo): self
+    public function setEndDate(\DateTimeInterface $endDate): self
     {
-        $this->validTo = $validTo;
+        $this->endDate = $endDate;
 
         return $this;
     }

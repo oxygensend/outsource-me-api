@@ -37,7 +37,7 @@ class JobPositionProcessor implements ProcessorInterface
 
         $data->setIndividual($this->security->getUser());
 
-        if (!$data->getValidTo()) {
+        if (!$data->getEndDate()) {
             $data->setActive(true);
             $data->getIndividual()->setActiveJobPosition($data->getName());
         }

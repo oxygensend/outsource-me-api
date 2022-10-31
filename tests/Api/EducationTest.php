@@ -116,6 +116,27 @@ class EducationTest extends AbstractApiTestCase
         $this->assertJsonContains(["hydra:description" => "startDate: This value should not be blank."]);
     }
 
+    public function testAddNewEducationDateTimeRangeValidation(): void
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'POST',
+            uri: '/api/education',
+            json: [
+                'university' => '/api/universities/1',
+                'startDate' => '2015-12-12',
+                'endDate' => '2013-12-12',
+                'fieldOfStudy' => 'Math',
+                'description' => "TEST tes testset",
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertJsonContains(["hydra:description" => "The value of endDate cannot be bigger than startDate"]);
+    }
+
     public function testDeleteUserEducation(): void
     {
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
@@ -147,9 +168,11 @@ class EducationTest extends AbstractApiTestCase
             headers: [
                 'Content-Type' => 'application/merge-patch+json'
             ]
-        );
+        )->toArray();
 
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains($data);
+        $this->assertArrayHasKey('university', $response);
+        $this->assertArrayHasKey('fieldOfStudy', $response);
+        $this->assertArrayHasKey('description', $response);
     }
 }
