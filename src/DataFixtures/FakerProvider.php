@@ -37,11 +37,11 @@ class FakerProvider extends Base
 
     public function chooseType(): string
     {
-        return array_rand(SalaryRange::TYPE_CHOICES);
+        return SalaryRange::TYPE_CHOICES[array_rand(SalaryRange::TYPE_CHOICES)];
     }
 
     public function chooseCurrency(): string
     {
-        return array_rand(SalaryRange::CURRENCIES_CHOICES);
+        return SalaryRange::CURRENCIES_CHOICES[array_rand(SalaryRange::CURRENCIES_CHOICES)];
     }
 }
