@@ -39,28 +39,15 @@ class JobOfferRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return JobOffer[] Returns an array of JobOffer objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('j')
-//            ->andWhere('j.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('j.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findExpiredJobOffers(): array
+    {
+        $today = (new \DateTime())->setTime(0,0,0);
 
-//    public function findOneBySomeField($value): ?JobOffer
-//    {
-//        return $this->createQueryBuilder('j')
-//            ->andWhere('j.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        return $this->createQueryBuilder('j')
+            ->andWhere('j.validTo = :today')
+            ->setParameter('today', $today)
+            ->getQuery()
+            ->getResult();
+
+    }
 }

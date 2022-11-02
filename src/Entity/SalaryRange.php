@@ -9,16 +9,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[\App\Validator\SalaryRange]
 #[ORM\Entity(repositoryClass: SalaryRangeRepository::class)]
-class SalaryRange
+class SalaryRange extends AbstractEntity
 {
 
     public const CURRENCIES_CHOICES = ['PL', 'EUR', 'USD'];
     public const TYPE_CHOICES = ['brutto', 'netto'];
-
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[Assert\NotBlank]
     #[Serializer\Groups(['jobOffer:write'])]
@@ -38,11 +33,6 @@ class SalaryRange
     #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
     #[ORM\Column(length: 8, nullable: true)]
     private ?string $type = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getDownRange(): ?float
     {

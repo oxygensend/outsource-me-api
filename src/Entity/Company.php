@@ -16,21 +16,11 @@ use Symfony\Component\Serializer\Annotation as Serializer;
     ],
 )]
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
-class Company
+class Company extends AbstractEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[Serializer\Groups(['user:profile', 'job_position:read', 'job_position:write', 'job_position:edit', 'company:list'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {

@@ -36,22 +36,12 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 )]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'start'])]
 #[ORM\Entity(repositoryClass: TechnologyRepository::class)]
-class Technology
+class Technology extends AbstractEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[Serializer\Groups(['technologies:get', 'user:profile-developer'])]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[Serializer\Groups(['technologies:get', 'user:profile-developer', 'jobOffer:one'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {

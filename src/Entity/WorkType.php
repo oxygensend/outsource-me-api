@@ -17,22 +17,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ]
 )]
 #[ORM\Entity(repositoryClass: WorkTypeRepository::class)]
-class WorkType
+class WorkType extends AbstractEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    #[Groups(['work_type:get'])]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     #[Groups(['work_type:get', 'jobOffer:one'])]
     private ?string $name = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {

@@ -355,6 +355,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private ?bool $lookingForJob = false;
 
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Attachment::class)]
+    private Collection $attachments;
+
 
     public function __construct()
     {
@@ -366,6 +369,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->applications = new ArrayCollection();
         $this->technologies = new ArrayCollection();
         $this->jobOffers = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
     }
 
 
@@ -909,6 +913,36 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setLookingForJob(bool $lookingForJob): self
     {
         $this->lookingForJob = $lookingForJob;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Attachment>
+     */
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(Attachment $attachment): self
+    {
+        if (!$this->attachments->contains($attachment)) {
+            $this->attachments->add($attachment);
+            $attachment->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachment(Attachment $attachment): self
+    {
+        if ($this->attachments->removeElement($attachment)) {
+            // set the owning side to null (unless already changed)
+            if ($attachment->getCreatedBy() === $this) {
+                $attachment->setCreatedBy(null);
+            }
+        }
 
         return $this;
     }
