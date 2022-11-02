@@ -46,7 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             new Delete(
                 uriVariables: [
-                    'slug' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
+                    'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
                 ],
                 security: "is_granted('DELETE_JOB_OFFER', object)",
                 processor: DeleteJobOfferProcessor::class
@@ -173,7 +173,7 @@ class JobOffer extends AbstractEntity
     }
 
     #[Serializer\SerializedName("shortDescription")]
-    #[Serializer\Groups(['jobOffer:get'])]
+    #[Serializer\Groups(['jobOffer:get', 'user:profile-principle'])]
     public function getShortDescription(): string
     {
         return substr($this->description, 0, 100);

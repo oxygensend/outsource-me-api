@@ -351,6 +351,10 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, unique: true, nullable: false)]
     private ?string $slug;
 
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[ORM\Column]
+    private ?bool $lookingForJob = false;
+
 
     public function __construct()
     {
@@ -417,7 +421,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[Serializer\Groups(['user:get'])]
     public function getShortDescription(): string
     {
-        return substr($this->description,0,100);
+        return substr($this->description, 0, 100);
     }
 
     public function getDescription(): ?string
@@ -782,7 +786,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         if ($this->imageNameSmall) {
             return self::IMG_DIR . $this->imageNameSmall;
         }
-        return self::IMG_DIR . '/images/user_placeholder.png';
+        return  '/images/user_placeholder.png';
     }
 
 
@@ -893,6 +897,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function isLookingForJob(): ?bool
+    {
+        return $this->lookingForJob;
+    }
+
+    public function setLookingForJob(bool $lookingForJob): self
+    {
+        $this->lookingForJob = $lookingForJob;
 
         return $this;
     }

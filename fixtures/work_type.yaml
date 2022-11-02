@@ -1,3 +1,9 @@
 App\Entity\WorkType:
-  worktypes_{1..10}:
-    name: <sentence(1)>
+  worktypes_remote:
+    name: "remote"
+  worktypes_office:
+    name: "office"
+  worktypes_hybrid:
+    name: "hybrid"
+  worktypes_negotiations:
+    name: "negotiations"

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\JobOffer;
 use App\Entity\SalaryRange;
+use App\Entity\WorkType;
 use Faker\Provider\Base;
 
 class FakerProvider extends Base
@@ -32,7 +33,7 @@ class FakerProvider extends Base
 
     public function chooseExperience(): string
     {
-        return array_rand(JobOffer::EXPERIENCE_CHOICES);
+        return JobOffer::EXPERIENCE_CHOICES[array_rand(JobOffer::EXPERIENCE_CHOICES)];
     }
 
     public function chooseType(): string
@@ -43,5 +44,11 @@ class FakerProvider extends Base
     public function chooseCurrency(): string
     {
         return SalaryRange::CURRENCIES_CHOICES[array_rand(SalaryRange::CURRENCIES_CHOICES)];
+    }
+
+    public function chooseWorkType(): string
+    {
+        return '';
+//        return WorkType::Ch[array_rand(SalaryRange::CURRENCIES_CHOICES)];
     }
 }

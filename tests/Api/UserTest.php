@@ -123,6 +123,7 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
+        $this->assertArrayHasKey('lookingForJob', $response);
         $this->assertArrayHasKey('city', $response['address']);
     }
 
@@ -142,6 +143,7 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
         $this->assertArrayHasKey('city', $response['address']);
+        $this->assertArrayHasKey('jobOffers', $response['']);
     }
 
 
