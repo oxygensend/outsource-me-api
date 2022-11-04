@@ -44,4 +44,14 @@ class AbstractApiTestCase extends ApiTestCase
            ])
        ] );
     }
+
+    protected function createMultiPartRequest(string $uri, array $extra = [], string $token = '') {
+       return static::createClient()->request('POST', $uri,[
+           'extra' => $extra,
+           'headers' => [
+               'Authorization' => 'Bearer ' . $token,
+               'Content-Type' => 'multipart/form-data'
+           ],
+       ]);
+    }
 }

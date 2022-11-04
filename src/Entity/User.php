@@ -358,6 +358,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Attachment::class)]
     private Collection $attachments;
 
+    #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Notification::class, orphanRemoval: true)]
+    private Collection $notifications;
+
 
     public function __construct()
     {
@@ -370,6 +373,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->technologies = new ArrayCollection();
         $this->jobOffers = new ArrayCollection();
         $this->attachments = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
 
@@ -941,6 +945,36 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
             // set the owning side to null (unless already changed)
             if ($attachment->getCreatedBy() === $this) {
                 $attachment->setCreatedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getReceiver() === $this) {
+                $notification->setReceiver(null);
             }
         }
 

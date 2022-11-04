@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use App\Controller\Api\PostApplicationController;
 use App\Repository\AttachmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -9,6 +12,14 @@ use Vich\UploaderBundle\Mapping\Annotation\Uploadable;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[Uploadable]
+#[ApiResource(
+    operations:[
+        new Post(
+            uriTemplate: '/applications2',
+            controller: PostApplicationController::class
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: AttachmentRepository::class)]
 class Attachment extends AbstractEntity
 {

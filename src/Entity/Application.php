@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use App\Controller\Api\PostApplicationController;
 use App\Repository\ApplicationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,9 +12,57 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/applications',
+            controller: PostApplicationController::class,
+            openapiContext: [
+                'summary' => 'Aplicate for Job Offer',
+                'description' => 'Create application for Job Offer',
+                'requestBody' => [
+                    'content' => [
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'attachments' => [
+                                        'type' => 'array',
+                                        'format' => 'binary[]'
+                                    ],
+                                    'description' => [
+                                        'type' => 'string'
+                                    ],
+                                    'jobOfferIri' => [
+                                        'type' => 'string'
+                                    ],
+
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => null,
+                    '201' => [
+                        'description' => 'Application was created successfully.'
+                    ],
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
+            deserialize: false
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
 class Application extends AbstractEntity
 {
+    public const APPLICATION_STATUS_OPEN = 1;
+    public const APPLICATION_STATUS_CLOSE = 0;
+
+
     #[ORM\ManyToOne(inversedBy: 'applications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $individual = null;
@@ -23,7 +74,7 @@ class Application extends AbstractEntity
     #[ORM\JoinColumn(nullable: false)]
     private ?JobOffer $jobOffer = null;
 
-    #[ORM\OneToMany(mappedBy: 'applications', targetEntity: Attachment::class)]
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: Attachment::class, cascade: ['persist', 'remove'])]
     private Collection $attachments;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -84,7 +135,7 @@ class Application extends AbstractEntity
     {
         if (!$this->attachments->contains($attachment)) {
             $this->attachments->add($attachment);
-            $attachment->setApplications($this);
+            $attachment->setApplication($this);
         }
 
         return $this;
@@ -94,8 +145,8 @@ class Application extends AbstractEntity
     {
         if ($this->attachments->removeElement($attachment)) {
             // set the owning side to null (unless already changed)
-            if ($attachment->getApplications() === $this) {
-                $attachment->setApplications(null);
+            if ($attachment->getApplication() === $this) {
+                $attachment->setApplication(null);
             }
         }
 

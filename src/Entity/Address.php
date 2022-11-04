@@ -43,6 +43,7 @@ class Address extends AbstractEntity
     {
         $this->users = new ArrayCollection();
         $this->jobOffers = new ArrayCollection();
+        parent::__construct();
     }
 
     public function getPostCodes(): ?string
