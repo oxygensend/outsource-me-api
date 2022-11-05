@@ -9,7 +9,7 @@ use App\Event\Notification\AbstractNotificationEvent;
 use App\Service\NotificationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AbstractNotificationSubscriber implements AbstractNotificationSubscriberInterface
+abstract class AbstractNotificationSubscriber
 {
 
     public function __construct(readonly private NotificationService $notificationService)
@@ -35,6 +35,7 @@ abstract class AbstractNotificationSubscriber implements AbstractNotificationSub
         }
 
         return $events;
+
     }
 
     public function actOnEvent(AbstractNotificationEvent $event): void

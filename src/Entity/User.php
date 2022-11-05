@@ -220,6 +220,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     private const IMG_DIR = '/storage/users';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
+    public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
     #[Serializer\Groups(['user:register', 'user:read', 'user:profile', 'user:edit'])]
@@ -760,13 +761,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get'])]
+    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
-    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {

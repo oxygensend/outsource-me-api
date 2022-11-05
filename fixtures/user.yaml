@@ -57,6 +57,7 @@ App\Entity\User:
     githubUrl: testurl.com
     linkedinUrl: testurl.com
     description: <sentence(100)>
+    roles: ['ROLE_DEVELOPER']
     jobPositions:  '<numberBetween(1,8)>x @job_position*'
     educations:  '<numberBetween(1,2)>x @education*'
     languages: '@language_{1..3}'
@@ -92,3 +93,23 @@ App\Entity\User:
     address: '@address_*'
     slug: <slug()>
     activeJobPosition: <sentence(1)>
+
+  user_developer_{1.100}:
+    name: <name()>
+    surname: <name()>
+    email: <email()>
+    password: <{hash}>
+    emailConfirmedAt: <dateTime()>
+    accountType: Developer
+    phoneNumber: 123123123
+    dateOfBirth: <dateTime()>
+    linkedinUrl: <url()>
+    githubUrl: <url()>
+    description: <sentence(100)>
+    roles: ['ROLE_DEVELOPER']
+    jobPositions:  '<numberBetween(1,8)>x @job_position_*'
+    educations:  '<numberBetween(1,2)>x @education*'
+    languages: '@language_{1..3}'
+    technologies: '<numberBetween(5,20)>x @technology*'
+    opinions: ['@opinion_test*']
+    activeJobPosition: "Google"

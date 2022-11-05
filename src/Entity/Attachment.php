@@ -3,20 +3,36 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\DownloadAttachmentAction;
 use App\Controller\Api\PostApplicationController;
 use App\Repository\AttachmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation\Uploadable;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[Uploadable]
 #[ApiResource(
     operations:[
-        new Post(
-            uriTemplate: '/applications2',
-            controller: PostApplicationController::class
+        new Get(
+            controller: DownloadAttachmentAction::class,
+            openapiContext: [
+                'summary' => 'Download attachment file',
+                'description' => 'Download attachment file',
+                'responses' => [
+                    '200' => null,
+                    '201' => [
+                        'description' => 'binary file'
+                    ],
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
+            security: "is_granted('DOWNLOAD_ATTACHMENT', object)"
         )
     ]
 )]
@@ -24,6 +40,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 class Attachment extends AbstractEntity
 {
 
+    #[Serializer\Groups(['application:one'])]
     #[ORM\Column(length: 255)]
     private ?string $originalName = null;
 

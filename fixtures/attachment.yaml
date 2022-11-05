@@ -1,0 +1,13 @@
+App\Entity\Attachment:
+  attachment_1:
+    createdBy: '@user_test'
+    application: '@applicationtest'
+    originalName: 'test.pdf'
+    size: 0
+    name: 'test.pdf'
+  attachment_2:
+    createdBy: '@user_test_true'
+    application: '@applicationtest_2'
+    originalName: 'test.pdf'
+    size: 0
+    name: 'test.pdf'

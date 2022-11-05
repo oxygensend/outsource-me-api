@@ -3,6 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\PostApplicationController;
 use App\Repository\ApplicationRepository;
@@ -10,6 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 
 #[ApiResource(
@@ -52,8 +57,33 @@ use Doctrine\ORM\Mapping as ORM;
                     '422' => null
                 ]
             ],
+            security: "is_granted('APPLICATION_FOR_JOB_OFFER', user)",
             deserialize: false
-        )
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['application:one']],
+            security: "is_granted('APPLICATION_VIEW', object)"
+        ),
+        new Delete(
+            security: "is_granted('APPLICATION_DELETE', object)"
+        ),
+        new Post(
+            uriTemplate: '/applications/{id}/change_status',
+            normalizationContext: ['groups' => 'application:status-change'],
+            denormalizationContext: ['groups' => 'application:status-change'],
+            security: "is_granted('APPLICATION_CHANGE_STATUS', object)",
+        ),
+        new GetCollection(
+            uriTemplate: '/users/{userId}/applications',
+            uriVariables: [
+                'userId' => new Link(toProperty: 'individual', fromClass: User::class)
+            ],
+            paginationEnabled: false,
+            normalizationContext: ['groups' => ['application:users']],
+            security: "is_granted('USER_APPLICATIONS',  _api_normalization_context['uri_variables'])"
+        ),
+
+
     ]
 )]
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
@@ -63,22 +93,31 @@ class Application extends AbstractEntity
     public const APPLICATION_STATUS_CLOSE = 0;
 
 
+    #[Serializer\SerializedName('applying_person')]
+    #[Serializer\Groups(['application:one'])]
     #[ORM\ManyToOne(inversedBy: 'applications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $individual = null;
 
+    #[Serializer\Groups(['application:one', 'application:status-change', 'application:users'])]
     #[ORM\Column]
-    private ?int $status = null;
+    private ?int $status = 0;
 
+    #[Serializer\Groups(['application:one','application:users'])]
     #[ORM\ManyToOne(inversedBy: 'applications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?JobOffer $jobOffer = null;
 
+    #[Serializer\Groups(['application:one'])]
     #[ORM\OneToMany(mappedBy: 'application', targetEntity: Attachment::class, cascade: ['persist', 'remove'])]
     private Collection $attachments;
 
+    #[Serializer\Groups(['application:one'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column]
+    private ?bool $deleted = false;
 
     public function __construct()
     {
@@ -86,6 +125,11 @@ class Application extends AbstractEntity
         $this->attachments = new ArrayCollection();
     }
 
+   #[Serializer\Groups(['application:users'])]
+    public function getCreatedAt(): \DateTimeInterface
+    {
+       return $this->createdAt;
+    }
 
     public function getIndividual(): ?User
     {
@@ -161,6 +205,18 @@ class Application extends AbstractEntity
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function isDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

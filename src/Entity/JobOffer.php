@@ -80,7 +80,7 @@ class JobOffer extends AbstractEntity
 
 
     #[Assert\NotBlank]
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle','application:one', 'application:users'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -114,7 +114,7 @@ class JobOffer extends AbstractEntity
     #[ORM\ManyToOne(inversedBy: 'jobOffers')]
     private ?Address $address = null;
 
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one', 'application:one'])]
     #[ORM\ManyToOne(inversedBy: 'jobOffers')]
     private ?User $user = null;
 

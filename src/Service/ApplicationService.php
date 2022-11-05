@@ -7,6 +7,7 @@ use App\Entity\Application;
 use App\Entity\JobOffer;
 use App\Event\Notification\JobOfferApplicationEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
