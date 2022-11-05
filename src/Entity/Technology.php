@@ -43,6 +43,11 @@ class Technology extends AbstractEntity
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    public function __toString(): string
+    {
+        return $this->name;
+    }
+
     public function getName(): ?string
     {
         return $this->name;

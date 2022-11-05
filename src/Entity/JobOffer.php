@@ -19,6 +19,7 @@ use App\Filter\TechnologiesFilter;
 use App\Repository\JobOfferRepository;
 use App\State\DeleteJobOfferProcessor;
 use App\State\JobOfferProcessor;
+use App\State\JobOfferProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -32,7 +33,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     ApiResource(
         operations: [
             new GetCollection(
-                paginationItemsPerPage: 10
+                paginationEnabled: false,
+                paginationItemsPerPage: 10,
+                provider: JobOfferProvider::class
             ),
             new Post(
                 security: "is_granted('CREATE_JOB_OFFER')",
@@ -149,6 +152,11 @@ class JobOffer extends AbstractEntity
     #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $validTo = null;
+
+
+    /* Variable for calculating Job offer order based on forYou algorithm */
+    private ?int $forYouOrder = null;
+
 
 
     public function __construct()
@@ -412,6 +420,17 @@ class JobOffer extends AbstractEntity
 
         return $this;
     }
+
+    public function getForYouOrder(): ?int
+    {
+        return $this->forYouOrder;
+    }
+
+    public function setForYouOrder(?int $forYouOrder): void
+    {
+        $this->forYouOrder = $forYouOrder;
+    }
+
 
 
 }
