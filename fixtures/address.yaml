@@ -4,6 +4,6 @@ App\Entity\Address:
     postCodes: <postcode()>
 
   address_test:
-    city: <Aleksandrow, woj.lubelskie>
+    city: "Aleksandrow, woj.lubelskie"
     postCodes: 23-408
 

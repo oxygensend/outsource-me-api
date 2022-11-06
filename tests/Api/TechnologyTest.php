@@ -13,6 +13,7 @@ class TechnologyTest extends AbstractApiTestCase
 
 
         $this->assertResponseIsSuccessful();
+        $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('name', $response);
     }
 

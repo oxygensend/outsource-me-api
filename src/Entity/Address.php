@@ -22,17 +22,13 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 )]
 #[ApiFilter(AddressSearchFilter::class)]
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
-class Address
+class Address extends AbstractEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 
-    #[Serializer\Groups(['user:profile', 'address:list', 'jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['user:profile', 'address:list', 'jobOffer:get', 'jobOffer:one', 'user:get'])]
     #[ORM\Column(length: 255)]
     private ?string $city = null;
 
@@ -47,11 +43,7 @@ class Address
     {
         $this->users = new ArrayCollection();
         $this->jobOffers = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
+        parent::__construct();
     }
 
     public function getPostCodes(): ?string

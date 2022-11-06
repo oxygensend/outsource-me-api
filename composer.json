@@ -7,6 +7,7 @@
     "php": ">=8.1",
     "ext-ctype": "*",
     "ext-iconv": "*",
+    "ext-zip": "*",
     "api-platform/core": "^3.0",
     "doctrine/annotations": "^1.0",
     "doctrine/doctrine-bundle": "^2.7",
@@ -14,7 +15,7 @@
     "doctrine/orm": "^2.13",
     "easycorp/easyadmin-bundle": "^4.3",
     "friendsofsymfony/ckeditor-bundle": "^2.4",
-    "gedmo/doctrine-extensions": "^3.8",
+    "gedmo/doctrine-extensions": "^3.9",
     "gesdinet/jwt-refresh-token-bundle": "^1.1",
     "knpuniversity/oauth2-client-bundle": "^2.10",
     "league/oauth2-google": "^4.0",
@@ -44,8 +45,7 @@
     "symfony/validator": "6.1.*",
     "symfony/yaml": "6.1.*",
     "symfonycasts/verify-email-bundle": "^1.11",
-    "vich/uploader-bundle": "^1.21",
-    "ext-zip": "*"
+    "vich/uploader-bundle": "^1.21"
   },
   "config": {
     "allow-plugins": {

@@ -1,0 +1,13 @@
+App\Entity\Application:
+  applicationtest:
+    jobOffer: '@job_offertest'
+    status: 0
+    description: <sentence()>
+    individual: '@user_test'
+
+  applicationtest_2:
+    jobOffer: '@job_offer_*'
+    status: 0
+    description: <sentence()>
+    individual: '@user_developer_*'
+

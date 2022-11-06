@@ -18,6 +18,7 @@ class LanguageTest extends AbstractApiTestCase
         )->toArray()['hydra:member'][0];
 
         $this->assertResponseIsSuccessful();
+        $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('description', $response);
     }

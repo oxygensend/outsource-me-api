@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: FormOfEmploymentRepository::class)]
 class FormOfEmployment extends AbstractEntity
 {
-    #[Serializer\Groups(['user:profile', 'job_position:write', 'job_position:edit', 'job_position:read', 'foe:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['user:profile', 'job_position:read', 'foe:get', 'jobOffer:one'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

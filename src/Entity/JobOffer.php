@@ -4,50 +4,67 @@ namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Filter\JobOfferOrderFilter;
-use App\Filter\WorkTypesFilter;
 use App\Filter\TechnologiesFilter;
+use App\Filter\WorkTypesFilter;
 use App\Repository\JobOfferRepository;
-use App\State\DeleteJobOfferProcessor;
-use App\State\JobOfferProcessor;
+use App\State\Processor\DeleteJobOfferProcessor;
+use App\State\Processor\JobOfferProcessor;
+use App\State\Provider\JobOfferProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[ApiResource(
-    operations: [
-        new GetCollection(
-            paginationItemsPerPage: 14
-        ),
-        new Post(
-            security: "is_granted('CREATE_JOB_OFFER')",
-            processor: JobOfferProcessor::class
-        ),
-        new Patch(
-            security: "is_granted('EDIT_JOB_OFFER', object)"
-        ),
-        new Delete(
-            security: "is_granted('DELETE_JOB_OFFER', object)",
-            processor: DeleteJobOfferProcessor::class
-        ),
-        new Get(
-            normalizationContext: ['groups' => 'jobOffer:one']
-        )
-    ],
+#[
+    ApiResource(
+        operations: [
+            new GetCollection(
+                paginationEnabled: false,
+                paginationItemsPerPage: 10,
+                provider: JobOfferProvider::class
+            ),
+            new Post(
+                security: "is_granted('CREATE_JOB_OFFER')",
+                processor: JobOfferProcessor::class
+            ),
+            new Patch(
+                uriVariables: [
+                    'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
+                ],
+                security: "is_granted('EDIT_JOB_OFFER', object)",
+            ),
+            new Delete(
+                uriVariables: [
+                    'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
+                ],
+                security: "is_granted('DELETE_JOB_OFFER', object)",
+                processor: DeleteJobOfferProcessor::class
+            ),
+            new Get(
+                uriTemplate: '/job_offers/{slug}',
+                uriVariables: [
+                    'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
+                ],
+                normalizationContext: ['groups' => 'jobOffer:one']
+            )
+        ],
 
-    normalizationContext: ['groups' => 'jobOffer:get'],
-    denormalizationContext: ['groups' => 'jobOffer:write'],
-)
+        normalizationContext: ['groups' => 'jobOffer:get'],
+        denormalizationContext: ['groups' => 'jobOffer:write'],
+    )
 
 
 ]
@@ -61,8 +78,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class JobOffer extends AbstractEntity
 {
 
+    const EXPERIENCE_CHOICES = ['Senior', 'Junior', 'Mid', 'Expert', 'Stażysta'];
+
+
     #[Assert\NotBlank]
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle','application:one', 'application:users'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -75,9 +95,10 @@ class JobOffer extends AbstractEntity
     #[ORM\ManyToMany(targetEntity: WorkType::class)]
     private Collection $workType;
 
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one'])]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $salaryRange = null;
+    #[Assert\Valid]
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
+    #[ORM\OneToOne(cascade: ['remove', 'persist'])]
+    private ?SalaryRange $salaryRange = null;
 
     #[ORM\Column]
     private ?int $redirectCount = 0;
@@ -91,15 +112,15 @@ class JobOffer extends AbstractEntity
     #[ORM\JoinColumn(nullable: false)]
     private ?FormOfEmployment $formOfEmployment = null;
 
-    #[Serializer\Groups(['jobOffer:write', 'jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one', 'user:profile-principle'])]
     #[ORM\ManyToOne(inversedBy: 'jobOffers')]
     private ?Address $address = null;
 
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one'])]
-    #[ORM\ManyToOne(inversedBy: 'JobOffers')]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one', 'application:one'])]
+    #[ORM\ManyToOne(inversedBy: 'jobOffers')]
     private ?User $user = null;
 
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one', 'user:profile-principle'])]
     #[ORM\Column(nullable: true)]
     private ?int $numberOfApplications = 0;
 
@@ -115,6 +136,26 @@ class JobOffer extends AbstractEntity
 
     #[ORM\Column(nullable: true)]
     private ?int $popularityOrder = null;
+
+    #[Slug(fields: ['name'])]
+    #[ApiProperty(identifier: true)]
+    #[Serializer\Groups(['jobOffer:one', 'jobOffer:get', 'user:profile-principle'])]
+    #[ORM\Column(length: 255, unique: true, nullable: false)]
+    private string $slug;
+
+    #[Assert\Choice(choices: self::EXPERIENCE_CHOICES, message: "The {{ value }} is not a valid choice.Valid choices: {{ choices }}")]
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $experience = null;
+
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $validTo = null;
+
+
+    /* Variable for calculating Job offer order based on forYou algorithm */
+    private ?int $forYouOrder = null;
+
 
 
     public function __construct()
@@ -136,6 +177,13 @@ class JobOffer extends AbstractEntity
         $this->name = $name;
 
         return $this;
+    }
+
+    #[Serializer\SerializedName("shortDescription")]
+    #[Serializer\Groups(['jobOffer:get', 'user:profile-principle'])]
+    public function getShortDescription(): string
+    {
+        return substr($this->description, 0, 100);
     }
 
     public function getDescription(): ?string
@@ -174,12 +222,12 @@ class JobOffer extends AbstractEntity
         return $this;
     }
 
-    public function getSalaryRange(): ?string
+    public function getSalaryRange(): ?SalaryRange
     {
         return $this->salaryRange;
     }
 
-    public function setSalaryRange(?string $salaryRange): self
+    public function setSalaryRange(?SalaryRange $salaryRange): self
     {
         $this->salaryRange = $salaryRange;
 
@@ -307,7 +355,7 @@ class JobOffer extends AbstractEntity
 
     public function removeTechnology(Technology $technology): self
     {
-       $this->technologies->removeElement($technology);
+        $this->technologies->removeElement($technology);
 
         return $this;
     }
@@ -335,6 +383,53 @@ class JobOffer extends AbstractEntity
 
         return $this;
     }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getExperience(): ?string
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?string $experience): self
+    {
+        $this->experience = $experience;
+
+        return $this;
+    }
+
+    public function getValidTo(): ?\DateTimeInterface
+    {
+        return $this->validTo;
+    }
+
+    public function setValidTo(?\DateTimeInterface $validTo): self
+    {
+        $this->validTo = $validTo;
+
+        return $this;
+    }
+
+    public function getForYouOrder(): ?int
+    {
+        return $this->forYouOrder;
+    }
+
+    public function setForYouOrder(?int $forYouOrder): void
+    {
+        $this->forYouOrder = $forYouOrder;
+    }
+
 
 
 }

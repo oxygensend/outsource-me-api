@@ -8,12 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
-use App\Controller\Api\AddTechnologyAction;
 use App\Repository\TechnologyRepository;
-use App\Repository\UniversityRepository;
-use App\State\JobPositionProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
@@ -36,20 +31,16 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 )]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'start'])]
 #[ORM\Entity(repositoryClass: TechnologyRepository::class)]
-class Technology
+class Technology extends AbstractEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[Serializer\Groups(['technologies:get', 'user:profile-developer', 'jobOffer:one'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    public function getId(): ?int
+    public function __toString(): string
     {
-        return $this->id;
+        return $this->name;
     }
 
     public function getName(): ?string

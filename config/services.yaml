@@ -4,76 +4,84 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-        mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
-        mailer_from_name: '%env(MAILER_FROM_NAME)%'
-        redirect_after_confirmation: '%env(REDIRECT_AFTER_CONFIRMATION)%'
-        redirect_password_reset: '%env(REDIRECT_PASSWORD_RESET)%'
-        redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
-        host: '%env(SERVER_HOSTNAME)%'
-        app.path.image_about_us: '/uploads/about_us'
-        app.path.image_users: '/uploads/users'
-        postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
+  mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
+  mailer_from_name: '%env(MAILER_FROM_NAME)%'
+  redirect_after_confirmation: '%env(REDIRECT_AFTER_CONFIRMATION)%'
+  redirect_password_reset: '%env(REDIRECT_PASSWORD_RESET)%'
+  redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
+  host: '%env(SERVER_HOSTNAME)%'
+  app.path.image_about_us: '/uploads/about_us'
+  app.path.image_users: '/uploads/users'
+  postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
 
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
 
-    App\State\UserRegistrationProcessor:
-        bind:
-            $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\UserRegistrationProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\JobPositionProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\JobPositionProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\EducationProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\EducationProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\LanguageProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\LanguageProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\OpinionProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\OpinionProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\JobOfferProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\JobOfferProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-    App\State\DeleteJobOfferProcessor:
-      bind:
-        $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+  App\State\Processor\DeleteJobOfferProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
   # add more service definitions when explicit configuration is needed
   # add more service definitions when explicit configuration is needed
 
-    App\ArgumentResolver\RequestDtoValueResolver:
-      tags:
-        - {name: controller.argument_value_resolver, priority: 50}
+  App\ArgumentResolver\RequestDtoValueResolver:
+    tags:
+      - { name: controller.argument_value_resolver, priority: 50 }
 
-    App\Extensions\Doctrine\EnabledExtension:
-      tags: [api_platform.doctrine.orm.query_extension.collection]
+  App\Extensions\Doctrine\EnabledExtension:
+    tags: [ api_platform.doctrine.orm.query_extension.collection ]
 
-    App\OpenApi\TokenCreateOpenApiHelper:
-      decorates: 'api_platform.openapi.factory'
-      arguments: ['@.inner']
+  App\OpenApi\TokenCreateOpenApiHelper:
+    decorates: 'api_platform.openapi.factory'
+    arguments: [ '@.inner' ]
 
-    App\OpenApi\TokenRefreshOpenApiHelper:
-      decorates: 'api_platform.openapi.factory'
-      arguments: [ '@.inner' ]
+  App\OpenApi\TokenRefreshOpenApiHelper:
+    decorates: 'api_platform.openapi.factory'
+    arguments: [ '@.inner' ]
 
-    App\OpenApi\OAuth2GoogleConnectionOpenApiHelper:
-      decorates: 'api_platform.openapi.factory'
-      arguments: [ '@.inner' ]
+  App\OpenApi\OAuth2GoogleConnectionOpenApiHelper:
+    decorates: 'api_platform.openapi.factory'
+    arguments: [ '@.inner' ]
+
+
+  gedmo.listener.sluggable:
+    class: Gedmo\Sluggable\SluggableListener
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
+    calls:
+      - [ setAnnotationReader, [ "@annotation_reader" ]]

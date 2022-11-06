@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Application;
 use App\Entity\ConfirmationToken;
+use App\Entity\JobOffer;
 use App\Entity\User;
 use PHPUnit\Util\Exception;
 use Psr\Log\LoggerInterface;
@@ -20,11 +22,11 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 class EmailSenderService
 {
 
-    public function __construct(private readonly MailerInterface $mailer,
+    public function __construct(private readonly MailerInterface            $mailer,
                                 private readonly VerifyEmailHelperInterface $verifyEmailHelper,
-                                private readonly LoggerInterface $logger,
-                                private readonly ParameterBagInterface $parameterBag,
-                                private readonly RequestStack $requestStack)
+                                private readonly LoggerInterface            $logger,
+                                private readonly ParameterBagInterface      $parameterBag,
+                                private readonly RequestStack               $requestStack)
     {
     }
 
@@ -66,27 +68,54 @@ class EmailSenderService
     public function sendResetPasswordLinkEmail(User $user, ConfirmationToken $token): void
     {
         try {
-           $this->sendMail(
-               $user,
-               'Outsource me - reset password',
-               'email/reset_password.html.twig',
-               [
-                   'name' => $user->getName(),
-                   'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
-                   'tokenType' => $token->getType(),
-                   'token' => $token->getToken(),
-                   'tokenExpiredDate' => $token->getExpiredAt()
-               ]
-           );
-        } catch (TransportExceptionInterface $e){
-           $this->logger->warning('EmailSenderService:sendResetPasswordLinkEmail - unable to send', [
-               'user' => $user->getId(), 'message' => $e->getMessage()
-           ]);
+            $this->sendMail(
+                $user,
+                'Outsource me - reset password',
+                'email/reset_password.html.twig',
+                [
+                    'name' => $user->getName(),
+                    'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
+                    'tokenType' => $token->getType(),
+                    'token' => $token->getToken(),
+                    'tokenExpiredDate' => $token->getExpiredAt()
+                ]
+            );
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->warning('EmailSenderService:sendResetPasswordLinkEmail - unable to send', [
+                'user' => $user->getId(), 'message' => $e->getMessage()
+            ]);
 
-           throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+            throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
         }
 
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function sendJobOfferApplicationEmail(User $user, Application $application, string $content): void
+    {
+        try {
+            $this->sendMail(
+                $user,
+                'Outsource me - masz nową aplikacje na oferte ' . $application->getJobOffer()->getName(),
+                'email/job_offer_application.html.twig',
+                [
+                    'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
+                    'content' => $content
+                ]
+            );
+
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->warning('EmailSenderService:sendJobOfferApplicationEmail - unable to send', [
+                'user' => $user->getId(), 'message' => $e->getMessage()
+            ]);
+
+            throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+        }
+
+    }
+
 
     /**
      * @throws TransportExceptionInterface

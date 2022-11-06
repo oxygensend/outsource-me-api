@@ -1,13 +1,13 @@
 <?php
 
-namespace App\State;
+namespace App\State\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Education;
 use Symfony\Component\Security\Core\Security;
 
-class LanguageProcessor implements ProcessorInterface
+class EducationProcessor implements ProcessorInterface
 {
     public function __construct(readonly private Security           $security,
                                 readonly private ProcessorInterface $decoratedProcessor)

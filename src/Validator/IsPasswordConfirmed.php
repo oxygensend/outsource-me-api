@@ -15,7 +15,7 @@ class IsPasswordConfirmed extends Constraint
      * Any public properties become valid options for the annotation.
      * Then, use these in your validator class.
      */
-    public $message = 'The password and confirmation fields are not equal.';
+    public string $message = 'The password and confirmation fields are not equal.';
 
     public function getTargets(): array|string
     {

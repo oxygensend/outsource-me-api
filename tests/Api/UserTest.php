@@ -90,34 +90,27 @@ class UserTest extends AbstractApiTestCase
 
     }
 
-
-    private function developerAssertions(array $response): void
+    public function testGetDevelopers(): void
     {
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users')->toArray()['hydra:member'][0];
+
+
         $this->assertResponseIsSuccessful();
 
-        $this->assertArrayHasKey('name', $response);
-        $this->assertArrayHasKey('email', $response);
-        $this->assertArrayHasKey('name', $response);
-        $this->assertArrayHasKey('surname', $response);
-        $this->assertArrayHasKey('phoneNumber', $response);
+        $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('description', $response);
-        $this->assertArrayHasKey('linkedinUrl', $response);
-        $this->assertArrayHasKey('dateOfBirth', $response);
-        $this->assertArrayHasKey('accountType', $response);
-        $this->assertArrayHasKey('jobPositions', $response);
-        $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
-        $this->assertArrayHasKey('description', $response['jobPositions'][0]);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
         $this->assertArrayHasKey('city', $response['address']);
     }
 
-    private function principleAssertions(array $response): void
+
+    private function developerAssertions(array $response): void
     {
+        $this->assertResponseIsSuccessful();
+
+        $this->assertArrayHasKey('id', $response);
         $this->assertArrayHasKey('name', $response);
         $this->assertArrayHasKey('email', $response);
         $this->assertArrayHasKey('name', $response);
@@ -127,16 +120,30 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('linkedinUrl', $response);
         $this->assertArrayHasKey('dateOfBirth', $response);
         $this->assertArrayHasKey('accountType', $response);
-        $this->assertArrayHasKey('jobPositions', $response);
-        $this->assertArrayHasKey('formOfEmployment', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['formOfEmployment']);
-        $this->assertArrayHasKey('company', $response['jobPositions'][0]);
-        $this->assertArrayHasKey('name', $response['jobPositions'][0]['company']);
-        $this->assertArrayHasKey('description', $response['jobPositions'][0]);
+        $this->assertArrayHasKey('imagePath', $response);
+        $this->assertArrayHasKey('fullName', $response);
+        $this->assertArrayHasKey('address', $response);
+        $this->assertArrayHasKey('lookingForJob', $response);
+        $this->assertArrayHasKey('city', $response['address']);
+    }
+
+    private function principleAssertions(array $response): void
+    {
+        $this->assertArrayHasKey('id', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('email', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('surname', $response);
+        $this->assertArrayHasKey('phoneNumber', $response);
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('linkedinUrl', $response);
+        $this->assertArrayHasKey('dateOfBirth', $response);
+        $this->assertArrayHasKey('accountType', $response);
         $this->assertArrayHasKey('imagePath', $response);
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
         $this->assertArrayHasKey('city', $response['address']);
+        $this->assertArrayHasKey('jobOffers', $response['']);
     }
 
 

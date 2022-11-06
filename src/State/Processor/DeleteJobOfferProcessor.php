@@ -1,11 +1,10 @@
 <?php
 
-namespace App\State;
+namespace App\State\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\JobOffer;
-use Symfony\Component\Security\Core\Security;
 
 class DeleteJobOfferProcessor implements ProcessorInterface
 {

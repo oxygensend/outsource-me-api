@@ -9,7 +9,8 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\EducationRepository;
-use App\State\EducationProcessor;
+use App\State\Processor\EducationProcessor;
+use App\Validator\DateTimeRange;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
@@ -43,6 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => 'education:read'],
 )]
+#[DateTimeRange]
 #[ORM\Entity(repositoryClass: EducationRepository::class)]
 class Education extends AbstractEntity
 {
@@ -56,7 +58,6 @@ class Education extends AbstractEntity
     #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $startDate = null;
-
 
     #[Assert\Type("\DateTimeInterface")]
     #[Serializer\Groups(["user:profile", "education:read", "education:write", "education:edit"])]

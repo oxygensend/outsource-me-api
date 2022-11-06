@@ -27,7 +27,7 @@ class University extends AbstractEntity
     #[ORM\Column(length: 255)]
     private ?string $country = 'Poland';
 
-    #[Serializer\Groups(["user:profile", "universities:get"])]
+    #[Serializer\Groups(["user:profile", "universities:get", "education:read"])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 

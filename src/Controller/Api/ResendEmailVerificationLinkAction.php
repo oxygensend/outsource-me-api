@@ -5,13 +5,14 @@ namespace App\Controller\Api;
 use App\DTO\ResendEmailVerificationLinkRequest;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 
 #[AsController]
-class ResendEmailVerificationLinkAction
+class ResendEmailVerificationLinkAction extends AbstractController
 {
     public function __construct(private readonly UserService $userService,
                                 private readonly UserRepository $userRepository)

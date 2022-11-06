@@ -2,8 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\AddTechnologyAction;
@@ -12,18 +16,22 @@ use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
-use App\State\UserRegistrationProcessor;
+use App\State\Processor\UserRegistrationProcessor;
+use App\State\Provider\UserProvider;
+use App\Validator\IsPasswordConfirmed;
+use App\Validator\PhoneNumber;
+use App\Validator\Url;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation\Slug;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator\IsPasswordConfirmed;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[ApiResource(
@@ -190,6 +198,12 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             controller: AddTechnologyAction::class,
             shortName: "Technology",
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
+        ),
+        new GetCollection(
+            paginationEnabled: false,
+            paginationItemsPerPage: 10,
+            normalizationContext: ['groups' => ['user:get']],
+            provider: UserProvider::class
         )
 
 
@@ -198,6 +212,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
     denormalizationContext: ["groups" => "user:register"],
 
 )]
+#[ApiFilter(SearchFilter::class,properties:['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -207,6 +222,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     private const IMG_DIR = '/storage/users';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
+    public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
 
     #[Serializer\Groups(['user:register', 'user:read', 'user:profile', 'user:edit'])]
@@ -234,18 +250,21 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $surname = null;
 
+    #[PhoneNumber]
     #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 9, nullable: true)]
     private ?string $phoneNumber = null;
 
-    #[Serializer\Groups(['user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:profile', 'user:edit', 'user:get'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Url]
     #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $githubUrl = null;
 
+    #[Url]
     #[Serializer\Groups(['user:profile', 'user:edit'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $linkedinUrl = null;
@@ -265,20 +284,16 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(nullable: true)]
     private ?string $accountType = null;
 
-    #[Serializer\Groups(['user:profile'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: JobPosition::class)]
     private Collection $jobPositions;
 
-    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Education::class)]
     private Collection $educations;
 
-    #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Language::class)]
     private Collection $languages;
 
     #[ORM\OneToMany(mappedBy: 'toWho', targetEntity: Opinion::class, orphanRemoval: true)]
-    #[Serializer\Groups(['user:profile'])]
     private Collection $opinions;
 
     #[ORM\OneToMany(mappedBy: 'individual', targetEntity: Application::class)]
@@ -323,12 +338,33 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToMany(targetEntity: Technology::class)]
     private Collection $technologies;
 
-    #[Serializer\Groups(['user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:profile', 'user:edit', 'user:get'])]
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
+    #[Serializer\Groups(['user:profile-principle'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
-    private Collection $JobOffers;
+    private Collection $jobOffers;
+
+    #[Serializer\Groups(['user:profile', 'user:get', 'jobOffer:get'])]
+    #[ORM\Column(nullable: true)]
+    private ?string $activeJobPosition = null;
+
+    #[Slug(fields: ['name'])]
+    #[ORM\Column(length: 255, unique: true, nullable: false)]
+    private ?string $slug;
+
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
+    #[ORM\Column]
+    private ?bool $lookingForJob = false;
+
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Attachment::class)]
+    private Collection $attachments;
+
+    #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Notification::class, orphanRemoval: true)]
+    private Collection $notifications;
+
+    private ?int $forYouOrder = null;
 
 
     public function __construct()
@@ -340,7 +376,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->opinions = new ArrayCollection();
         $this->applications = new ArrayCollection();
         $this->technologies = new ArrayCollection();
-        $this->JobOffers = new ArrayCollection();
+        $this->jobOffers = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
     }
 
 
@@ -392,6 +430,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[Serializer\SerializedName("shortDescription")]
+    #[Serializer\Groups(['user:get'])]
+    public function getShortDescription(): string
+    {
+        return substr($this->description, 0, 100);
+    }
 
     public function getDescription(): ?string
     {
@@ -721,13 +765,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one'])]
+    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
-    #[Serializer\Groups(['user:profile', 'opinions:get'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     #[Serializer\SerializedName('imagePath')]
     public function getImagePath(): ?string
     {
@@ -755,7 +799,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         if ($this->imageNameSmall) {
             return self::IMG_DIR . $this->imageNameSmall;
         }
-        return self::IMG_DIR . '/images/user_placeholder.png';
+        return  '/images/user_placeholder.png';
     }
 
 
@@ -821,13 +865,13 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
      */
     public function getJobOffers(): Collection
     {
-        return $this->JobOffers;
+        return $this->jobOffers;
     }
 
     public function addJobOffer(JobOffer $jobOffer): self
     {
-        if (!$this->JobOffers->contains($jobOffer)) {
-            $this->JobOffers->add($jobOffer);
+        if (!$this->jobOffers->contains($jobOffer)) {
+            $this->jobOffers->add($jobOffer);
             $jobOffer->setUser($this);
         }
 
@@ -836,7 +880,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     public function removeJobOffer(JobOffer $jobOffer): self
     {
-        if ($this->JobOffers->removeElement($jobOffer)) {
+        if ($this->jobOffers->removeElement($jobOffer)) {
             // set the owning side to null (unless already changed)
             if ($jobOffer->getUser() === $this) {
                 $jobOffer->setUser(null);
@@ -845,6 +889,113 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
         return $this;
     }
+
+    public function getActiveJobPosition(): ?string
+    {
+        return $this->activeJobPosition;
+    }
+
+    public function setActiveJobPosition(?string $activeJobPosition): self
+    {
+        $this->activeJobPosition = $activeJobPosition;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function isLookingForJob(): ?bool
+    {
+        return $this->lookingForJob;
+    }
+
+    public function setLookingForJob(bool $lookingForJob): self
+    {
+        $this->lookingForJob = $lookingForJob;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Attachment>
+     */
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(Attachment $attachment): self
+    {
+        if (!$this->attachments->contains($attachment)) {
+            $this->attachments->add($attachment);
+            $attachment->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachment(Attachment $attachment): self
+    {
+        if ($this->attachments->removeElement($attachment)) {
+            // set the owning side to null (unless already changed)
+            if ($attachment->getCreatedBy() === $this) {
+                $attachment->setCreatedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): self
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): self
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getReceiver() === $this) {
+                $notification->setReceiver(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getForYouOrder(): ?int
+    {
+        return $this->forYouOrder;
+    }
+
+    public function setForYouOrder(?int $forYouOrder): void
+    {
+        $this->forYouOrder = $forYouOrder;
+    }
+
 
 
 }

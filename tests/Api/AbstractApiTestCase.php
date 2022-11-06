@@ -15,6 +15,7 @@ class AbstractApiTestCase extends ApiTestCase
 
     public const PRINCIPLE_CREDENTIALS = ['email' => 'principle@test.com', 'password' => 'test123'];
     public const DEVELOPER_CREDENTIALS = ['email' => 'test@test.com', 'password' => 'test123'];
+    public const DEVELOPER_CREDENTIALS2 = ['email' => 'test2@test.com', 'password' => 'test123'];
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -43,5 +44,15 @@ class AbstractApiTestCase extends ApiTestCase
                'Authorization' => 'Bearer ' . $token
            ])
        ] );
+    }
+
+    protected function createMultiPartRequest(string $uri, array $extra = [], string $token = '') {
+       return static::createClient()->request('POST', $uri,[
+           'extra' => $extra,
+           'headers' => [
+               'Authorization' => 'Bearer ' . $token,
+               'Content-Type' => 'multipart/form-data'
+           ],
+       ]);
     }
 }

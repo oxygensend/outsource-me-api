@@ -1,6 +1,6 @@
 <?php
 
-namespace App\State;
+namespace App\State\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -13,7 +13,7 @@ class JobPositionProcessor implements ProcessorInterface
 {
     public function __construct(private readonly ProcessorInterface     $decoratedProcessor,
                                 private readonly EntityManagerInterface $em,
-                                private readonly Security $security)
+                                private readonly Security               $security)
     {
     }
 
@@ -36,6 +36,11 @@ class JobPositionProcessor implements ProcessorInterface
         }
 
         $data->setIndividual($this->security->getUser());
+
+        if (!$data->getEndDate()) {
+            $data->setActive(true);
+            $data->getIndividual()->setActiveJobPosition($data->getName());
+        }
 
         $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
     }
