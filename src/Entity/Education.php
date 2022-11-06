@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\EducationRepository;
-use App\State\EducationProcessor;
+use App\State\Processor\EducationProcessor;
 use App\Validator\DateTimeRange;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

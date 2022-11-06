@@ -16,7 +16,9 @@ use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
-use App\State\UserRegistrationProcessor;
+use App\State\Processor\UserRegistrationProcessor;
+use App\State\Provider\UserProvider;
+use App\Validator\IsPasswordConfirmed;
 use App\Validator\PhoneNumber;
 use App\Validator\Url;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -30,7 +32,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Validator\IsPasswordConfirmed;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[ApiResource(
@@ -199,9 +200,10 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         ),
         new GetCollection(
+            paginationEnabled: false,
             paginationItemsPerPage: 10,
-            normalizationContext: ['groups' => ['user:get']]
-
+            normalizationContext: ['groups' => ['user:get']],
+            provider: UserProvider::class
         )
 
 
@@ -361,6 +363,8 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Notification::class, orphanRemoval: true)]
     private Collection $notifications;
+
+    private ?int $forYouOrder = null;
 
 
     public function __construct()
@@ -981,6 +985,17 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
         return $this;
     }
+
+    public function getForYouOrder(): ?int
+    {
+        return $this->forYouOrder;
+    }
+
+    public function setForYouOrder(?int $forYouOrder): void
+    {
+        $this->forYouOrder = $forYouOrder;
+    }
+
 
 
 }

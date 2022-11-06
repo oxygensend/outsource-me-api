@@ -29,31 +29,31 @@ services:
       - '../src/Entity/'
       - '../src/Kernel.php'
 
-  App\State\UserRegistrationProcessor:
+  App\State\Processor\UserRegistrationProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\JobPositionProcessor:
+  App\State\Processor\JobPositionProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\EducationProcessor:
+  App\State\Processor\EducationProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\LanguageProcessor:
+  App\State\Processor\LanguageProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\OpinionProcessor:
+  App\State\Processor\OpinionProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\JobOfferProcessor:
+  App\State\Processor\JobOfferProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
-  App\State\DeleteJobOfferProcessor:
+  App\State\Processor\DeleteJobOfferProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
   # add more service definitions when explicit configuration is needed

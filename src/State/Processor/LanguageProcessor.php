@@ -1,27 +1,25 @@
 <?php
 
-namespace App\State;
+namespace App\State\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\JobOffer;
+use App\Entity\Education;
 use Symfony\Component\Security\Core\Security;
 
-class JobOfferProcessor implements ProcessorInterface
+class LanguageProcessor implements ProcessorInterface
 {
-    public function __construct(readonly private ProcessorInterface $decoratedProcessor,
-                                readonly private Security $security)
+    public function __construct(readonly private Security           $security,
+                                readonly private ProcessorInterface $decoratedProcessor)
     {
     }
 
     /**
-     * @param JobOffer $data
+     * @param Education $data
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
-
-        $data->setUser($this->security->getUser());
-
+        $data->setIndividual($this->security->getUser());
 
         $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
     }

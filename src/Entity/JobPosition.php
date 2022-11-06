@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\JobPositionRepository;
-use App\State\JobPositionProcessor;
+use App\State\Processor\JobPositionProcessor;
 use App\Validator\DateTimeRange;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
