@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -213,6 +214,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 )]
 #[ApiFilter(SearchFilter::class,properties:['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
+#[ApiFilter(BooleanFilter::class, properties: ['lookingForJob'])]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -365,6 +367,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     private Collection $notifications;
 
     private ?int $forYouOrder = null;
+
+    #[ORM\Column]
+    private ?float $opinionsRate = 0;
 
 
     public function __construct()
@@ -994,6 +999,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setForYouOrder(?int $forYouOrder): void
     {
         $this->forYouOrder = $forYouOrder;
+    }
+
+    public function getOpinionsRate(): ?float
+    {
+        return $this->opinionsRate;
+    }
+
+    public function setOpinionsRate(float $opinionsRate): self
+    {
+        $this->opinionsRate = $opinionsRate;
+
+        return $this;
     }
 
 

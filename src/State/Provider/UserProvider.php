@@ -16,7 +16,7 @@ class UserProvider extends  AbstractOfferProvider
             $developers = $this->orderService->calculateDevelopersForYouDisplayOrder($developers, $user);
         }
 
-        return $this->makePagination($developers, $operation);
+        return $this->makePagination($developers, $operation, $context);
     }
 
 }
