@@ -4,29 +4,25 @@ namespace App\Service;
 
 use App\Entity\Application;
 use App\Entity\ConfirmationToken;
-use App\Entity\JobOffer;
+use App\Entity\Message;
 use App\Entity\User;
-use PHPUnit\Util\Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
-use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class EmailSenderService
 {
 
-    public function __construct(private readonly MailerInterface            $mailer,
-                                private readonly VerifyEmailHelperInterface $verifyEmailHelper,
-                                private readonly LoggerInterface            $logger,
-                                private readonly ParameterBagInterface      $parameterBag,
-                                private readonly RequestStack               $requestStack)
+    public function __construct(private readonly MailerInterface       $mailer,
+                                private readonly LoggerInterface       $logger,
+                                private readonly ParameterBagInterface $parameterBag,
+                                private readonly RequestStack          $requestStack)
     {
     }
 
@@ -116,6 +112,31 @@ class EmailSenderService
 
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function sendMessageEmail(User|UserInterface $user, Message $message): void
+    {
+        try {
+            $this->sendMail(
+                $user,
+                $message->getSubject(),
+                'email/user_message.html.twig',
+                [
+                    'content' => $message->getContent()
+                ]
+            );
+
+        } catch (TransportExceptionInterface $e) {
+
+            $this->logger->warning('EmailSenderService:sendMessageEmail - unable to send', [
+                'user' => $user->getId(), 'message' => $e->getMessage()
+            ]);
+
+            throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+        }
+
+    }
 
     /**
      * @throws TransportExceptionInterface

@@ -53,7 +53,15 @@ services:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
+  App\State\Processor\DeleteApplicationProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
   App\State\Processor\DeleteJobOfferProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
+  App\State\Processor\MarkNotificationSeenProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
   # add more service definitions when explicit configuration is needed

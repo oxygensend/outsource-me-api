@@ -24,6 +24,7 @@ class NotificationService
             $notification = new Notification();
             $notification->setChannel($dto->getChannel());
             $notification->setRelatedApplication($dto->getRelatedApplication());
+            $notification->setRelatedMessage($dto->getRelatedMessage());
             $notification->setReceiver($dto->getReceiver());
             $notification->setContent($dto->getContent());
 

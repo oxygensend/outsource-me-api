@@ -15,6 +15,6 @@ class JobOfferProvider extends AbstractOfferProvider
             $jobOffers = $this->orderService->calculateJobOfferForYouDisplayOrder($jobOffers, $user);
         }
 
-        return $this->makePagination($jobOffers, $operation);
+        return $this->makePagination($jobOffers, $operation, $context);
     }
 }

@@ -276,4 +276,41 @@ class ApplicationTest extends AbstractApiTestCase
 
         $this->assertResponseStatusCodeSame(403);
     }
+
+    public function testGetJobOfferApplications(): void
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'GET',
+            uri: '/api/users/1/applications',
+            json: [
+            ],
+            token: $token
+        )->toArray()['hydra:member'][0];
+
+        $this->assertArrayHasKey('@id', $response);
+        $this->assertArrayHasKey('status', $response);
+        $this->assertArrayHasKey('jobOffer', $response);
+        $this->assertArrayHasKey('name', $response['jobOffer']);
+        $this->assertArrayHasKey('slug', $response['jobOffer']);
+        $this->assertArrayHasKey('id', $response['jobOffer']);
+        $this->assertArrayHasKey('createdAt', $response);
+        $this->assertArrayHasKey('id', $response);
+    }
+
+    public function testGetJobOfferApplicationsUserNotCreator()
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'GET',
+            uri: '/api/users/2/applications',
+            json: [
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(403);
+    }
 }

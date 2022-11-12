@@ -4,6 +4,7 @@ namespace App\Event\Notification;
 
 use App\Entity\Application;
 use App\Entity\JobOffer;
+use App\Entity\Message;
 use App\Entity\User;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -14,6 +15,7 @@ abstract class AbstractNotificationEvent extends Event
     private ?JobOffer $relatedJobOffer = null;
     private ?string $relatedContent = null;
     private ?string $relatedChannel = null;
+    private ?Message $relatedMessage = null;
 
 
     public function getRelatedJobOffer(): ?JobOffer
@@ -64,6 +66,16 @@ abstract class AbstractNotificationEvent extends Event
     public function setRelatedChannel(?string $relatedChannel): void
     {
         $this->relatedChannel = $relatedChannel;
+    }
+
+    public function getRelatedMessage(): ?Message
+    {
+        return $this->relatedMessage;
+    }
+
+    public function setRelatedMessage(?Message $relatedMessage): void
+    {
+        $this->relatedMessage = $relatedMessage;
     }
 
 

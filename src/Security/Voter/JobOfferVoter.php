@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\JobOffer;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,17 +13,25 @@ class JobOfferVoter extends Voter
     public const CREATE_JOB_OFFER = 'CREATE_JOB_OFFER';
     public const DELETE_JOB_OFFER = 'DELETE_JOB_OFFER';
     public const EDIT_JOB_OFFER = 'EDIT_JOB_OFFER';
+    public const GET_USER_JOB_OFFERS = 'GET_USER_JOB_OFFERS';
 
     public const ALLOWED_ROLES = [
         'ROLE_PRINCIPLE',
         'ROLE_ADMIN'
     ];
 
+    public function __construct(readonly private UserRepository $userRepository)
+    {
+    }
+
     protected function supports(string $attribute, $subject): bool
     {
         return ((in_array($attribute, [self::EDIT_JOB_OFFER, self::DELETE_JOB_OFFER])
                 && $subject instanceof JobOffer)
-                || ($attribute === self::CREATE_JOB_OFFER && !$subject));
+            || ($attribute === self::CREATE_JOB_OFFER && !$subject)
+            || ($attribute === self::GET_USER_JOB_OFFERS && is_array($subject))
+
+        );
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -50,6 +59,12 @@ class JobOfferVoter extends Voter
                     return true;
                 }
 
+                break;
+            case self::GET_USER_JOB_OFFERS:
+                $resource = $this->userRepository->find($subject['userId']);
+                if ($resource === $user && in_array('ROLE_PRINCIPLE', $user->getRoles())) {
+                    return true;
+                }
                 break;
         }
 

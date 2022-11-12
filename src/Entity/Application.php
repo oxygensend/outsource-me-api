@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -10,6 +12,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\PostApplicationController;
 use App\Repository\ApplicationRepository;
+use App\State\Processor\DeleteApplicationProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -65,7 +68,8 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             security: "is_granted('APPLICATION_VIEW', object)"
         ),
         new Delete(
-            security: "is_granted('APPLICATION_DELETE', object)"
+            security: "is_granted('APPLICATION_DELETE', object)",
+            processor: DeleteApplicationProcessor::class
         ),
         new Post(
             uriTemplate: '/applications/{id}/change_status',
@@ -84,8 +88,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
         ),
 
 
-    ]
+    ],
+    order: ['createdAt' => 'ASC']
 )]
+#[ApiFilter(OrderFilter::class, properties: ['createdAt', 'status'])]
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
 class Application extends AbstractEntity
 {
@@ -94,12 +100,12 @@ class Application extends AbstractEntity
 
 
     #[Serializer\SerializedName('applying_person')]
-    #[Serializer\Groups(['application:one'])]
+    #[Serializer\Groups(['application:one', 'jobOffer:management'])]
     #[ORM\ManyToOne(inversedBy: 'applications')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $individual = null;
 
-    #[Serializer\Groups(['application:one', 'application:status-change', 'application:users'])]
+    #[Serializer\Groups(['application:one', 'application:status-change', 'application:users', 'jobOffer:management'])]
     #[ORM\Column]
     private ?int $status = 0;
 
@@ -125,7 +131,7 @@ class Application extends AbstractEntity
         $this->attachments = new ArrayCollection();
     }
 
-   #[Serializer\Groups(['application:users'])]
+   #[Serializer\Groups(['application:users', 'jobOffer:management'])]
     public function getCreatedAt(): \DateTimeInterface
     {
        return $this->createdAt;

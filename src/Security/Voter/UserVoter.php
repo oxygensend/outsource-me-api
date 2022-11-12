@@ -13,6 +13,7 @@ class UserVoter extends Voter
     public const USER_EDIT = 'USER_EDIT';
     public const DELETE_TECHNOLOGY = 'DELETE_TECHNOLOGY';
     public const EDIT_OPINION = 'EDIT_OPINION';
+    public const GET_NOTIFICATIONS = 'GET_NOTIFICATIONS';
 
 
     public function __construct(readonly private UserRepository $userRepository)
@@ -23,7 +24,7 @@ class UserVoter extends Voter
     {
         return (($attribute == self::USER_EDIT || $attribute == self::EDIT_OPINION)
                 && $subject instanceof User)
-            || ($attribute === self::DELETE_TECHNOLOGY && is_array($subject));
+            || (in_array($attribute, [self::DELETE_TECHNOLOGY, self::GET_NOTIFICATIONS]) && is_array($subject));
 
     }
 
@@ -42,6 +43,10 @@ class UserVoter extends Voter
                 break;
             case self::DELETE_TECHNOLOGY:
                 $resource = $this->userRepository->find($subject['userId']);
+                if ($resource === $user) return true;
+                break;
+            case self::GET_NOTIFICATIONS:
+                $resource = $this->userRepository->find($subject['id']);
                 if ($resource === $user) return true;
                 break;
             default:

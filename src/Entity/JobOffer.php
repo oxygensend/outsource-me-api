@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -58,8 +59,17 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
-                normalizationContext: ['groups' => 'jobOffer:one']
-            )
+                normalizationContext: ['groups' => ['jobOffer:one']]
+            ),
+            new GetCollection(
+                uriTemplate: '/users/{userId}/job_offers',
+                uriVariables: [
+                    'userId' => new Link(fromProperty: 'jobOffers', fromClass: User::class),
+                ],
+                paginationEnabled: false,
+                normalizationContext: ['groups' => ['user:jobOffers']],
+                security: "is_granted('GET_USER_JOB_OFFERS', _api_normalization_context['uri_variables'])",
+            ),
         ],
 
         normalizationContext: ['groups' => 'jobOffer:get'],
@@ -71,9 +81,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(WorkTypesFilter::class)]
 #[ApiFilter(TechnologiesFilter::class)]
 #[ApiFilter(JobOfferOrderFilter::class)]
+#[ApiFilter(BooleanFilter::class, properties: ['archived'])]
 #[ApiFilter(SearchFilter::class, properties: [
     'address.id' => 'exact',
-    'formOfEmployment.id' => 'exact'])]
+    'formOfEmployment.id' => 'exact',
+    'user.id' => 'exact'
+    ])]
 #[ORM\Entity(repositoryClass: JobOfferRepository::class)]
 class JobOffer extends AbstractEntity
 {
@@ -82,7 +95,7 @@ class JobOffer extends AbstractEntity
 
 
     #[Assert\NotBlank]
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle','application:one', 'application:users'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle','application:one', 'application:users', 'user:jobOffers'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -100,9 +113,12 @@ class JobOffer extends AbstractEntity
     #[ORM\OneToOne(cascade: ['remove', 'persist'])]
     private ?SalaryRange $salaryRange = null;
 
+    #[Serializer\Groups(['jobOffer:management'])]
     #[ORM\Column]
     private ?int $redirectCount = 0;
 
+    #[Serializer\Groups(['jobOffer:management'])]
+    #[ORM\OrderBy(['createdAt' => 'desc'])]
     #[ORM\OneToMany(mappedBy: 'jobOffer', targetEntity: Application::class, cascade: ["remove"])]
     private Collection $applications;
 
@@ -120,10 +136,11 @@ class JobOffer extends AbstractEntity
     #[ORM\ManyToOne(inversedBy: 'jobOffers')]
     private ?User $user = null;
 
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one', 'user:profile-principle'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:one', 'user:profile-principle', 'user:jobOffers'])]
     #[ORM\Column(nullable: true)]
     private ?int $numberOfApplications = 0;
 
+    #[Serializer\Groups(['jobOffer:management', 'user:jobOffers'])]
     #[ORM\Column]
     private ?bool $archived = false;
 
@@ -139,7 +156,7 @@ class JobOffer extends AbstractEntity
 
     #[Slug(fields: ['name'])]
     #[ApiProperty(identifier: true)]
-    #[Serializer\Groups(['jobOffer:one', 'jobOffer:get', 'user:profile-principle'])]
+    #[Serializer\Groups(['jobOffer:one', 'jobOffer:get', 'user:profile-principle', 'application:users', 'user:jobOffers'])]
     #[ORM\Column(length: 255, unique: true, nullable: false)]
     private string $slug;
 
@@ -148,7 +165,7 @@ class JobOffer extends AbstractEntity
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $experience = null;
 
-    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one','user:jobOffers'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $validTo = null;
 
@@ -167,6 +184,11 @@ class JobOffer extends AbstractEntity
     }
 
 
+    #[Serializer\Groups(['jobOffer:get'])]
+    public function getCreatedAt(): \DateTime
+    {
+       return $this->createdAt;
+    }
     public function getName(): ?string
     {
         return $this->name;

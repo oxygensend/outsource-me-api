@@ -31,9 +31,11 @@ abstract class AbstractOfferProvider implements ProviderInterface
         return $this->tokenStorage->getToken()->getUser();
     }
 
-    protected function makePagination(array $data, Operation $operation): PaginatorInterface
+    protected function makePagination(array $data, Operation $operation, array $context): PaginatorInterface
     {
-        list($limit, $offset) = $this->getPaginationMetaData($operation);
+        list($limit, $page) = $this->getPaginationMetaData($operation, $context);
+        $offset = ($page -1) * $limit;
+
         return new ArrayPaginator(
             $data,
             $offset,
@@ -41,11 +43,11 @@ abstract class AbstractOfferProvider implements ProviderInterface
         );
     }
 
-    private function getPaginationMetaData(Operation $operation): array
+    private function getPaginationMetaData(Operation $operation, array $context): array
     {
         return [
             $this->pagination->getLimit($operation),
-            $this->pagination->getOffset($operation)
+            $this->pagination->getPage($context)
         ];
     }
 

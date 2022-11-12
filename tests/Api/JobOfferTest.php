@@ -43,13 +43,48 @@ class JobOfferTest extends AbstractApiTestCase
         )->toArray();
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseContent($response);
+        $this->assertArrayHasKey('@id', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('user', $response);
+        $this->assertArrayHasKey('fullName', $response['user']);
+        $this->assertArrayHasKey('imagePath', $response['user']);
+        $this->assertArrayHasKey('numberOfApplications', $response);
         $this->assertArrayHasKey('numberOfApplications', $response);
         $this->assertArrayHasKey('name', $response['workType'][0]);
         $this->assertArrayHasKey('name', $response['formOfEmployment']);
         $this->assertArrayHasKey('name', $response['technologies'][0]);
         $this->assertArrayHasKey('city', $response['address']);
     }
+
+    public function testGetJobOfferAsCreator(): void
+    {
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'GET',
+            uri: '/api/job_offers/job-offer-test',
+            token: $token
+        )->toArray();
+
+        $this->assertResponseIsSuccessful();
+        $this->assertArrayHasKey('@id', $response);
+        $this->assertArrayHasKey('name', $response);
+        $this->assertArrayHasKey('user', $response);
+        $this->assertArrayHasKey('description', $response);
+        $this->assertArrayHasKey('fullName', $response['user']);
+        $this->assertArrayHasKey('imagePath', $response['user']);
+        $this->assertArrayHasKey('numberOfApplications', $response);
+        $this->assertArrayHasKey('numberOfApplications', $response);
+        $this->assertArrayHasKey('name', $response['workType'][0]);
+        $this->assertArrayHasKey('name', $response['formOfEmployment']);
+        $this->assertArrayHasKey('name', $response['technologies'][0]);
+        $this->assertArrayHasKey('city', $response['address']);
+        $this->assertArrayHasKey('applications', $response);
+        $this->assertArrayHasKey('redirectCount', $response);
+    }
+
+
     public function testAddJobOffer(): void
     {
         $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
@@ -241,7 +276,7 @@ class JobOfferTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $this->assertJsonContains([
-            'hydra:description' => 'salaryRange.type: The "test" is not a valid choice.Valid choices: "brutto", "netto"'
+            'hydra:description' => 'salaryRange.type: The "test" is not a valid choice.Valid choices: "Brutto", "Netto"'
         ]);
     }
 
@@ -274,7 +309,7 @@ class JobOfferTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
 
         $this->assertJsonContains([
-            'hydra:description' => 'salaryRange.currency: The "test" is not a valid choice.Valid choices: "PL", "EUR", "USD"'
+            'hydra:description' => 'salaryRange.currency: The "test" is not a valid choice.Valid choices: "PLN", "EUR", "USD"'
         ]);
     }
 
@@ -571,6 +606,36 @@ class JobOfferTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
+
+    public function testGetYoursJobOffers(): void
+    {
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'GET',
+            uri: '/api/users/2/job_offers',
+            json: [
+            ],
+            token: $token
+        )->toArray()['hydra:member'][0];
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testGetYoursJobOffersAsNotYou(): void
+    {
+        $token = $this->loginRequest(self::PRINCIPLE_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'GET',
+            uri: '/api/users/1/job_offers',
+            json: [
+            ],
+            token: $token
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
 
     private function assertResponseContent(array $response): void
     {

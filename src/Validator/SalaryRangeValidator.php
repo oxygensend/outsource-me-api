@@ -13,7 +13,7 @@ class SalaryRangeValidator extends ConstraintValidator
         /* @var App\Validator\SalaryRange $constraint */
         /** @var \App\Entity\SalaryRange $value */
 
-        if (null === $value || $value->getDownRange() === null) {
+        if (null === $value || $value->getUpRange() === null) {
             return;
         }
 

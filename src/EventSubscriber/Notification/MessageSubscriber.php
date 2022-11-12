@@ -1,45 +1,41 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventSubscriber\Notification;
 
 use App\Entity\Notification;
-use App\Entity\User;
 use App\Event\Notification\AbstractNotificationEvent;
-use App\Event\Notification\JobOfferApplicationEvent;
+use App\Event\Notification\MessageEvent;
 use App\Event\Notification\NotificationText;
-use App\EventSubscriber\Notification\AbstractNotificationSubscriber;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class JobOfferApplicationSubscriber extends AbstractNotificationSubscriber implements EventSubscriberInterface
+class MessageSubscriber extends AbstractNotificationSubscriber implements EventSubscriberInterface
 {
-
     public static function getSubscribedNotificationEvents(): array
     {
-        return [JobOfferApplicationEvent::class];
+        return [MessageEvent::class];
 
     }
 
     protected function getChannels(): array
     {
         return [
-            Notification::CHANNEL_EMAIL,
             Notification::CHANNEL_INTERNAL
         ];
     }
 
     protected function getReceivers(AbstractNotificationEvent $event): array
     {
-        return [$event->getRelatedApplication()->getJobOffer()->getUser()];
+        return [$event->getRelatedMessage()->getReceiver()];
     }
 
     protected function getInternalNotificationText(AbstractNotificationEvent $event): ?string
     {
-        return NotificationText::getJobOfferApplicationInternalText($event->getRelatedApplication()->getJobOffer()->getUser());
+        return NotificationText::getMessageEventInternalText($event->getRelatedMessage());
     }
+
 
     protected function getEmailNotificationText(AbstractNotificationEvent $event): ?string
     {
-        return NotificationText::getJobOfferApplicationEmailText($event->getRelatedApplication());
-
+        return null;
     }
 }

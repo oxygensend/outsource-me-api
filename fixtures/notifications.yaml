@@ -1,0 +1,5 @@
+App\Entity\Notification:
+  notification_test_1:
+    content: <sentence()>
+    channel: 'internal'
+    receiver: '@user_test'

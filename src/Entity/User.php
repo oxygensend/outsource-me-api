@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -199,6 +200,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             shortName: "Technology",
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         ),
+
         new GetCollection(
             paginationEnabled: false,
             paginationItemsPerPage: 10,
@@ -213,6 +215,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 )]
 #[ApiFilter(SearchFilter::class,properties:['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
+#[ApiFilter(BooleanFilter::class, properties: ['lookingForJob'])]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -342,7 +345,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
-    #[Serializer\Groups(['user:profile-principle'])]
+    #[Serializer\Groups(['user:profile-principle','user:jobOffers'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
     private Collection $jobOffers;
 
@@ -366,6 +369,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     private ?int $forYouOrder = null;
 
+    #[ORM\Column]
+    private ?float $opinionsRate = 0;
+
+    #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
+    private Collection $messages;
+
 
     public function __construct()
     {
@@ -379,8 +388,14 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->jobOffers = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
+
+    public function __toString(): string
+    {
+        return $this->getFullName();
+    }
 
     public function getName(): ?string
     {
@@ -994,6 +1009,48 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setForYouOrder(?int $forYouOrder): void
     {
         $this->forYouOrder = $forYouOrder;
+    }
+
+    public function getOpinionsRate(): ?float
+    {
+        return $this->opinionsRate;
+    }
+
+    public function setOpinionsRate(float $opinionsRate): self
+    {
+        $this->opinionsRate = $opinionsRate;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getReceiver() === $this) {
+                $message->setReceiver(null);
+            }
+        }
+
+        return $this;
     }
 
 

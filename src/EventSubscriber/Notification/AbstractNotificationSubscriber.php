@@ -57,6 +57,7 @@ abstract class AbstractNotificationSubscriber
                 $notificationDto->setRelatedUser($event->getRelatedUser());
                 $notificationDto->setRelatedApplication($event->getRelatedApplication());
                 $notificationDto->setRelatedJobOffer($event->getRelatedJobOffer());
+                $notificationDto->setRelatedMessage($event->getRelatedMessage());
 
                 $notificationsToSend[] = $notificationDto;
             }
