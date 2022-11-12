@@ -10,6 +10,7 @@ use App\Entity\Application;
 use App\Entity\Book;
 use App\Entity\Category;
 use App\Entity\JobOffer;
+use App\Entity\Notification;
 use Doctrine\ORM\QueryBuilder;
 
 class EnabledExtension implements QueryCollectionExtensionInterface
@@ -33,6 +34,10 @@ class EnabledExtension implements QueryCollectionExtensionInterface
 
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->andWhere(sprintf('%s.deleted=false', $rootAlias));
+        } else if (Notification::class === $resourceClass) {
+
+            $rootAlias = $queryBuilder->getRootAliases()[0];
+            $queryBuilder->andWhere(sprintf("%s.channel='internal'", $rootAlias));
         }
 
     }
