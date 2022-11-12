@@ -53,6 +53,10 @@ services:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
+  App\State\Processor\DeleteApplicationProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
+
   App\State\Processor\DeleteJobOfferProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'

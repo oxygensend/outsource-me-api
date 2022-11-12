@@ -12,20 +12,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SalaryRange extends AbstractEntity
 {
 
-    public const CURRENCIES_CHOICES = ['PL', 'EUR', 'USD'];
-    public const TYPE_CHOICES = ['brutto', 'netto'];
+    public const CURRENCIES_CHOICES = ['PLN', 'EUR', 'USD'];
+    public const TYPE_CHOICES = ['Brutto', 'Netto'];
 
     #[Assert\NotBlank]
-    #[Serializer\Groups(['jobOffer:write'])]
+    #[Serializer\Groups(['jobOffer:write',  'jobOffer:one'])]
     #[ORM\Column]
     private ?float $downRange = null;
 
-    #[Serializer\Groups(['jobOffer:write'])]
+    #[Serializer\Groups(['jobOffer:write',  'jobOffer:one'])]
     #[ORM\Column(nullable: true)]
     private ?float $upRange = null;
 
     #[Assert\Choice(choices: self::CURRENCIES_CHOICES, message: "The {{ value }} is not a valid choice.Valid choices: {{ choices }}")]
-    #[Serializer\Groups(['jobOffer:write'])]
+    #[Serializer\Groups(['jobOffer:write',  'jobOffer:one'])]
     #[ORM\Column(length: 3)]
     private ?string $currency = null;
 

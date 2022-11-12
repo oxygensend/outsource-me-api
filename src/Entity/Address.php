@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address extends AbstractEntity
 {
-    #[Serializer\Groups(['user:profile'])]
+    #[Serializer\Groups(['user:profile','jobOffer:one'])]
     #[ORM\Column( type: "text")]
     private ?string $postCodes = null;
 

@@ -200,6 +200,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             shortName: "Technology",
             security: "is_granted('ROLE_USER') and is_granted('USER_EDIT', object)"
         ),
+
         new GetCollection(
             paginationEnabled: false,
             paginationItemsPerPage: 10,
@@ -344,7 +345,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
-    #[Serializer\Groups(['user:profile-principle'])]
+    #[Serializer\Groups(['user:profile-principle','user:jobOffers'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
     private Collection $jobOffers;
 
