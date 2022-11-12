@@ -9,6 +9,7 @@ class DisplayOrderService
 {
 
     public const TECHNOLOGY_WAGE = 2;
+    public const OPINIONS_WAGE = 2;
 
     public function calculateJobOfferForYouDisplayOrder(array $jobOffers, User $user): array
     {
@@ -67,6 +68,11 @@ class DisplayOrderService
 
             if ($technologiesIntersectionCount > 0) {
                 $randomRate *= self::TECHNOLOGY_WAGE * $technologiesIntersectionCount / count($jobOffersTechnologies);
+            }
+
+            $opinionsCount = $developer->getOpinions()->count();
+            if($opinionsCount > 0) {
+                $randomRate *= (1 + $developer->getOpinionsRate() * $opinionsCount/100);
             }
 
             $developer->setForYouOrder($randomRate);
