@@ -30,6 +30,9 @@ class Notification extends AbstractEntity
     #[ORM\ManyToOne]
     private ?Application $relatedApplication = null;
 
+    #[ORM\ManyToOne]
+    private ?Message $relatedMessage = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,6 +95,18 @@ class Notification extends AbstractEntity
     public function setRelatedApplication(?Application $relatedApplication): self
     {
         $this->relatedApplication = $relatedApplication;
+
+        return $this;
+    }
+
+    public function getRelatedMessage(): ?Message
+    {
+        return $this->relatedMessage;
+    }
+
+    public function setRelatedMessage(?Message $relatedMessage): self
+    {
+        $this->relatedMessage = $relatedMessage;
 
         return $this;
     }

@@ -372,6 +372,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private ?float $opinionsRate = 0;
 
+    #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
+    private Collection $messages;
+
 
     public function __construct()
     {
@@ -385,8 +388,14 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->jobOffers = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->notifications = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
+
+    public function __toString(): string
+    {
+        return $this->getFullName();
+    }
 
     public function getName(): ?string
     {
@@ -1010,6 +1019,36 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function setOpinionsRate(float $opinionsRate): self
     {
         $this->opinionsRate = $opinionsRate;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getReceiver() === $this) {
+                $message->setReceiver(null);
+            }
+        }
 
         return $this;
     }

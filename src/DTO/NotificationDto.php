@@ -4,6 +4,7 @@ namespace App\DTO;
 
 use App\Entity\Application;
 use App\Entity\JobOffer;
+use App\Entity\Message;
 use App\Entity\User;
 
 class NotificationDto
@@ -11,6 +12,7 @@ class NotificationDto
     private ?User $relatedUser = null;
     private ?JobOffer $relatedJobOffer = null;
     private ?Application $relatedApplication = null;
+    private ?Message $relatedMessage = null;
     private ?string $channel = null;
     private ?User $receiver = null;
     private ?string $content = null;
@@ -74,6 +76,16 @@ class NotificationDto
     public function setContent(?string $content): void
     {
         $this->content = $content;
+    }
+
+    public function getRelatedMessage(): ?Message
+    {
+        return $this->relatedMessage;
+    }
+
+    public function setRelatedMessage(?Message $relatedMessage): void
+    {
+        $this->relatedMessage = $relatedMessage;
     }
 
 
