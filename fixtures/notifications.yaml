@@ -3,3 +3,8 @@ App\Entity\Notification:
     content: <sentence()>
     channel: 'internal'
     receiver: '@user_test'
+
+  notification_{1..40}:
+    content: <sentence()>
+    channel: 'internal'
+    receiver: '@user_test'

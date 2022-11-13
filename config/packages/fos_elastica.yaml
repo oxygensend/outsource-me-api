@@ -1,0 +1,75 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+    clients:
+        default: { url: '%env(ELASTICSEARCH_URL)%' }
+    indexes:
+        job_offer:
+            persistence:
+                driver: orm
+                model: App\Entity\JobOffer
+                provider: ~
+                finder: ~
+
+            serializer:
+                groups: [elastic_search]
+
+            properties:
+                slug:
+                    type: text
+                name:
+                    type: text
+                description:
+                    type: text
+                shortDescription:
+                    type: text
+                address:
+                    type: nested
+                    properties:
+                        city:
+                            type: text
+                user:
+                    type: nested
+                    properties:
+                        fullName:
+                            type: text
+                        id:
+                            type: integer
+                technologies:
+                    type: nested
+                    properties:
+                        name:
+                            type: text
+                displayOrder:
+                    type: double
+        user:
+            persistence:
+                driver: orm
+                model: App\Entity\User
+                provider: ~
+                finder: ~
+
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: text
+                description:
+                    type: text
+                accountType:
+                    type: text
+                address:
+                   type: nested
+                   properties:
+                       city:
+                           type: text
+                displayOrder:
+                    type: integer
+                popularityOrder:
+                    type: integer
+                activeJobPosition:
+                    type: text
+                technologies:
+                    type: nested
+                    properties:
+                        name:
+                            type: text

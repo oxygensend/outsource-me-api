@@ -18,6 +18,7 @@ use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
 use App\State\Processor\UserRegistrationProcessor;
+use App\State\Provider\UserElasticsearchProvider;
 use App\State\Provider\UserProvider;
 use App\Validator\IsPasswordConfirmed;
 use App\Validator\PhoneNumber;
@@ -187,7 +188,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
         ),
         new Get(
             normalizationContext: ["groups" => ["user:profile"]],
-            security: "is_granted('ROLE_USER')",
+//            security: "is_granted('ROLE_USER')",
         ),
         new Patch(
             normalizationContext: ["groups" => ["user:profile"]],
@@ -202,11 +203,18 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
         ),
 
         new GetCollection(
+            uriTemplate: '/search/users',
+            paginationEnabled: false,
+            paginationItemsPerPage: 10,
+            provider: UserElasticsearchProvider::class,
+
+        ),
+        new GetCollection(
             paginationEnabled: false,
             paginationItemsPerPage: 10,
             normalizationContext: ['groups' => ['user:get']],
             provider: UserProvider::class
-        )
+        ),
 
 
     ],
@@ -237,7 +245,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column]
     private array $roles = [];
 
-    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit'])]
+    #[Serializer\Groups(['user:register', 'user:profile', 'user:edit', 'elastic_search'])]
     #[Assert\Length(min: 2, max: 50,
         minMessage: "Name have to be at least 2 characters",
         maxMessage: "Name have to be no longer than 50 characters")]
@@ -390,7 +398,6 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         $this->notifications = new ArrayCollection();
         $this->messages = new ArrayCollection();
     }
-
 
     public function __toString(): string
     {
