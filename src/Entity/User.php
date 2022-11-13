@@ -787,6 +787,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
+
     #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     public function getFullName(): string
     {

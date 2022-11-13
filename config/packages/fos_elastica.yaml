@@ -10,13 +10,8 @@ fos_elastica:
                 provider: ~
                 finder: ~
 
-            serializer:
-                groups: [elastic_search]
-
             properties:
                 slug:
-                    type: text
-                name:
                     type: text
                 description:
                     type: text
@@ -34,6 +29,8 @@ fos_elastica:
                             type: text
                         id:
                             type: integer
+                        imagePath:
+                            type: text
                 technologies:
                     type: nested
                     properties:
@@ -51,7 +48,9 @@ fos_elastica:
             properties:
                 id:
                     type: integer
-                name:
+                fullName:
+                    type: text
+                imagePath:
                     type: text
                 description:
                     type: text

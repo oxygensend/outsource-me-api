@@ -112,6 +112,28 @@ class EmailSenderService
 
     }
 
+    public function sendWelcomingEmail(User|UserInterface $user, string $content): void
+    {
+        try {
+            $this->sendMail(
+                $user,
+                'Outsource me - witamy w Outsource me',
+                'email/welcoming_email.html.twig',
+                [
+                    'schemeAndHttpHost' => $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost(),
+                    'content' => $content
+                ]
+            );
+
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->warning('EmailSenderService:sendWelcomingEmail - unable to send', [
+                'user' => $user->getId(), 'message' => $e->getMessage()
+            ]);
+
+            throw  new \Exception('Unable to send, transport failed', Response::HTTP_INTERNAL_SERVER_ERROR, $e);
+        }
+    }
+
     /**
      * @throws \Exception
      */

@@ -36,7 +36,7 @@ class UserElasticsearchProvider implements ProviderInterface
 
 
         $this->searchService->setIndex(self::INDEX_NAME);
-        $this->searchService->setSourceFields(['id', 'name', 'address', 'activeJobPosition§']);
+        $this->searchService->setSourceFields(['id', 'fullName', 'address', 'imagePath', 'activeJobPosition']);
         $this->searchService->setOrder(['displayOrder' => 'desc']);
 
         return $this->searchService->search($search, $pagination);
