@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
@@ -19,22 +22,28 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             uriVariables: [
                 'id' => new Link(toProperty: 'receiver', fromClass: User::class)
             ],
+            paginationEnabled: true,
+            paginationItemsPerPage: 14,
+            security: "is_granted('GET_NOTIFICATIONS',_api_normalization_context['uri_variables'])"
+
         ),
         new Post(
-            uriTemplate: '/users/{i' .
-            'd}/notifications/{notificationId}/mark_seen',
+            uriTemplate: '/users/{id}/notifications/{notificationId}/mark_seen',
             uriVariables: [
                 'id' => new Link(toProperty: 'receiver', fromClass: User::class),
                 'notificationId' => new Link(fromClass: Notification::class),
             ],
             normalizationContext: ['groups' => ['notification:displayedAt']],
+            security: "is_granted('GET_NOTIFICATIONS',_api_normalization_context['uri_variables'])",
             processor: MarkNotificationSeenProcessor::class
 
-        )
+        ),
+        new Delete()
+
     ],
     normalizationContext: ['groups' => ['notifications:get'], 'skip_null_values' => false],
-    security: "is_granted('GET_NOTIFICATIONS',_api_normalization_context['uri_variables'])"
 )]
+#[ApiFilter(OrderFilter::class, properties: ['createdAt'])]
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification extends AbstractEntity
 {
@@ -63,6 +72,12 @@ class Notification extends AbstractEntity
 
     #[ORM\ManyToOne]
     private ?Message $relatedMessage = null;
+
+    #[Serializer\Groups(['notifications:get'])]
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
 
     public function getId(): ?int
     {

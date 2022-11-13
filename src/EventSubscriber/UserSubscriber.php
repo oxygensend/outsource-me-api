@@ -29,8 +29,8 @@ class UserSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ('_api_/users/{id}.{_format}_get' !== $request->attributes->get('_route')
-            && '_api_/users/{id}.{_format}_patch' !== $request->attributes->get('_route')) {
+        if ('_api_/users/{id}{._format}_get' !== $request->attributes->get('_route')
+            && '_api_/users/{id}{._format}_patch' !== $request->attributes->get('_route')) {
             return;
         }
 

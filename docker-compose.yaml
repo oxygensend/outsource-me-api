@@ -71,6 +71,15 @@ services:
     networks:
       - outsource_me
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      discovery.type: "single-node"
+    ports:
+      - "9200:9200"
+    networks:
+      - outsource_me
 
 networks:
   outsource_me:

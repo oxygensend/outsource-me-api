@@ -11,9 +11,9 @@ class UserTest extends AbstractApiTestCase
 
     public function testGetUserProfileUnauthorizatedUser(): void
     {
-        static::createClient()->request('GET', 'api/users/1');
+        static::createClient()->request('GET', '/api/users/1');
 
-        $this->assertResponseStatusCodeSame(401);
+        $this->assertResponseStatusCodeSame(200);
 
     }
 
@@ -21,7 +21,7 @@ class UserTest extends AbstractApiTestCase
     {
 
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
-        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/1', token: $token)->toArray();
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/users/1', token: $token)->toArray();
 
         $this->developerAssertions($response);
 
@@ -32,7 +32,7 @@ class UserTest extends AbstractApiTestCase
     {
 
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
-        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/2', token: $token)->toArray();
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/users/2', token: $token)->toArray();
 
         $this->principleAssertions($response);
 
@@ -42,7 +42,7 @@ class UserTest extends AbstractApiTestCase
     {
 
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
-        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users/me', token: $token)->toArray();
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/users/me', token: $token)->toArray();
 
 
         $this->developerAssertions($response);
@@ -52,7 +52,7 @@ class UserTest extends AbstractApiTestCase
     public function testUpdateUserDataNotAuthenticated(): void
     {
 
-        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/me');
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: '/api/users/me');
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -62,7 +62,7 @@ class UserTest extends AbstractApiTestCase
     {
 
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
-        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/3', token: $token, headers: [
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: '/api/users/3', token: $token, headers: [
             'Content-Type' => 'application/merge-patch+json'
         ]);
 
@@ -73,7 +73,7 @@ class UserTest extends AbstractApiTestCase
     {
 
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
-        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: 'api/users/me', json: [
+        $response = $this->createAuthorizedRequest(method: 'PATCH', uri: '/api/users/me', json: [
             'email' => 'test@new.com',
             'phoneNumber' => '123321123',
             'name' => 'Anmkkl'
@@ -92,7 +92,7 @@ class UserTest extends AbstractApiTestCase
 
     public function testGetDevelopers(): void
     {
-        $response = $this->createAuthorizedRequest(method: 'GET', uri: 'api/users')->toArray()['hydra:member'][0];
+        $response = $this->createAuthorizedRequest(method: 'GET', uri: '/api/users')->toArray()['hydra:member'][0];
 
 
         $this->assertResponseIsSuccessful();

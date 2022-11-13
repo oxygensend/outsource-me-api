@@ -63,4 +63,29 @@ class NotificationTest extends AbstractApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
+    public function testDeleteNotification(): void
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'DELETE',
+            uri: '/api/users/1/notifications/1',
+            token: $token
+        );
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testDeleteNotificationNotYours(): void
+    {
+        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
+
+        $response = $this->createAuthorizedRequest(
+            method: 'DELETE',
+            uri: '/api/users/2/notifications/1',
+            token: $token
+        );
+
+        $this->assertResponseIsSuccessful();
+    }
 }

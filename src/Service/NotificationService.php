@@ -4,9 +4,9 @@ namespace App\Service;
 
 use App\DTO\NotificationDto;
 use App\Entity\Notification;
-use App\Entity\User;
 use App\Event\Notification\AbstractNotificationEvent;
 use App\Event\Notification\JobOfferApplicationEvent;
+use App\Event\Notification\RegisterEvent;
 use Doctrine\ORM\EntityManagerInterface;
 
 class NotificationService
@@ -48,6 +48,12 @@ class NotificationService
             $this->emailSender->sendJobOfferApplicationEmail(
                 $notification->getReceiver(),
                 $notification->getRelatedApplication(),
+                $notification->getContent()
+            );
+        }
+        if (get_class($event) === RegisterEvent::class) {
+            $this->emailSender->sendWelcomingEmail(
+                $notification->getReceiver(),
                 $notification->getContent()
             );
         }

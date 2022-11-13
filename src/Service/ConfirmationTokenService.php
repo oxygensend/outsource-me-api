@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\ConfirmationToken;
 use App\Entity\User;
+use App\Event\Notification\RegisterEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ConfirmationTokenService
 {
@@ -19,7 +21,8 @@ class ConfirmationTokenService
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ParameterBagInterface $parameterBag,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $dispatcher
     )
     {
     }
@@ -71,6 +74,8 @@ class ConfirmationTokenService
 
         $this->em->getRepository(ConfirmationToken::class)->removeUserTokensOfType($user, $token->getType());
         $this->em->flush();
+
+        $this->dispatcher->dispatch(new RegisterEvent($user));
 
         return new RedirectResponse($redirectToUrl);
     }

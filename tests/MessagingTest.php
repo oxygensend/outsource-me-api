@@ -35,7 +35,11 @@ class MessagingTest extends AbstractApiTestCase
 
         $user = $this->em->getRepository(User::class)->find(1);
         $message = $this->em->getRepository(Message::class)->findOneBy(['content' => 'Test message']);
-        $notification = $this->em->getRepository(Notification::class)->findOneBy(['receiver' => $user, 'relatedMessage' => $message]);
+        $notification = $this->em->getRepository(Notification::class)->findOneBy([
+            'receiver' => $user,
+            'relatedMessage' => $message,
+            'channel' => 'internal'
+        ]);
 
         $this->assertNotNull($notification);
         $this->assertEquals(Notification::CHANNEL_INTERNAL, $notification->getChannel());
