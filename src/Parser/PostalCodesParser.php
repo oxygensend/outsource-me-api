@@ -4,20 +4,26 @@ namespace App\Parser;
 
 use App\Entity\Address;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PostalCodesParser implements ParserInterface
 {
     private string $parseUrl;
     private string $destinationDir;
+    private string $openMapUrl;
     private const TEMP_FILE = "tempFile.zip";
     private string $fileName;
 
     public function __construct(readonly private EntityManagerInterface $em,
                                 readonly private ParameterBagInterface  $parameterBag,
+                                readonly private HttpClientInterface    $client,
+                                readonly private LoggerInterface        $logger
     )
     {
         $this->parseUrl = $this->parameterBag->get('postal_code_date_url');
+        $this->openMapUrl = $this->parameterBag->get('open_street_map_url');
         $this->destinationDir = $this->parameterBag->get('kernel.project_dir') . '/var';
     }
 
@@ -29,7 +35,6 @@ class PostalCodesParser implements ParserInterface
     {
         $results = $this->readDataFromFile();
 
-
         $addressRepository = $this->em->getRepository(Address::class);
         $postCodes = $this->extractPostCodes($results);
 
@@ -40,19 +45,36 @@ class PostalCodesParser implements ParserInterface
             if (!$address) {
                 $address = new Address();
             }
-            $address->setCity($city);
-            $address->setPostCodes(implode(',', $postCode));
-            $this->em->persist($address);
+            try {
 
-            if (!$iter % 200) {
-                $iter = 0;
-                $this->em->flush();
+                $address->setCity($city);
+                $address->setPostCodes(implode(',', $postCode));
+                $this->getCoordinates($address);
+                $this->em->persist($address);
+
+                if (!$iter % 200) {
+                    $iter = 0;
+                    $this->em->flush();
+                }
+
+            } catch (\Exception $exception) {
+                $this->logger->error('Problem with setting address values ', ['e' => $exception]);
             }
+
             $iter++;
         }
 
         $this->em->flush();
 
+    }
+
+    private function getCoordinates(Address $address): void
+    {
+        $response = $this->client->request('GET', $this->openMapUrl . '&postalcode=' . explode(',', $address->getPostCodes())[0]);
+        $data = json_decode($response->getContent(), true);
+
+        $address->setLat($data[0]['lat'] ?? null);
+        $address->setLon($data[0]['lon'] ?? null);
     }
 
     private function extractPostCodes(array $results): array

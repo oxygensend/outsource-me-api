@@ -39,6 +39,12 @@ class Address extends AbstractEntity
     #[ORM\OneToMany(mappedBy: 'address', targetEntity: JobOffer::class)]
     private Collection $jobOffers;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $lon = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $lat = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -56,6 +62,7 @@ class Address extends AbstractEntity
         $this->postCodes = $postCodes;
 
         return $this;
+
     }
 
     public function getCity(): ?string
@@ -127,6 +134,30 @@ class Address extends AbstractEntity
                 $jobOffer->setAddress(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLon(): ?float
+    {
+        return $this->lon;
+    }
+
+    public function setLon(?float $lon): self
+    {
+        $this->lon = $lon;
+
+        return $this;
+    }
+
+    public function getLat(): ?float
+    {
+        return $this->lat;
+    }
+
+    public function setLat(?float $lat): self
+    {
+        $this->lat = $lat;
 
         return $this;
     }

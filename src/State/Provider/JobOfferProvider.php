@@ -3,6 +3,7 @@
 namespace App\State\Provider;
 
 use ApiPlatform\Metadata\Operation;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class JobOfferProvider extends AbstractOfferProvider
 {
@@ -12,7 +13,11 @@ class JobOfferProvider extends AbstractOfferProvider
         $jobOffers = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
         if (isset($context['filters']) && isset($context['filters']['order']) && $context['filters']['order'] === 'for-you') {
-            $user = $this->getRelatedUser();
+            try {
+                $user = $this->getRelatedUser();
+            } catch (\Exception $exception) {
+                throw new UnauthorizedHttpException('Unauthorized', 'You must log in to use this feature');
+            }
 
             $this->cacheMaker->makeCacheRequest('for_you_offers_' . $user->getId(), self::CACHE_LIMIT);
             if ($this->cacheMaker->checkIfCacheExists()) {
