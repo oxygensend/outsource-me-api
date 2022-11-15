@@ -24,4 +24,16 @@ class NotificationText
     {
         return sprintf('Użytkownik %s przesłał Ci wiadomość. Sprawdź swoją skrzynke pocztową.', $message->getAuthor());
     }
+
+    public static function getWelcomeMessageAfterRegistrationEmailText(User $user): string
+    {
+        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub znaleźć programistów.</br> Dziękujemy że jestes z nami. </br> Ekipa Outsource me";
+
+    }
+
+    public static function getWelcomeMessageAfterRegistrationInternalText(User $user): string
+    {
+        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub znaleźć programistów.";
+
+    }
 }

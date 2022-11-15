@@ -23,6 +23,8 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Enable sodium for lexik bundle
 RUN docker-php-ext-enable sodium
 
+RUN pecl install redis
+
 # RUN pecl install xdebug && pecl clear-cache
 
 
@@ -36,7 +38,7 @@ COPY ./build/php/php.ini /usr/local/etc/php/php.ini
 COPY ./build/php/php-fpm.conf /usr/local/etc/php/php-fpm.conf
 COPY ./build/php/php-fpm.d/* /usr/local/etc/php/php-fpm.d/
 
-COPY . /var/ww
+COPY . /var/www/html
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 

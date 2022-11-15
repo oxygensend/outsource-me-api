@@ -19,7 +19,9 @@ use App\Filter\WorkTypesFilter;
 use App\Repository\JobOfferRepository;
 use App\State\Processor\DeleteJobOfferProcessor;
 use App\State\Processor\JobOfferProcessor;
+use App\State\Provider\JobOfferElasticsearchProvider;
 use App\State\Provider\JobOfferProvider;
+use App\State\Provider\UserElasticsearchProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -68,7 +70,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
                 paginationEnabled: false,
                 normalizationContext: ['groups' => ['user:jobOffers']],
-                security: "is_granted('GET_USER_JOB_OFFERS', _api_normalization_context['uri_variables'])",
+            ),
+            new GetCollection(
+                uriTemplate: '/search/job_offers',
+                paginationEnabled: false,
+                paginationItemsPerPage: 10,
+                provider: JobOfferElasticsearchProvider::class,
             ),
         ],
 
