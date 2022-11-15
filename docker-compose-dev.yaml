@@ -23,7 +23,14 @@ services:
       MYSQL_USER: 'test'
     networks:
       - outsource_me
-
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - outsource_me
 
   mailhog:
     image: mailhog/mailhog
@@ -46,6 +53,7 @@ services:
     depends_on:
       - mysql
       - mysql_test
+      - redis
     #    healthcheck:
     #      test: [ "CMD", "service", "-f", "http://localhost:9000" ]
     #      interval: 1m30s

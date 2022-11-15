@@ -8,6 +8,7 @@ use ApiPlatform\State\Pagination\ArrayPaginator;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
+use App\Cache\RedisCacheMaker;
 use App\Entity\User;
 use App\Service\DisplayOrderService;
 use App\State\PaginationMetaDataTrait;
@@ -17,11 +18,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 abstract class AbstractOfferProvider implements ProviderInterface
 {
     use PaginationMetaDataTrait;
+    public const CACHE_LIMIT = 10800;
 
     public function __construct(readonly protected CollectionProvider    $collectionProvider,
                                 readonly protected TokenStorageInterface $tokenStorage,
                                 readonly protected DisplayOrderService   $orderService,
-                                readonly protected Pagination            $pagination
+                                readonly protected Pagination            $pagination,
+                                readonly protected RedisCacheMaker       $cacheMaker
     )
     {
     }
@@ -29,7 +32,7 @@ abstract class AbstractOfferProvider implements ProviderInterface
 
     abstract public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null;
 
-    protected function getRelatedUser(): UserInterface
+    protected function getRelatedUser(): UserInterface|User
     {
         return $this->tokenStorage->getToken()->getUser();
     }
