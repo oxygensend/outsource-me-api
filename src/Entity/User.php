@@ -383,6 +383,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $experience = null;
+
 
     public function __construct()
     {
@@ -1057,6 +1060,18 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
                 $message->setReceiver(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getExperience(): ?string
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?string $experience): self
+    {
+        $this->experience = $experience;
 
         return $this;
     }
