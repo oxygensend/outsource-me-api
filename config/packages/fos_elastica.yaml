@@ -11,6 +11,8 @@ fos_elastica:
                 finder: ~
 
             properties:
+                name:
+                    type: text
                 slug:
                     type: text
                 description:
