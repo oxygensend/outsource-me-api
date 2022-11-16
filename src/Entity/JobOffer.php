@@ -191,6 +191,10 @@ class JobOffer extends AbstractEntity
         $this->technologies = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->name;
+    }
 
     #[Serializer\Groups(['jobOffer:get'])]
     public function getCreatedAt(): \DateTime
