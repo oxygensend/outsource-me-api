@@ -10,8 +10,8 @@ parameters:
   redirect_password_reset: '%env(REDIRECT_PASSWORD_RESET)%'
   redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
   host: '%env(SERVER_HOSTNAME)%'
-  app.path.image_about_us: '/uploads/about_us'
-  app.path.image_users: '/uploads/users'
+  app.path.image_about_us: '/images/uploads/about_us'
+  app.path.image_users: '/images/uploads/users'
   postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
   open_street_map_url: '%env(OPEN_STREETMAP_URL)%'
   redis_url: '%env(REDIS_URL)%'
@@ -66,8 +66,10 @@ services:
   App\State\Processor\MarkNotificationSeenProcessor:
     bind:
       $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
-  # add more service definitions when explicit configuration is needed
-  # add more service definitions when explicit configuration is needed
+
+  App\State\Processor\DeleteNotificationProcessor:
+    bind:
+      $decoratedProcessor: '@ApiPlatform\Doctrine\Common\State\PersistProcessor'
 
   App\ArgumentResolver\RequestDtoValueResolver:
     tags:

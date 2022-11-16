@@ -124,6 +124,7 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('fullName', $response);
         $this->assertArrayHasKey('address', $response);
         $this->assertArrayHasKey('lookingForJob', $response);
+        $this->assertArrayHasKey('experience', $response);
         $this->assertArrayHasKey('city', $response['address']);
     }
 
