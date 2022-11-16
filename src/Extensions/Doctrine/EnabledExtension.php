@@ -38,6 +38,7 @@ class EnabledExtension implements QueryCollectionExtensionInterface
 
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->andWhere(sprintf("%s.channel='internal'", $rootAlias));
+            $queryBuilder->andWhere(sprintf("%s.deleted=false", $rootAlias));
         }
 
     }

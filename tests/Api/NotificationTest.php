@@ -2,6 +2,8 @@
 
 namespace App\Tests\Api;
 
+use App\Entity\JobOffer;
+use App\Entity\Notification;
 use Symfony\Component\HttpFoundation\Response;
 
 class NotificationTest extends AbstractApiTestCase
@@ -58,22 +60,29 @@ class NotificationTest extends AbstractApiTestCase
             method: 'POST',
             uri: '/api/users/1/notifications/1/mark_seen',
             token: $token
-        )->toArray();
+        );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
     public function testDeleteNotification(): void
     {
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $notificationBefore = $em->getRepository(Notification::class)->find(1);
+
         $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS)->toArray()['token'];
 
         $response = $this->createAuthorizedRequest(
             method: 'DELETE',
-            uri: '/api/users/1/notifications/1',
+            uri: '/api/notifications/1',
             token: $token
         );
 
+        $notificationAfter = $em->getRepository(Notification::class)->find(1);
         $this->assertResponseIsSuccessful();
+
+        $this->assertFalse($notificationBefore->isDeleted());
+        $this->assertTrue($notificationAfter->isDeleted());
     }
 
     public function testDeleteNotificationNotYours(): void
@@ -82,7 +91,7 @@ class NotificationTest extends AbstractApiTestCase
 
         $response = $this->createAuthorizedRequest(
             method: 'DELETE',
-            uri: '/api/users/2/notifications/1',
+            uri: '/api/notifications/1',
             token: $token
         );
 
