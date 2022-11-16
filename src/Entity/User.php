@@ -13,11 +13,13 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\AddTechnologyAction;
 use App\Controller\Api\ChangePasswordAction;
+use App\Controller\Api\GetUserAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
 use App\Repository\UserRepository;
 use App\State\Processor\UserRegistrationProcessor;
+use App\State\Provider\RedirectCountableEntityProvider;
 use App\State\Provider\UserElasticsearchProvider;
 use App\State\Provider\UserProvider;
 use App\Validator\IsPasswordConfirmed;
@@ -187,7 +189,8 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             security: "is_granted('ROLE_USER')"
         ),
         new Get(
-            normalizationContext: ["groups" => ["user:profile"]],
+            controller: GetUserAction::class,
+            normalizationContext: ["groups" => ["user:profile"]]
 //            security: "is_granted('ROLE_USER')",
         ),
         new Patch(
@@ -235,6 +238,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
+    const EXPERIENCE_CHOICES = ['Senior', 'Junior', 'Mid', 'Expert', 'Stażysta'];
 
     #[Serializer\Groups(['user:register', 'user:read', 'user:profile', 'user:edit'])]
     #[Assert\Email]
@@ -383,6 +387,8 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
 
+    #[Assert\Choice(choices: self::EXPERIENCE_CHOICES, message: "The {{ value }} is not a valid choice.Valid choices: {{ choices }}")]
+    #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $experience = null;
 
@@ -515,9 +521,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this->redirectCount;
     }
 
-    public function setRedirectCount(int $redirectCount): self
+    public function addRedirect(): self
     {
-        $this->redirectCount = $redirectCount;
+        $this->redirectCount++;
 
         return $this;
     }

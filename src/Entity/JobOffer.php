@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\GetJobOfferAction;
 use App\Filter\JobOfferOrderFilter;
 use App\Filter\TechnologiesFilter;
 use App\Filter\WorkTypesFilter;
@@ -61,6 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
+                controller: GetJobOfferAction::class,
                 normalizationContext: ['groups' => ['jobOffer:one']]
             ),
             new GetCollection(
@@ -93,7 +95,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     'address.id' => 'exact',
     'formOfEmployment.id' => 'exact',
     'user.id' => 'exact'
-    ])]
+])]
 #[ORM\Entity(repositoryClass: JobOfferRepository::class)]
 class JobOffer extends AbstractEntity
 {
@@ -102,7 +104,7 @@ class JobOffer extends AbstractEntity
 
 
     #[Assert\NotBlank]
-    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle','application:one', 'application:users', 'user:jobOffers'])]
+    #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one', 'user:profile-principle', 'application:one', 'application:users', 'user:jobOffers'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
@@ -172,14 +174,13 @@ class JobOffer extends AbstractEntity
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $experience = null;
 
-    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one','user:jobOffers'])]
+    #[Serializer\Groups(['jobOffer:write', 'jobOffer:one', 'user:jobOffers'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $validTo = null;
 
 
     /* Variable for calculating Job offer order based on forYou algorithm */
     private ?int $forYouOrder = null;
-
 
 
     public function __construct()
@@ -194,8 +195,9 @@ class JobOffer extends AbstractEntity
     #[Serializer\Groups(['jobOffer:get'])]
     public function getCreatedAt(): \DateTime
     {
-       return $this->createdAt;
+        return $this->createdAt;
     }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -268,9 +270,9 @@ class JobOffer extends AbstractEntity
         return $this->redirectCount;
     }
 
-    public function setRedirectCount(int $redirectCount): self
+    public function addRedirect(): self
     {
-        $this->redirectCount = $redirectCount;
+        $this->redirectCount++;
 
         return $this;
     }
@@ -458,7 +460,6 @@ class JobOffer extends AbstractEntity
     {
         $this->forYouOrder = $forYouOrder;
     }
-
 
 
 }

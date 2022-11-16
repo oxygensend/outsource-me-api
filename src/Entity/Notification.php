@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\NotificationRepository;
+use App\State\Processor\DeleteNotificationProcessor;
 use App\State\Processor\MarkNotificationSeenProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,7 +39,9 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             processor: MarkNotificationSeenProcessor::class
 
         ),
-        new Delete()
+        new Delete(
+            processor: DeleteNotificationProcessor::class
+        )
 
     ],
     normalizationContext: ['groups' => ['notifications:get'], 'skip_null_values' => false],
@@ -72,6 +75,9 @@ class Notification extends AbstractEntity
 
     #[ORM\ManyToOne]
     private ?Message $relatedMessage = null;
+
+    #[ORM\Column]
+    private ?bool $deleted = false;
 
     #[Serializer\Groups(['notifications:get'])]
     public function getCreatedAt()
@@ -153,6 +159,18 @@ class Notification extends AbstractEntity
     public function setRelatedMessage(?Message $relatedMessage): self
     {
         $this->relatedMessage = $relatedMessage;
+
+        return $this;
+    }
+
+    public function isDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }
