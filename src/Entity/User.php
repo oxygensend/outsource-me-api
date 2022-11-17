@@ -216,7 +216,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             paginationEnabled: false,
             paginationItemsPerPage: 10,
             normalizationContext: ['groups' => ['user:get']],
-            provider: UserProvider::class
+            provider: UserProvider::class,
         ),
 
 
