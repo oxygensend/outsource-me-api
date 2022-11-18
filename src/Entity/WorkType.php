@@ -24,6 +24,11 @@ class WorkType extends AbstractEntity
     private ?string $name = null;
 
 
+    public function __toString(): string
+    {
+        return $this->name;
+    }
+
     public function getName(): ?string
     {
         return $this->name;

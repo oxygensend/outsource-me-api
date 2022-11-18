@@ -21,13 +21,23 @@ class JobOfferProvider extends AbstractOfferProvider
 
             $this->cacheMaker->makeCacheRequest('for_you_offers_' . $user->getId(), self::CACHE_LIMIT);
             if ($this->cacheMaker->checkIfCacheExists()) {
-                $jobOffers = $this->cacheMaker->getFromCache();
+                $jobOffers = $this->deserialize($this->cacheMaker->getFromCache());
             } else {
                 $jobOffers = $this->orderService->calculateJobOfferForYouDisplayOrder($jobOffers, $user);
-                $this->cacheMaker->saveToCache($jobOffers);
+                $this->cacheMaker->saveToCache($this->serialize($jobOffers, $context));
+            }
+
+        } else {
+
+            $query = $this->requestStack->getCurrentRequest()->getQueryString();
+            $query = str_replace('=', '-', $query); //forbidden character for redis
+            $this->cacheMaker->makeCacheRequest('job_offers_' . $query, strpos($query, 'order-newest') ? 3600 : 86400);
+            if ($this->cacheMaker->checkIfCacheExists()) {
+                $jobOffers = $this->deserialize($this->cacheMaker->getFromCache(), $context);
+            } else {
+                $this->cacheMaker->saveToCache($this->serialize($jobOffers, $context));
             }
         }
-
         return $this->makePagination($jobOffers, $operation, $context);
     }
 

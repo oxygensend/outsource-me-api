@@ -20,10 +20,13 @@ RUN echo 'alias sf="php bin/console"' >> ~/.bashrc
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+
 # Enable sodium for lexik bundle
 RUN docker-php-ext-enable sodium
 
-RUN pecl install redis
+RUN pecl install -o -f redis \
+&&  rm -rf /tmp/pear \
+&&  docker-php-ext-enable redis
 
 # RUN pecl install xdebug && pecl clear-cache
 

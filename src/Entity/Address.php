@@ -52,6 +52,11 @@ class Address extends AbstractEntity
         parent::__construct();
     }
 
+    public function __toString(): string
+    {
+        return $this->city;
+    }
+
     public function getPostCodes(): ?string
     {
         return $this->postCodes;
