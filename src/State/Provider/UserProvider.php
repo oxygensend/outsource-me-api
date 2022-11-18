@@ -27,16 +27,6 @@ class UserProvider extends AbstractOfferProvider
 
                 $this->cacheMaker->saveToCache($this->serialize($developers, $context));
             }
-        } else {
-
-            $query = $this->requestStack->getCurrentRequest()->getQueryString();
-            $query = str_replace('=', '-', $query); //forbidden character for redis
-            $this->cacheMaker->makeCacheRequest('developers_' . $query, strpos($query, 'order-newest') ? 3600 : 86400);
-            if ($this->cacheMaker->checkIfCacheExists()) {
-                $developers = $this->deserialize($this->cacheMaker->getFromCache());
-            } else {
-                $this->cacheMaker->saveToCache($this->serialize($developers, $context));
-            }
         }
 
         return $this->makePagination($developers, $operation, $context);

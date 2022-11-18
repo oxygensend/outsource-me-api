@@ -5,7 +5,7 @@ namespace App\State\Provider;
 use ApiPlatform\Metadata\Operation;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class JobOfferProvider extends AbstractOfferProvider
+class JobOffersProvider extends AbstractOfferProvider
 {
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -27,17 +27,9 @@ class JobOfferProvider extends AbstractOfferProvider
                 $this->cacheMaker->saveToCache($this->serialize($jobOffers, $context));
             }
 
-        } else {
-
-            $query = $this->requestStack->getCurrentRequest()->getQueryString();
-            $query = str_replace('=', '-', $query); //forbidden character for redis
-            $this->cacheMaker->makeCacheRequest('job_offers_' . $query, strpos($query, 'order-newest') ? 3600 : 86400);
-            if ($this->cacheMaker->checkIfCacheExists()) {
-                $jobOffers = $this->deserialize($this->cacheMaker->getFromCache(), $context);
-            } else {
-                $this->cacheMaker->saveToCache($this->serialize($jobOffers, $context));
-            }
         }
+
+
         return $this->makePagination($jobOffers, $operation, $context);
     }
 

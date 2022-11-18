@@ -46,11 +46,14 @@ class DisplayOrderService
                 $randomRate = random_int(1000, 10000);
             } else {
                 $randomRate = random_int(100, 1000);
-                $distance = $this->distanceCalculator
-                    ->calculateDistanceBasedOnVincentyFormula($user->getAddress(), $jobOffer->getAddress());
-                $randomRate *= (self::LOCALISATION_WAGE - $distance / DistanceCalculatorService::THE_MOST_DISTANCE_BETWEEN_CITIES_IN_POLAND);
-            }
+                if ($user->getAddress()) {
 
+                    $distance = $this->distanceCalculator
+                        ->calculateDistanceBasedOnVincentyFormula($user->getAddress(), $jobOffer->getAddress());
+                    $randomRate *= (self::LOCALISATION_WAGE - $distance / DistanceCalculatorService::THE_MOST_DISTANCE_BETWEEN_CITIES_IN_POLAND);
+
+                }
+            }
 
             // TECHNOLOGIES
             $userTechnologies = $user->getTechnologies()->toArray();

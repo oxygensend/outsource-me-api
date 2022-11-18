@@ -21,7 +21,7 @@ use App\Repository\JobOfferRepository;
 use App\State\Processor\DeleteJobOfferProcessor;
 use App\State\Processor\JobOfferProcessor;
 use App\State\Provider\JobOfferElasticsearchProvider;
-use App\State\Provider\JobOfferProvider;
+use App\State\Provider\JobOffersProvider;
 use App\State\Provider\UserElasticsearchProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             new GetCollection(
                 paginationEnabled: false,
                 paginationItemsPerPage: 10,
-                provider: JobOfferProvider::class
+                provider: JobOffersProvider::class
             ),
             new Post(
                 security: "is_granted('CREATE_JOB_OFFER')",
@@ -55,14 +55,14 @@ use Symfony\Component\Validator\Constraints as Assert;
                     'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
                 ],
                 security: "is_granted('DELETE_JOB_OFFER', object)",
-                processor: DeleteJobOfferProcessor::class
+                processor: DeleteJobOfferProcessor::class,
+
             ),
             new Get(
                 uriTemplate: '/job_offers/{slug}',
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
-                controller: GetJobOfferAction::class,
                 normalizationContext: ['groups' => ['jobOffer:one']]
             ),
             new GetCollection(
@@ -273,8 +273,14 @@ class JobOffer extends AbstractEntity
     {
         return $this->redirectCount;
     }
+    public function setRedirectCount(int $redirectCount): self
+    {
+        $this->redirectCount = $redirectCount;
 
-    public function addRedirect(): self
+        return $this;
+    }
+
+    public function increaseRedirect(): self
     {
         $this->redirectCount++;
 

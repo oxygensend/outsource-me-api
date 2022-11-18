@@ -189,7 +189,6 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             security: "is_granted('ROLE_USER')"
         ),
         new Get(
-            controller: GetUserAction::class,
             normalizationContext: ["groups" => ["user:profile"]]
 //            security: "is_granted('ROLE_USER')",
         ),

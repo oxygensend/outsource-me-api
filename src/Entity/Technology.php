@@ -16,6 +16,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
     operations: [
         new GetCollection(
             uriTemplate: '/technologies',
+            cacheHeaders: [
+                'max_age' => 84600,
+                'shared_max_age' => 84600,
+            ],
             paginationEnabled: false,
             normalizationContext: ["groups" => "technologies:get"],
         ),

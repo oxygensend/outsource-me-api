@@ -20,7 +20,11 @@ RUN echo 'alias sf="php bin/console"' >> ~/.bashrc
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+RUN pecl install apcu
 
+RUN docker-php-ext-enable \
+		apcu \
+		opcache
 # Enable sodium for lexik bundle
 RUN docker-php-ext-enable sodium
 

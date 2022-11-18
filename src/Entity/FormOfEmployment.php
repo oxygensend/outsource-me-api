@@ -12,6 +12,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
     operations: [
         new GetCollection(
             uriTemplate: '/form_of_employments',
+            cacheHeaders: [
+                'max_age' => 84600,
+                'shared_max_age' => 84600,
+            ],
             paginationEnabled: false,
             normalizationContext: ["groups" => "foe:get"],
         )

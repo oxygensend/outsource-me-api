@@ -91,6 +91,19 @@ services:
     networks:
       - outsource_me
 
+  varnish:
+    container_name: varnish
+    depends_on:
+      - nginx
+    build:
+      context: .
+      dockerfile: build/varnish/Dockerfile-varnish
+    links:
+      - nginx
+    ports:
+      - "6081:6081"
+    networks:
+      - outsource_me
 networks:
   outsource_me:
 
