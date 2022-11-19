@@ -134,4 +134,82 @@ class DisplayOrderService
         return $developers;
     }
 
+
+    public function calculateJobOfferPopularityRate(JobOffer $jobOffer): void
+    {
+        $randomRate = random_int(100, 10000);
+
+        // TECHNOLOGIES
+        $jobOfferTechnologies = [];
+        $jobOfferFeaturedTechnologies = [];
+
+        foreach ($jobOffer->getTechnologies() as $technology) {
+
+            if ($technology->isFeatured()) {
+                $jobOfferFeaturedTechnologies[] = $technology;
+            } else {
+                $jobOfferTechnologies[] = $technology;
+            }
+
+        }
+
+        if (count($jobOfferTechnologies)) {
+            $proportionOfFeaturedTechnologies = count($jobOfferFeaturedTechnologies) / count($jobOfferTechnologies);
+            $randomRate *= (1 + $proportionOfFeaturedTechnologies);
+        }
+
+        // REDIRECTS
+        $redirects = $jobOffer->getRedirectCount();
+        $randomRate *= (1 + ($redirects > 1000 ? $redirects / 10000 : $redirects / 1000));
+
+        // OPINIONS
+        $opinionsCount = $jobOffer->getUser()->getOpinions()->count();
+        if ($opinionsCount > 0) {
+            $randomRate *= (1 + $jobOffer->getUser()->getOpinionsRate() * $opinionsCount / 100);
+        }
+
+        // APPLICATIONS
+
+        $applications = $jobOffer->getNumberOfApplications();
+        $randomRate *= (1.2 + $applications / 100);
+
+        $jobOffer->setPopularityOrder($randomRate);
+    }
+
+
+    public function calculateDevelopersPopularityRate(User $user): void
+    {
+        $randomRate = random_int(100, 10000);
+
+        // TECHNOLOGIES
+        $userTechnologies = [];
+        $userFeaturedTechnologies = [];
+
+        foreach ($user->getTechnologies() as $technology) {
+
+            if ($technology->isFeatured()) {
+                $userFeaturedTechnologies[] = $technology;
+            } else {
+                $userTechnologies[] = $technology;
+            }
+
+        }
+
+        if (count($userTechnologies)) {
+            $proportionOfFeaturedTechnologies = count($userFeaturedTechnologies) / count($userTechnologies);
+            $randomRate *= (1 + $proportionOfFeaturedTechnologies);
+        }
+        // REDIRECTS
+        $redirects = $user->getRedirectCount();
+        $randomRate *= (1 + ($redirects > 1000 ? $redirects / 10000 : $redirects / 1000));
+
+        // OPINIONS
+        $opinionsCount = $user->getOpinions()->count();
+        if ($opinionsCount > 0) {
+            $randomRate *= (1 + $user->getOpinionsRate() * $opinionsCount / 100);
+        }
+
+        $user->setPopularityOrder($randomRate);
+    }
+
 }

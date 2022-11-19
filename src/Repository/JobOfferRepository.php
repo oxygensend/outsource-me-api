@@ -50,4 +50,13 @@ class JobOfferRepository extends ServiceEntityRepository
             ->getResult();
 
     }
+
+    public function findAllEnabled(): array
+    {
+        return $this->createQueryBuilder('j')
+            ->andWhere('j.archived = 0')
+            ->getQuery()
+            ->getResult();
+
+    }
 }

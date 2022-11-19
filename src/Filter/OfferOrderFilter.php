@@ -7,7 +7,7 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
 
-class JobOfferOrderFilter extends AbstractFilter
+class OfferOrderFilter extends AbstractFilter
 {
     public const PROPERTY = 'order';
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
@@ -41,7 +41,7 @@ class JobOfferOrderFilter extends AbstractFilter
                 'type' => 'string',
                 'required' => false,
                 'openapi' => [
-                    'description' => 'Change order of displayed job offers',
+                    'description' => 'Change order of displayed  offers',
                     'name' => 'sort|string',
                     'type' => 'popular|newest|normal'
                 ]

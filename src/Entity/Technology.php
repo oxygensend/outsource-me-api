@@ -42,6 +42,9 @@ class Technology extends AbstractEntity
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column]
+    private ?bool $featured = false;
+
     public function __toString(): string
     {
         return $this->name;
@@ -55,6 +58,18 @@ class Technology extends AbstractEntity
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function isFeatured(): ?bool
+    {
+        return $this->featured;
+    }
+
+    public function setFeatured(bool $featured): self
+    {
+        $this->featured = $featured;
 
         return $this;
     }

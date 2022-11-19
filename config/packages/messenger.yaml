@@ -14,6 +14,8 @@ framework:
       # Route your messages to the transports
       App\Message\UpdateUniversities: async
       App\Message\DownloadPostalCodes: async
+      App\Message\UpdateJobOffersOrder: async
+      App\Message\UpdateDevelopersOrder: async
       Symfony\Component\Mailer\Messenger\SendEmailMessage: async
 
 # when@test:

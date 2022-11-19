@@ -13,8 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Api\GetJobOfferAction;
-use App\Filter\JobOfferOrderFilter;
+use App\Filter\OfferOrderFilter;
 use App\Filter\TechnologiesFilter;
 use App\Filter\WorkTypesFilter;
 use App\Repository\JobOfferRepository;
@@ -22,7 +21,6 @@ use App\State\Processor\DeleteJobOfferProcessor;
 use App\State\Processor\JobOfferProcessor;
 use App\State\Provider\JobOfferElasticsearchProvider;
 use App\State\Provider\JobOffersProvider;
-use App\State\Provider\UserElasticsearchProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -45,14 +43,15 @@ use Symfony\Component\Validator\Constraints as Assert;
                 processor: JobOfferProcessor::class
             ),
             new Patch(
+                uriTemplate: '/job_offers/{slug}',
                 uriVariables: [
-                    'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
+                    'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
                 security: "is_granted('EDIT_JOB_OFFER', object)",
             ),
             new Delete(
                 uriVariables: [
-                    'id' => new Link(parameterName: 'id', fromClass: JobOffer::class, identifiers: ['id'])
+                    'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
                 security: "is_granted('DELETE_JOB_OFFER', object)",
                 processor: DeleteJobOfferProcessor::class,
@@ -63,6 +62,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
+                cacheHeaders: [
+                    'max_age' => 36000,
+                    'max_shared_age' => 36000,
+                ],
                 normalizationContext: ['groups' => ['jobOffer:one']]
             ),
             new GetCollection(
@@ -70,6 +73,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'userId' => new Link(fromProperty: 'jobOffers', fromClass: User::class),
                 ],
+
                 paginationEnabled: false,
                 normalizationContext: ['groups' => ['user:jobOffers']],
             ),
@@ -89,7 +93,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 ]
 #[ApiFilter(WorkTypesFilter::class)]
 #[ApiFilter(TechnologiesFilter::class)]
-#[ApiFilter(JobOfferOrderFilter::class)]
+#[ApiFilter(OfferOrderFilter::class)]
 #[ApiFilter(BooleanFilter::class, properties: ['archived'])]
 #[ApiFilter(SearchFilter::class, properties: [
     'address.id' => 'exact',
