@@ -10,3 +10,9 @@ api_platform:
         name: Authorization
         type: header
     versions: [3]
+
+#
+#  http_cache:
+#    invalidation:
+#      enabled: true
+#      varnish_urls: ['%env(VARNISH_URL)%']

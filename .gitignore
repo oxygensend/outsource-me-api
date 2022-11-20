@@ -27,3 +27,9 @@
 
 /.docker-sync/*
 logs/*
+
+###> liip/imagine-bundle ###
+/public/media/cache/
+###< liip/imagine-bundle ###
+
+._.DS_Store

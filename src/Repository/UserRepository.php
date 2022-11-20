@@ -56,6 +56,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->add($user, true);
     }
 
+    public function findAllDevelopersLookingForJob(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.lookingForJob = 1')
+            ->andWhere("u.accountType = 'Developer'")
+            ->getQuery()
+            ->getResult();
+
+    }
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

@@ -13,6 +13,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ApiResource(
     operations:[ new GetCollection(
         uriTemplate: '/universities',
+        cacheHeaders: [
+            'max_age' => 84600,
+            'shared_max_age' => 84600,
+        ],
         paginationEnabled: false,
         normalizationContext: ["groups" => "universities:get"],
         security: "is_granted('ROLE_USER')",

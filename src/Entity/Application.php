@@ -64,6 +64,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             deserialize: false
         ),
         new Get(
+            cacheHeaders: [
+                'max_age' => 86400,
+                'shared_max_age' => 86400,
+            ],
             normalizationContext: ['groups' => ['application:one']],
             security: "is_granted('APPLICATION_VIEW', object)"
         ),
@@ -86,7 +90,6 @@ use Symfony\Component\Serializer\Annotation as Serializer;
             normalizationContext: ['groups' => ['application:users']],
             security: "is_granted('USER_APPLICATIONS',  _api_normalization_context['uri_variables'])"
         ),
-
 
     ],
     order: ['createdAt' => 'ASC']

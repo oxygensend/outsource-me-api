@@ -17,6 +17,8 @@ use App\Controller\Api\GetUserAction;
 use App\Controller\Api\ResendEmailVerificationLinkAction;
 use App\Controller\Api\ResetPasswordExecuteAction;
 use App\Controller\Api\ResetPasswordSendLinkAction;
+use App\Controller\Api\UploadUserPhotoAction;
+use App\Filter\OfferOrderFilter;
 use App\Repository\UserRepository;
 use App\State\Processor\UserRegistrationProcessor;
 use App\State\Provider\RedirectCountableEntityProvider;
@@ -36,6 +38,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation\Uploadable;
 use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 
 #[ApiResource(
@@ -188,8 +191,41 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
             ],
             security: "is_granted('ROLE_USER')"
         ),
+        new Post(
+            uriTemplate: '/users/{id}/upload_photo',
+            controller: UploadUserPhotoAction::class,
+            openapiContext: [
+                'summary' => 'Upload thumbnail',
+                'description' => 'Upload user photo',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'file' => [
+                                        'type' => 'file',
+                                        'example' => 'binary img'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Photo uploaded'
+                    ],
+                    '201' => null,
+                    '400' => null,
+                    '401' => null,
+                    '422' => null
+                ]
+            ],
+            security: "is_granted('ROLE_USER')",
+            deserialize: false
+        ),
         new Get(
-            controller: GetUserAction::class,
             normalizationContext: ["groups" => ["user:profile"]]
 //            security: "is_granted('ROLE_USER')",
         ),
@@ -225,16 +261,18 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
     denormalizationContext: ["groups" => "user:register"],
 
 )]
-#[ApiFilter(SearchFilter::class,properties:['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
+#[ApiFilter(SearchFilter::class, properties: ['accountType' => SearchFilterInterface::STRATEGY_EXACT])]
 #[ApiFilter(BooleanFilter::class, properties: ['lookingForJob'])]
+#[ApiFilter(OfferOrderFilter::class)]
 #[IsPasswordConfirmed]
 #[UniqueEntity(fields: ['email'], message: 'Account with this email exists')]
+#[Uploadable]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
-    private const IMG_DIR = '/storage/users';
+    private const IMG_DIR = '/images/uploads/users/images';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
@@ -346,8 +384,6 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageNameSmall = null;
 
-    #[UploadableField(mapping: "image_user_small", fileNameProperty: "imageNameSmall")]
-    private ?File $imageFileSmall = null;
 
     #[Serializer\Groups(['user:profile-developer'])]
     #[ORM\ManyToMany(targetEntity: Technology::class)]
@@ -357,7 +393,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Address $address = null;
 
-    #[Serializer\Groups(['user:profile-principle','user:jobOffers'])]
+    #[Serializer\Groups(['user:profile-principle', 'user:jobOffers'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: JobOffer::class)]
     private Collection $jobOffers;
 
@@ -391,6 +427,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[Serializer\Groups(['user:profile-developer', 'user:edit'])]
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $experience = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $popularityOrder = null;
 
 
     public function __construct()
@@ -796,8 +835,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     }
 
 
-
-    #[Serializer\Groups(['user:profile','opinions:get','jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
+    #[Serializer\Groups(['user:profile', 'opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
@@ -808,7 +846,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function getImagePath(): ?string
     {
         if ($this->imageName) {
-            return self::IMG_DIR . $this->imageName;
+            return self::IMG_DIR . '/' . $this->imageName;
         }
         return 'images/user_placeholder.png';
     }
@@ -825,13 +863,14 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[Serializer\Groups(['opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     #[Serializer\SerializedName('thumbnailPath')]
     public function getImagePathSmall(): ?string
     {
         if ($this->imageNameSmall) {
-            return self::IMG_DIR . $this->imageNameSmall;
+            return self::IMG_DIR  .'/' . $this->imageNameSmall;
         }
-        return  '/images/user_placeholder.png';
+        return '/images/user_placeholder.png';
     }
 
 
@@ -1082,6 +1121,31 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    public function getPopularityOrder(): ?float
+    {
+        return $this->popularityOrder;
+    }
 
+    public function setPopularityOrder(?float $popularityOrder): self
+    {
+        $this->popularityOrder = $popularityOrder;
 
+        return $this;
+    }
+
+    public function setImageFile(?File $file): self
+    {
+        $this->imageFile = $file;
+
+        if ($file) {
+            $this->updatedAt = new \DateTime('now');
+        }
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
 }
