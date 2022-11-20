@@ -272,7 +272,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
-    private const IMG_DIR = '/storage/users';
+    private const IMG_DIR = '/images/uploads/users';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
