@@ -62,10 +62,6 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
-                cacheHeaders: [
-                    'max_age' => 36000,
-                    'max_shared_age' => 36000,
-                ],
                 normalizationContext: ['groups' => ['jobOffer:one']]
             ),
             new GetCollection(

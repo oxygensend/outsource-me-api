@@ -272,7 +272,7 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 class User extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
-    private const IMG_DIR = '/images/uploads/users';
+    private const IMG_DIR = '/images/uploads/users/images';
     private const ACCOUNT_TYPES = ['Developer', 'Principal', 'Admin'];
     public const TYPE_DEVELOPER = 'Developer';
     private const ROLES = ['ROLE_DEVELOPER', 'ROLE_ADMIN', 'ROLE_EDITOR', 'ROLE_PRINCIPAL'];
@@ -846,7 +846,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function getImagePath(): ?string
     {
         if ($this->imageName) {
-            return self::IMG_DIR . $this->imageName;
+            return self::IMG_DIR . '/' . $this->imageName;
         }
         return 'images/user_placeholder.png';
     }
@@ -863,11 +863,12 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
         return $this;
     }
 
+    #[Serializer\Groups(['opinions:get', 'jobOffer:get', 'jobOffer:one', 'user:get', 'application:one'])]
     #[Serializer\SerializedName('thumbnailPath')]
     public function getImagePathSmall(): ?string
     {
         if ($this->imageNameSmall) {
-            return self::IMG_DIR . $this->imageNameSmall;
+            return self::IMG_DIR  .'/' . $this->imageNameSmall;
         }
         return '/images/user_placeholder.png';
     }
