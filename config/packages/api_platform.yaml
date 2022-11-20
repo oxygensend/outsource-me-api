@@ -11,8 +11,8 @@ api_platform:
         type: header
     versions: [3]
 
-
-  http_cache:
-    invalidation:
-      enabled: true
-      varnish_urls: ['%env(VARNISH_URL)%']
+#
+#  http_cache:
+#    invalidation:
+#      enabled: true
+#      varnish_urls: ['%env(VARNISH_URL)%']
