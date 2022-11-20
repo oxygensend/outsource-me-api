@@ -29,3 +29,11 @@ liip_imagine:
                 thumbnail:
                     size: [ 100, 100 ]
                     mode: outbound
+
+        user_photo:
+            format: webp
+            quality: 90
+            filters:
+                thumbnail:
+                    size: [ 120, 120 ]
+                    mode: outbound

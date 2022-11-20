@@ -6,13 +6,16 @@ use App\Entity\AboutUs;
 use App\Entity\User;
 use App\Service\ImageService;
 use Doctrine\ORM\EntityManagerInterface;
+use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Vich\UploaderBundle\Event\Event;
 use Vich\UploaderBundle\Event\Events;
+use Vich\UploaderBundle\Exception\NotUploadableException;
 
 class VichUploaderSubscriber implements EventSubscriberInterface
 {
-    public function __construct(readonly private ImageService           $imageService,
+
+    public function __construct(readonly private FilterManager          $filterManager,
                                 readonly private EntityManagerInterface $em)
     {
     }
@@ -32,15 +35,8 @@ class VichUploaderSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var User|AboutUs $user */
-        $object = $event->getObject();
-        $imageFile = $object->getImageFile();
-
-        $this->imageService->formatImageToWebP(
-            $imageFile->getContent(),
-            $imageFile->getPathname(),
-            $imageFile->getMimeType()
-        );
+        $optimizer = new ImageService($this->filterManager, $event);
+        $optimizer->optimize();
 
     }
 
@@ -53,9 +49,16 @@ class VichUploaderSubscriber implements EventSubscriberInterface
         /** @var User $user */
         $user = $event->getObject();
 
+        $optimizer = new ImageService($this->filterManager, $event);
+
         $imageFile = $user->getImageFile();
         $newFileName = str_replace('.webp', '-thumbnail.webp', $imageFile->getFilename());
-        $this->imageService->applyFilter($imageFile, 'user_thumbnail', $newFileName);
+        $processedImage = $optimizer->applyFilter($imageFile, 'user_thumbnail', $newFileName);
+        $path = $imageFile->getPath() . '/' . $newFileName;
+
+        if (!file_put_contents($path, $processedImage)) {
+            throw new NotUploadableException('Failed creating thumbnail for user ' . $user->getSlug());
+        }
 
         $user->setImageNameSmall($newFileName);
         $this->em->flush();
