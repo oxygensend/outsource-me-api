@@ -110,7 +110,7 @@ class JobOffer extends AbstractEntity
 
     #[Assert\NotBlank]
     #[Serializer\Groups(['jobOffer:get', 'jobOffer:write', 'jobOffer:one'])]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'text')]
     private ?string $description = null;
 
     #[Serializer\Groups(['jobOffer:write', 'jobOffer:one'])]
@@ -360,7 +360,7 @@ class JobOffer extends AbstractEntity
 
     public function increaseNumberOfApplications(): self
     {
-        $this->numberOfApplications++;
+        $this->numberOfApplications += 1;
 
         return $this;
     }

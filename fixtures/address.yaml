@@ -1,8 +1,8 @@
 App\Entity\Address:
-  address_{1..400}:
-    city: <generateCity(<sentence(1)>, <sentence(1)>)>
-    postCodes: <postcode()>
-
+#  address_{1..400}:
+#    city: <generateCity(<sentence(1)>, <sentence(1)>)>
+#    postCodes: <postcode()>
+#
   address_test:
     city: "Aleksandrow, woj.lubelskie"
     postCodes: 23-408

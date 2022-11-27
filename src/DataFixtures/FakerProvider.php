@@ -28,7 +28,7 @@ class FakerProvider extends Base
 
     public function generateRandomLengthDescription(): string
     {
-        return $this->generator->text(random_int(5, 200));
+        return $this->generator->text(random_int(200, 3000));
     }
 
     public function chooseExperience(): string
@@ -51,4 +51,34 @@ class FakerProvider extends Base
         return '';
 //        return WorkType::Ch[array_rand(SalaryRange::CURRENCIES_CHOICES)];
     }
+
+    public function dateCloseToCurrent(): \DateTimeInterface|null
+    {
+        $current = new \DateTime();
+        $rand = random_int(0, 6);
+        if ($rand > 3) {
+            return $current->modify(sprintf('+%d days', random_int(1, 40)));
+        } elseif (!$rand) {
+            return null;
+        } else {
+            return $current->modify(sprintf('-%d days', random_int(1, 40)));
+        }
+    }
+
+    public function dateBiggerThan($dateFrom): \DateTimeInterface
+    {
+        return $dateFrom->modify(sprintf('+%d days', random_int(14, 365)));
+
+    }
+
+    public function generateName(): string
+    {
+       return $this->generator->firstName();
+    }
+
+    public function generateSurname(): string
+    {
+        return $this->generator->lastName();
+    }
+
 }

@@ -45,6 +45,7 @@ class ApplicationService
         $application->setStatus(Application::APPLICATION_STATUS_OPEN);
         $application->setIndividual($user);
         $application->setDescription($description);
+        $jobOffer->increaseNumberOfApplications();
 
         if ($attachments) {
             foreach ($attachments as $attachment) {
