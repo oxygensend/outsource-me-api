@@ -62,6 +62,13 @@ sub vcl_recv {
 
       return(synth(400, "ApiPlatform-Ban-Regex HTTP header must be set."));
     }
+
+   # Command to clear complete cache for all URLs and all sub-domains
+      # curl -X XCGFULLBAN http://example.com
+      if (req.method == "XCGFULLBAN") {
+          ban("req.http.host ~ .*");
+          return (synth(200, "Full cache cleared"));
+      }
 }
 
 sub vcl_hit {

@@ -42,7 +42,6 @@ class ApplicationService
 
         $application = new Application();
         $application->setJobOffer($jobOffer);
-        $application->setStatus(Application::APPLICATION_STATUS_OPEN);
         $application->setIndividual($user);
         $application->setDescription($description);
         $jobOffer->increaseNumberOfApplications();

@@ -13,7 +13,7 @@ class GetJobOfferAction extends ApiAbstractController
 
     public function __invoke(JobOffer $jobOffer): JobOffer
     {
-        $jobOffer->addRedirect();
+        $jobOffer->increaseRedirect();
         $this->em->flush();
 
         return $jobOffer;

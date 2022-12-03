@@ -62,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
-                normalizationContext: ['groups' => ['jobOffer:one']]
+                normalizationContext: ['groups' => ['jobOffer:one']],
             ),
             new GetCollection(
                 uriTemplate: '/users/{userId}/job_offers',

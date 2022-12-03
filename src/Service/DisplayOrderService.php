@@ -50,7 +50,7 @@ class DisplayOrderService
 
                     $distance = $this->distanceCalculator
                         ->calculateDistanceBasedOnVincentyFormula($user->getAddress(), $jobOffer->getAddress());
-                    $randomRate *= (self::LOCALISATION_WAGE - $distance / DistanceCalculatorService::THE_MOST_DISTANCE_BETWEEN_CITIES_IN_POLAND);
+                    $randomRate *= (self::LOCALISATION_WAGE - $distance / DistanceCalculatorService::THE_LONGEST_DISTANCE_BETWEEN_CITIES_IN_POLAND);
 
                 }
             }
@@ -169,7 +169,6 @@ class DisplayOrderService
         }
 
         // APPLICATIONS
-
         $applications = $jobOffer->getNumberOfApplications();
         $randomRate *= (1.2 + $applications / 100);
 
