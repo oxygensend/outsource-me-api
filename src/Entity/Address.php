@@ -15,6 +15,10 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ApiResource(
     operations: [
         new GetCollection(
+            cacheHeaders: [
+                'max_age' => 84600,
+                'shared_max_age' => 84600,
+            ],
             paginationEnabled: false,
             normalizationContext: ['groups' => 'address:list']
         ),

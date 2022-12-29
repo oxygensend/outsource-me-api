@@ -8,6 +8,7 @@ use App\Entity\Technology;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -102,6 +103,13 @@ class UserService
         $this->em->flush();
 
         return $technology;
+
+    }
+
+    public function uploadPhoto(User $user, File $file): void
+    {
+        $user->setImageFile($file);
+        $this->em->flush();
 
     }
 

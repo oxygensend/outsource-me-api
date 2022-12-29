@@ -11,7 +11,7 @@ parameters:
   redirect_after_oauth2: '%env(REDIRECT_AFTER_OAUTH)%'
   host: '%env(SERVER_HOSTNAME)%'
   app.path.image_about_us: '/images/uploads/about_us'
-  app.path.image_users: '/images/uploads/users'
+  app.path.image_users: '/images/uploads/users/images'
   postal_code_date_url: '%env(POSTAL_CODE_DATA_URL)%'
   open_street_map_url: '%env(OPEN_STREETMAP_URL)%'
   redis_url: '%env(REDIS_URL)%'
@@ -97,3 +97,6 @@ services:
       - { name: doctrine.event_subscriber, connection: default }
     calls:
       - [ setAnnotationReader, [ "@annotation_reader" ]]
+
+  App\VichUploader\ImageNamer:
+    public: true

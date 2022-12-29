@@ -16,6 +16,10 @@ use Vich\UploaderBundle\Mapping\Annotation\UploadableField;
 #[ApiResource(
     operations:[ new GetCollection(
         uriTemplate: '/about_us',
+        cacheHeaders: [
+            'max_age' => 86400,
+            'shared_max_age' => 86400,
+        ],
         paginationEnabled: false,
         normalizationContext: ["groups" => "about_us:get"],
     )]

@@ -11,6 +11,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new GetCollection(
+            cacheHeaders: [
+                'max_age' => 84600,
+                'shared_max_age' => 84600,
+            ],
             paginationEnabled: false,
             normalizationContext: ["groups" => "work_type:get"],
         )

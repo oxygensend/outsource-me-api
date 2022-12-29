@@ -3,6 +3,7 @@
 namespace App\Tests\Api;
 
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UserTest extends AbstractApiTestCase
 {
@@ -105,6 +106,29 @@ class UserTest extends AbstractApiTestCase
         $this->assertArrayHasKey('city', $response['address']);
     }
 
+    public function testUploadUserPhoto(): void
+    {
+        $projectDir = static::getContainer()->get('kernel')->getProjectDir();
+
+////        $file = new UploadedFile($projectDir . '/tests/files/image.jpg', 'image.jpg');
+//        $token = $this->loginRequest(self::DEVELOPER_CREDENTIALS2)->toArray()['token'];
+//        $response = $this->createMultiPartRequest(
+//            uri: '/api/users/1/upload_photo',
+//            extra: [
+//                'files' => [
+//                    'file' => $file
+//                ]
+//
+//            ],
+//            token: $token
+//        );
+
+
+
+//        $files = $em->getRepository(Attachment::class)->findBy(['A']);
+//        $this->assertResponseIsSuccessful();
+
+    }
 
     private function developerAssertions(array $response): void
     {
