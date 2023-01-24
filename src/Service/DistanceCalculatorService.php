@@ -9,7 +9,7 @@ class DistanceCalculatorService
     // EARTH RADIUS IN KM
     public const EARTH_RADIUS = 6371;
     // IN KM
-    public const THE_MOST_DISTANCE_BETWEEN_CITIES_IN_POLAND = 1089;
+    public const THE_LONGEST_DISTANCE_BETWEEN_CITIES_IN_POLAND = 1089;
 
     public function calculateDistanceBasedOnVincentyFormula(Address $address1, Address $address2): float
     {

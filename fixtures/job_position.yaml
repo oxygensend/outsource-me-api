@@ -5,7 +5,7 @@ App\Entity\JobPosition:
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
     startDate: <datetime()>
-    endDate: <datetime()>
+    endDate: <dateBiggerThan($startDate)>
 
   job_positiontest2:
     name: Zawodowiec
@@ -13,12 +13,13 @@ App\Entity\JobPosition:
     description: <sentence(100)>
     formOfEmployment: '@form_of_employment_full_time'
     startDate: <datetime()>
-    endDate: <datetime()>
+    endDate: <dateBiggerThan($startDate)>
 
-  job_position_{1..1000}:
+  job_position_{1..3000}:
     name: <name()>
     company: '@company*'
+    individual: '@user_*'
     description: <sentence(100)>
     startDate: <datetime()>
-    endDate: <datetime()>
+    endDate: <dateBiggerThan($startDate)>
     formOfEmployment: '@form_of_employment*'

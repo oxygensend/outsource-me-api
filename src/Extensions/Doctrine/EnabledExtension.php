@@ -9,8 +9,11 @@ use App\Entity\AboutUs;
 use App\Entity\Application;
 use App\Entity\Book;
 use App\Entity\Category;
+use App\Entity\Education;
 use App\Entity\JobOffer;
+use App\Entity\JobPosition;
 use App\Entity\Notification;
+use App\Entity\Technology;
 use Doctrine\ORM\QueryBuilder;
 
 class EnabledExtension implements QueryCollectionExtensionInterface
@@ -18,9 +21,10 @@ class EnabledExtension implements QueryCollectionExtensionInterface
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
         $this->andWhere($queryBuilder, $resourceClass);
+        $this->orderBy($queryBuilder, $resourceClass);
     }
 
-    private function andWhere(QueryBuilder $queryBuilder, string $resourceClass)
+    private function andWhere(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (AboutUs::class === $resourceClass) {
 
@@ -41,6 +45,18 @@ class EnabledExtension implements QueryCollectionExtensionInterface
             $queryBuilder->andWhere(sprintf("%s.deleted=false", $rootAlias));
         }
 
+    }
+
+    private function orderBy(QueryBuilder $queryBuilder, string $resourceClass): void
+    {
+        if (JobPosition::class === $resourceClass) {
+            $rootAlias = $queryBuilder->getRootAliases()[0];
+            $queryBuilder->orderBy(sprintf('%s.active=1', $rootAlias), 'DESC');
+            $queryBuilder->orderBy(sprintf('%s.startDate', $rootAlias), 'DESC');
+        } else if (Education::class === $resourceClass) {
+            $rootAlias = $queryBuilder->getRootAliases()[0];
+            $queryBuilder->orderBy(sprintf('%s.startDate', $rootAlias), 'DESC');
+        }
     }
 
 }

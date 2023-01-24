@@ -3,26 +3,27 @@ App\Entity\JobOffer:
     name: <name()>
     description: <generateRandomLengthDescription()>
     redirectCount: <numberBetween(0, 100)>
-    address: '@address_*'
+    address: '@address_test'
     formOfEmployment: '@form_of_employment_*'
     workType: [ '@worktypes_*' ]
     archived: false
     technologies: [ '@test_technology' ]
     experience: <chooseExperience()>
     salaryRange: '@salary_test'
-    validTo: <datetime()>
+    validTo: <dateCloseToCurrent()>
     slug: "job-offer-test"
-  job_offer_{1..100}:
+  job_offer_{1..1000}:
     name: <name()>
     description: <generateRandomLengthDescription()>
     redirectCount: <numberBetween(0, 100)>
-    address: '@address_*'
+#    address: '@address_*'
     formOfEmployment: '@form_of_employment_*'
     workType: ['@worktypes_*']
     archived: false
     user: '@user_principle_*'
     experience: <chooseExperience()>
     salaryRange: '@salary_<($current)>'
-    validTo: <datetime()>
+#    technologies: '<numberBetween(5,20)>x @technology*'
+    validTo: <dateCloseToCurrent()>
 
 

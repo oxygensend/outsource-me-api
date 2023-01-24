@@ -1,7 +1,7 @@
 App\Entity\Education:
   test_education:
     startDate: <datetime()>
-    endDate: <datetime()>
+    endDate: <dateBiggerThan($startDate)>
     fieldOfStudy: Testowy kierunke
     title: <title()>
     grade: <numberBetween(2,5)>
@@ -9,9 +9,9 @@ App\Entity\Education:
     description: <sentence(100)>
 
 
-  education{1..10}:
+  education{1..10000}:
     startDate: <datetime()>
-    endDate: <datetime()>
+    endDate: <dateBiggerThan($startDate)>
     fieldOfStudy: <sentence(10)>
     title: <title()>
     grade: <numberBetween(2,5)>

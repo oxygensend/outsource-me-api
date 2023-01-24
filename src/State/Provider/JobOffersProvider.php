@@ -10,6 +10,8 @@ class JobOffersProvider extends AbstractOfferProvider
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        $context['filters']['archived'] = "0";
+
         $jobOffers = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
         if (isset($context['filters']) && isset($context['filters']['order']) && $context['filters']['order'] === 'for-you') {

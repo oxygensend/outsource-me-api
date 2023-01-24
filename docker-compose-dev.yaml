@@ -54,11 +54,6 @@ services:
       - mysql
       - mysql_test
       - redis
-    #    healthcheck:
-    #      test: [ "CMD", "service", "-f", "http://localhost:9000" ]
-    #      interval: 1m30s
-    #      timeout: 10s
-    #      retries: 3
     networks:
       - outsource_me
 
