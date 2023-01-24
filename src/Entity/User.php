@@ -21,7 +21,6 @@ use App\Controller\Api\UploadUserPhotoAction;
 use App\Filter\OfferOrderFilter;
 use App\Repository\UserRepository;
 use App\State\Processor\UserRegistrationProcessor;
-use App\State\Provider\RedirectCountableEntityProvider;
 use App\State\Provider\UserElasticsearchProvider;
 use App\State\Provider\UserProvider;
 use App\Validator\IsPasswordConfirmed;
@@ -417,8 +416,9 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     private ?int $forYouOrder = null;
 
+    #[Serializer\Groups(['user:profile'])]
     #[ORM\Column]
-    private ?float $opinionsRate = 0;
+    private ?float $opinionsRate = 2;
 
     #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
@@ -1147,5 +1147,11 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     public function getImageFile(): ?File
     {
         return $this->imageFile;
+    }
+
+    #[Serializer\Groups(['user:profile'])]
+    public function getOpinionCount(): int
+    {
+        return $this->opinions->count();
     }
 }

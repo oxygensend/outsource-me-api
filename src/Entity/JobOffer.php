@@ -62,6 +62,17 @@ use Symfony\Component\Validator\Constraints as Assert;
                 uriVariables: [
                     'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
                 ],
+                cacheHeaders: [
+                    'max_age' => 10800,
+                    'shared_max_age' => 10800,
+                ],
+                normalizationContext: ['groups' => ['jobOffer:one']],
+            ),
+            new Get(
+                uriTemplate: '/job_offers/{slug}/metadata',
+                uriVariables: [
+                    'slug' => new Link(parameterName: 'slug', fromClass: JobOffer::class, identifiers: ['slug'])
+                ],
                 normalizationContext: ['groups' => ['jobOffer:one']],
             ),
             new GetCollection(
@@ -96,6 +107,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     'formOfEmployment.id' => 'exact',
     'user.id' => 'exact'
 ])]
+#[ORM\Index(columns: ['archived'], name: "archived_idx")]
+#[ORM\Index(columns: ['user_id', 'archived', 'popularity_order'], name: "user_archived_popularity_idx")]
 #[ORM\Entity(repositoryClass: JobOfferRepository::class)]
 class JobOffer extends AbstractEntity
 {

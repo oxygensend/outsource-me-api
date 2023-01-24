@@ -10,7 +10,6 @@ class UserProvider extends AbstractOfferProvider
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $developers = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
         if (isset($context['filters']) && isset($context['filters']['order']) && $context['filters']['order'] === 'for-you') {
             try {
@@ -22,11 +21,14 @@ class UserProvider extends AbstractOfferProvider
             if ($this->cacheMaker->checkIfCacheExists()) {
                 $developers = $this->deserialize($this->cacheMaker->getFromCache());
             } else {
+                $developers = $this->collectionProvider->provide($operation, $uriVariables, $context);
                 $developers = $this->orderService->calculateDevelopersForYouDisplayOrder($developers, $user);
 
 
                 $this->cacheMaker->saveToCache($this->serialize($developers, $context));
             }
+        } else {
+            $developers = $this->collectionProvider->provide($operation, $uriVariables, $context);
         }
 
         return $this->makePagination($developers, $operation, $context);

@@ -12,7 +12,6 @@ class JobOffersProvider extends AbstractOfferProvider
     {
         $context['filters']['archived'] = "0";
 
-        $jobOffers = $this->collectionProvider->provide($operation, $uriVariables, $context);
 
         if (isset($context['filters']) && isset($context['filters']['order']) && $context['filters']['order'] === 'for-you') {
             try {
@@ -25,10 +24,13 @@ class JobOffersProvider extends AbstractOfferProvider
             if ($this->cacheMaker->checkIfCacheExists()) {
                 $jobOffers = $this->deserialize($this->cacheMaker->getFromCache());
             } else {
+                $jobOffers = $this->collectionProvider->provide($operation, $uriVariables, $context);
                 $jobOffers = $this->orderService->calculateJobOfferForYouDisplayOrder($jobOffers, $user);
                 $this->cacheMaker->saveToCache($this->serialize($jobOffers, $context));
             }
 
+        } else {
+            $jobOffers = $this->collectionProvider->provide($operation, $uriVariables, $context);
         }
 
 
