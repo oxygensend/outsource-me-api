@@ -4,11 +4,12 @@ namespace App\Parser;
 
 use App\Entity\Address;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Project;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class PostalCodesParser implements ParserInterface
+class PostalCodesParser extends AbstractParser implements ParserInterface
 {
     private string $parseUrl;
     private string $destinationDir;
@@ -16,22 +17,24 @@ class PostalCodesParser implements ParserInterface
     private const TEMP_FILE = "tempFile.zip";
     private string $fileName;
 
-    public function __construct(readonly private EntityManagerInterface $em,
-                                readonly private ParameterBagInterface  $parameterBag,
-                                readonly private HttpClientInterface    $client,
-                                readonly private LoggerInterface        $logger
+    public function __construct(EntityManagerInterface                 $em,
+                                ParameterBagInterface                  $parameterBag,
+                                LoggerInterface                        $logger,
+                                readonly protected HttpClientInterface $client,
     )
     {
-        $this->parseUrl = $this->parameterBag->get('postal_code_date_url');
-        $this->openMapUrl = $this->parameterBag->get('open_street_map_url');
-        $this->destinationDir = $this->parameterBag->get('kernel.project_dir') . '/var';
+        parent::__construct($parameterBag, $em, $logger);
+        $this->parseUrl = $parameterBag->get('postal_code_date_url');
+        $this->openMapUrl = $parameterBag->get('open_street_map_url');
+        $this->destinationDir = $parameterBag->get('kernel.project_dir') . '/var';
     }
 
 
     /**
      * @throws \Exception
      */
-    public function parse(): void
+    public
+    function parse(): void
     {
         $results = $this->readDataFromFile();
 
@@ -68,7 +71,8 @@ class PostalCodesParser implements ParserInterface
 
     }
 
-    private function getCoordinates(Address $address): void
+    private
+    function getCoordinates(Address $address): void
     {
         $response = $this->client->request('GET', $this->openMapUrl . '&postalcode=' . explode(',', $address->getPostCodes())[0]);
         $data = json_decode($response->getContent(), true);
@@ -77,7 +81,8 @@ class PostalCodesParser implements ParserInterface
         $address->setLon($data[0]['lon'] ?? null);
     }
 
-    private function extractPostCodes(array $results): array
+    private
+    function extractPostCodes(array $results): array
     {
         $postCodes = [];
         foreach ($results as $result) {
@@ -91,32 +96,13 @@ class PostalCodesParser implements ParserInterface
     /**
      * @throws \Exception
      */
-    private function readDataFromFile(): array
+    private
+    function readDataFromFile(): array
     {
         $this->downloadCSVFromatFile();
-        $firstRow = true;
-        $results = [];
-        $columns = [];
 
         $file = $this->destinationDir . '/' . $this->fileName;
-
-        if (($handle = fopen($file, "r")) !== FALSE) {
-            while (($row = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                if ($firstRow) {
-                    $columns = $row;
-                    $firstRow = false;
-                } else {
-                    $tmpRow = [];
-                    for ($i = 0; $i < count($row); $i++) {
-                        $tmpRow[$columns[$i]] = $row[$i];
-                    }
-
-                    $results[] = $tmpRow;
-
-                }
-            }
-        }
-        fclose($handle);
+        $results = $this->readDataFromCSVFile($file, ';');
 
         $this->removeFile($file);
         $this->removeFile($this->destinationDir . '/' . self::TEMP_FILE);
@@ -127,7 +113,8 @@ class PostalCodesParser implements ParserInterface
     /**
      * @throws \Exception
      */
-    private function downloadCSVFromatFile(): void
+    private
+    function downloadCSVFromatFile(): void
     {
         $zipArchive = new \ZipArchive();
         $destinationDir = $this->parameterBag->get('kernel.project_dir') . '/var';
@@ -152,7 +139,8 @@ class PostalCodesParser implements ParserInterface
         }
     }
 
-    private function removeFile(string $file)
+    private
+    function removeFile(string $file)
     {
 
         unlink($file);

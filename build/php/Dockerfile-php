@@ -44,8 +44,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Change php settings
 RUN rm -rf /usr/local/etc/php/php-fpm.d/*
 COPY ./build/php/php.ini /usr/local/etc/php/php.ini
-COPY ./build/php/php-fpm.conf /usr/local/etc/php/php-fpm.conf
-COPY ./build/php/php-fpm.d/* /usr/local/etc/php/php-fpm.d/
+COPY ./build/php/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY ./build/php/php-fpm.d/* /usr/local/etc/php-fpm.d/
 
 COPY . /var/www/html
 

@@ -98,8 +98,6 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
 class Application extends AbstractEntity
 {
-    public const APPLICATION_STATUS_OPEN = 1;
-    public const APPLICATION_STATUS_CLOSE = 0;
 
 
     #[Serializer\SerializedName('applying_person')]
@@ -134,7 +132,7 @@ class Application extends AbstractEntity
         $this->attachments = new ArrayCollection();
     }
 
-   #[Serializer\Groups(['application:users', 'jobOffer:management'])]
+   #[Serializer\Groups(['application:users', 'jobOffer:management', 'application:one'])]
     public function getCreatedAt(): \DateTimeInterface
     {
        return $this->createdAt;

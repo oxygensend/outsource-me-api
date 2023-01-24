@@ -27,13 +27,13 @@ class NotificationText
 
     public static function getWelcomeMessageAfterRegistrationEmailText(User $user): string
     {
-        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub znaleźć programistów.</br> Dziękujemy że jestes z nami. </br> Ekipa Outsource me";
+        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub programistów.</br> Dziękujemy że jestes z nami. </br> Ekipa Outsource me";
 
     }
 
     public static function getWelcomeMessageAfterRegistrationInternalText(User $user): string
     {
-        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub znaleźć programistów.";
+        return "Witamy cię na <b>Outsource me</b>! Tutaj możesz znaleźć dodatkowe zlecenia lub programistów.";
 
     }
 }

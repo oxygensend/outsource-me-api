@@ -34,6 +34,18 @@ class OpinionProcessor implements ProcessorInterface
         }
 
         $data->setFromWho($user);
+        $receiver = $data->getToWho();
+
+
+        // TODO move to event
+        $opinions = $this->opinionRepository->findBy(['toWho' => $receiver]);
+        $rate = $data->getScale();
+        foreach ($opinions as $op){
+           $rate += $op->getScale();
+        }
+        $receiver->setOpinionsRate($rate/(count($opinions) +1));
+
+
         $this->decoratedProcessor->process($data, $operation, $uriVariables, $context);
     }
 }

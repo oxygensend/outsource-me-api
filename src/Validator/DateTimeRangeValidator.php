@@ -18,7 +18,7 @@ class DateTimeRangeValidator extends ConstraintValidator
             return;
         }
 
-        if ($value->getStartDate() >= $value->getEndDate()) {
+        if ($value->getStartDate() >= $value->getEndDate() && $value->getEndDate()) {
             $this->context->buildViolation($constraint->message)
                 ->addViolation();
         }

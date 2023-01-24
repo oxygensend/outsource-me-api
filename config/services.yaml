@@ -100,3 +100,6 @@ services:
 
   App\VichUploader\ImageNamer:
     public: true
+
+  App\DataFixtures\FakerProcessor:
+

@@ -374,9 +374,6 @@
             "config/routes/web_profiler.yaml"
         ]
     },
-    "symfonycasts/verify-email-bundle": {
-        "version": "v1.11.0"
-    },
     "theofidry/alice-data-fixtures": {
         "version": "1.6",
         "recipe": {
