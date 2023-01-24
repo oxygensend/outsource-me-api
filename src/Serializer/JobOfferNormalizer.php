@@ -27,8 +27,7 @@ class JobOfferNormalizer implements NormalizerInterface, NormalizerAwareInterfac
      */
     public function normalize(mixed $object, string $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
-        if (isset($context['operation_name']) && ($context['operation_name'] === '_api_/job_offers/{slug}_get')){
-
+        if (isset($context['operation_name']) && ($context['operation_name'] === '_api_/job_offers/{slug}/metadata_get')){
             $user = $this->security->getUser();
 
             if($user === $object->getUser()){

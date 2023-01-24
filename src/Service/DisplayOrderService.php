@@ -76,7 +76,7 @@ class DisplayOrderService
                 $randomRate *= (1 + $jobOffer->getUser()->getOpinionsRate() * $opinionsCount / 100);
             }
 
-            $jobOffer->setForYouOrder($randomRate);
+            $jobOffer->setForYouOrder((int)$randomRate);
 
         }
 
@@ -124,7 +124,7 @@ class DisplayOrderService
             if ($opinionsCount > 0) {
                 $randomRate *= (1 + $developer->getOpinionsRate() * $opinionsCount / 100);
             }
-            $developer->setForYouOrder($randomRate);
+            $developer->setForYouOrder((int)$randomRate);
 
         }
 
@@ -172,7 +172,7 @@ class DisplayOrderService
         $applications = $jobOffer->getNumberOfApplications();
         $randomRate *= (1.2 + $applications / 100);
 
-        $jobOffer->setPopularityOrder($randomRate);
+        $jobOffer->setPopularityOrder((int)$randomRate);
     }
 
 
@@ -208,7 +208,7 @@ class DisplayOrderService
             $randomRate *= (1 + $user->getOpinionsRate() * $opinionsCount / 100);
         }
 
-        $user->setPopularityOrder($randomRate);
+        $user->setPopularityOrder((int)$randomRate);
     }
 
 }

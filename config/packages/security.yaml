@@ -1,7 +1,9 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+            algorithm: auto # This should be the same value as in config/packages/security.yaml
+            cost: 5 # Lowest possible value for bcrypt
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
 
     enable_authenticator_manager: true

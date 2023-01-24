@@ -16,7 +16,7 @@ abstract class AbstractEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:profile','notifications:get', 'language:read', 'job_position:read','application:users', 'education:read', 'user:get', 'jobOffer:get', 'jobOffer:one', 'work_type:get', 'technologies:get', 'user:profile-developer', 'address:list','attachment:one'])]
+    #[Groups(['user:profile','notifications:get', 'language:read', 'job_position:read','application:users', 'education:read', 'user:get', 'jobOffer:get', 'jobOffer:one', 'work_type:get', 'technologies:get', 'user:profile-developer', 'address:list','attachment:one', 'opinions:get'])]
 
     protected ?int $id = null;
 
