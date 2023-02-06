@@ -108,7 +108,7 @@ class Application extends AbstractEntity
 
     #[Serializer\Groups(['application:one', 'application:status-change', 'application:users', 'jobOffer:management'])]
     #[ORM\Column]
-    private ?int $status = 0;
+    private ?int $status = 1;
 
     #[Serializer\Groups(['application:one','application:users'])]
     #[ORM\ManyToOne(inversedBy: 'applications')]
