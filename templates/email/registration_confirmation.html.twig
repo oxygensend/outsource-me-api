@@ -1,5 +1,5 @@
-{{ name }}
-{{ schemeAndHttpHost ~ '/api/confirmation_token/' ~  tokenType ~ '/' ~ token }}
-{{ tokenType }}
-{{ token }}
-{{ tokenExpiredDate | date }}
+<div>
+    <p>Witaj {{ name }} </p>
+    <p>Potwierdź adres email wchodząc w poniższy link</p>
+    <a href="{{ schemeAndHttpHost ~ '/api/confirmation_token/' ~  tokenType ~ '/' ~ token }}">Potwierdź email</a>
+</div>

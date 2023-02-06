@@ -44,7 +44,7 @@ class JobOfferRepository extends ServiceEntityRepository
         $today = (new \DateTime())->setTime(0,0,0);
 
         return $this->createQueryBuilder('j')
-            ->andWhere('j.validTo = :today')
+            ->andWhere('j.validTo <= :today')
             ->setParameter('today', $today)
             ->getQuery()
             ->getResult();
