@@ -418,7 +418,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
 
     #[Serializer\Groups(['user:profile'])]
     #[ORM\Column]
-    private ?float $opinionsRate = 2;
+    private ?float $opinionsRate = 0;
 
     #[ORM\OneToMany(mappedBy: 'receiver', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $messages;
@@ -504,7 +504,7 @@ class User extends AbstractEntity implements UserInterface, PasswordAuthenticate
     #[Serializer\Groups(['user:get'])]
     public function getShortDescription(): string
     {
-        return substr($this->description, 0, 100);
+        return substr($this->description ?? '', 0, 100);
     }
 
     public function getDescription(): ?string
