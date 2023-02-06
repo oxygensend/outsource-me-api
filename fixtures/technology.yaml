@@ -2,5 +2,5 @@ App\Entity\Technology:
   test_technology:
     name: Javascript
 
-#  technology_{1..300}:
-#    name: <name()>
+  technology_{1..300}:
+    name: <name()>
