@@ -71,3 +71,5 @@ This is the api for my web application www.outsource-me.pl (IN PROGRESS). The ap
 Docker containers schema
 
 ![img.png](img.png)
+
+
