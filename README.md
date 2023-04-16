@@ -1,6 +1,6 @@
 # outsource me
 
-This is the api for my web application www.outsource-me.pl (IN PROGRESS). The application was created as my engineering work "Project of an application supporting finding orders for programmers". The genesis of the work stems from the  experience and the observation of many threads on community groups in Poland about the lack of availability of a specific tool in the web application market, which would focus primarily on helping to find additional or short-term jobs for programmers.
+This is the api for my web application www.outsource-me.pl (IN PROGRESS). The application was created as my engineering thesis "Project of an application supporting finding orders for programmers". The genesis of the work stems from the  experience and the observation of many threads on community groups in Poland about the lack of availability of a specific tool in the web application market, which would focus primarily on helping to find additional or short-term jobs for programmers.
 
 # Functional requirements
 - Ability to create an account in the application 
