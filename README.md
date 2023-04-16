@@ -1,1 +1,3 @@
-# outsourceMe_praca_inzynierska
+# outsource me
+
+To be continued soon...
